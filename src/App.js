@@ -14,7 +14,7 @@ export default function PlayRandomMoveEngine() {
     function getResponse(fen, sourceSquare, targetSquare) {
     const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
     const username = playerName;
-    const url = 'api/' + username+ '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/';
+    const url = 'https://chess-state.vercel.app/' + username+ '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/';
     // const url = 'http:///0.0.0.0:8000/move/' + username+ '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/';
 
     axios.post(url).then(
