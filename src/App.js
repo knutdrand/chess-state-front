@@ -12,13 +12,13 @@ export default function PlayRandomMoveEngine() {
     const [playerName, setPlayerName] = useState('kuppern87'); // Declare a state variable...
     const [feedback, setFeedback] = useState(''); // ['play', 'show', 'repeat'
     function getResponse(fen, sourceSquare, targetSquare) {
-    const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
-    const username = playerName;
-    const url = 'https://chess-state.vercel.app/' + username+ '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/';
-    // const url = 'http:///0.0.0.0:8000/move/' + username+ '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/';
 
-    axios.post(url).then(
-        (response) => {
+        const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
+        const username = playerName;
+        const url = 'https://chess-state.vercel.app/move/' + username+ '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/';
+        // const url = 'http:///0.0.0.0:8000/move/' + username+ '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/';
+        axios.post(url).then(
+            (response) => {
             console.log(response.data);
             const game = new Chess(response.data.board);
             setOrientation(game.turn() === 'w' ? 'white' : 'black'); // set orientation to the current turn
@@ -34,7 +34,7 @@ export default function PlayRandomMoveEngine() {
     }
 
   async function onDrop(sourceSquare, targetSquare) {
-    const fen = game.fen();
+        const fen = game.fen();
     // see if the move is legal
       try {
           game.move({from: sourceSquare, to: targetSquare});
