@@ -46,13 +46,14 @@ function ChessApp() {
         }
     //game.move({from: sourceSquare, to: targetSquare});
     setGame(new Chess(game.fen()));
-    return setTimeout(() => getResponse(fen, sourceSquare, targetSquare), 200);
+      return getResponse(fen, sourceSquare, targetSquare)
+    //return setTimeout(() => getResponse(fen, sourceSquare, targetSquare), 200);
   }
 
   return (
       <div className="ChessState" style={{
-        maxWidth: 600,
-        maxHeight: 600,
+        maxWidth: 300,
+        maxHeight: 300,
         flexGrow: 1}}>
           <Chessboard position={game.fen()} onPieceDrop={onDrop} boardOrientation={orientation}/>
           <div Status>{mode}: {feedback}, sW: {whiteScore.toFixed(2)}, sB: {blackScore.toFixed(2)}</div>
