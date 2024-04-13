@@ -2,21 +2,22 @@ import { useState } from "react";
 import {Chess} from "chess.js";
 import { Chessboard } from "react-chessboard";
 import axios from "axios";
+import { BrowserRouter as Router, Route, Routes, useParams } from 'react-router-dom';
 
-export default function PlayRandomMoveEngine() {
+function ChessApp() {
+    let { playerName } = useParams();
   const [game, setGame] = useState(new Chess());
   const [orientation, setOrientation] = useState('white'); // ['white', 'black'
   const [mode, setMode] = useState('play'); // ['play', 'show', 'repeat'];
     const [whiteScore, setWhiteScore] = useState(0);
     const [blackScore, setBlackScore] = useState(0);
-    const [playerName, setPlayerName] = useState('kuppern87'); // Declare a state variable...
+    //const [playerName, setPlayerName] = useState('kuppern87'); // Declare a state variable...
     const [feedback, setFeedback] = useState(''); // ['play', 'show', 'repeat'
     function getResponse(fen, sourceSquare, targetSquare) {
 
         const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
-        const username = playerName;
-        const url = 'https://chess-state.vercel.app/move/' + username+ '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/';
-        // const url = 'http:///0.0.0.0:8000/move/' + username+ '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/';
+        const url = 'https://chess-state.vercel.app/move/' + playerName + '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/';
+        //const url = 'http:///0.0.0.0:8000/move/' + playerName+ '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/';
         axios.post(url).then(
             (response) => {
             console.log(response.data);
@@ -51,9 +52,19 @@ export default function PlayRandomMoveEngine() {
       <div className="ChessState">
           <Chessboard position={game.fen()} onPieceDrop={onDrop} boardWidth={300} boardOrientation={orientation}/>
           <div Status>{mode}: {feedback}, sW: {whiteScore.toFixed(2)}, sB: {blackScore.toFixed(2)}</div>
-          <input
-              value={playerName} // ...force the input's value to match the state variable...
-              onChange={e => setPlayerName(e.target.value)} // ... and update the state variable on any edits!
-          />
+
       </div>);
 }
+
+const App = () => {
+  return (
+    <Router>
+      <Routes>
+        {/* Route for the chess app with player name as a URL parameter */}
+        <Route path="/:playerName" element={<ChessApp />} />
+      </Routes>
+    </Router>
+  );
+};
+
+export default App
