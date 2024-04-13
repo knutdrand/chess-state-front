@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Route, Routes, useParams } from 'react-router-
 function ChessApp() {
     let { playerName } = useParams();
   const [game, setGame] = useState(new Chess());
+  const [stateColor, setStateColor] = useState('black');
   const [orientation, setOrientation] = useState('white'); // ['white', 'black'
   const [mode, setMode] = useState('play'); // ['play', 'show', 'repeat'];
     const [whiteScore, setWhiteScore] = useState(0);
@@ -29,6 +30,9 @@ function ChessApp() {
             setFeedback(response.data.mode==='show' ? response.data.correct_move : '');
             setWhiteScore(response.data.white_score);
             setBlackScore(response.data.black_score);
+            if (response.data.mode === 'show') setStateColor('red');
+            else if (response.data.mode === 'repeat') setStateColor('yellow');
+            else setStateColor('green');
         }
     );
     return true;
@@ -56,7 +60,7 @@ function ChessApp() {
         maxHeight: 300,
         flexGrow: 1}}>
           <Chessboard position={game.fen()} onPieceDrop={onDrop} boardOrientation={orientation}/>
-          <div Status>{mode}: {feedback}, sW: {whiteScore.toFixed(2)}, sB: {blackScore.toFixed(2)}</div>
+          <div Status style={{color: stateColor}} >{mode}: {feedback}, sW: {whiteScore.toFixed(2)}, sB: {blackScore.toFixed(2)}</div>
 
       </div>);
 }
