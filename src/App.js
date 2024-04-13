@@ -14,9 +14,10 @@ function ChessApp() {
     //const [playerName, setPlayerName] = useState('kuppern87'); // Declare a state variable...
     const [feedback, setFeedback] = useState(''); // ['play', 'show', 'repeat'
     function getResponse(fen, sourceSquare, targetSquare) {
-
+        const baseUrl = 'https://chess-state.vercel.app';
+        //const baseUrl = 'http:///0.0.0.0:8000';
         const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
-        const url = 'https://chess-state.vercel.app/move/' + playerName + '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/';
+        const url = baseUrl + '/move/' + playerName + '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/';
         //const url = 'http:///0.0.0.0:8000/move/' + playerName+ '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/';
         axios.post(url).then(
             (response) => {
@@ -49,8 +50,11 @@ function ChessApp() {
   }
 
   return (
-      <div className="ChessState">
-          <Chessboard position={game.fen()} onPieceDrop={onDrop} boardWidth={300} boardOrientation={orientation}/>
+      <div className="ChessState" style={{
+        maxWidth: 600,
+        maxHeight: 600,
+        flexGrow: 1}}>
+          <Chessboard position={game.fen()} onPieceDrop={onDrop} boardOrientation={orientation}/>
           <div Status>{mode}: {feedback}, sW: {whiteScore.toFixed(2)}, sB: {blackScore.toFixed(2)}</div>
 
       </div>);
