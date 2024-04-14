@@ -30,7 +30,7 @@ function ChessApp() {
             setWhiteScore(response.data.white_score);
             setBlackScore(response.data.black_score);
             if (response.data.mode === 'show') setStateColor('red');
-            else if (response.data.mode === 'repeat') setStateColor('yellow');
+            else if (response.data.mode === 'repeat') setStateColor('orange');
             else setStateColor('green');
         }
     );
