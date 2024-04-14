@@ -57,16 +57,6 @@ function ChessApp() {
         if (selectedSquare) {
             onDrop(selectedSquare, square)
             setSelectedSquare(null);
-            //try{
-            //    game.move({from: selectedSquare, to: square});
-            //}
-            //catch (e) {
-            //    setSelectedSquare(null);
-            //    return false;
-            //}
-            //setGame(new Chess(game.fen()));
-            //getResponse(game.fen(), selectedSquare, square);
-            //setSelectedSquare(null);
             }
         else {
             setSelectedSquare(square);
@@ -75,19 +65,18 @@ function ChessApp() {
         }
 
   return (
-      <div className="ChessState" style={{
-        maxWidth: 300,
-        maxHeight: 300,
-        flexGrow: 1}}>
+      <div className="ChessState">
           <Chessboard
               position={game.fen()}
               onPieceDrop={onDrop}
               onSquareClick={handleSquareClick}
               boardOrientation={orientation}
+              boardWidth={Math.min(window.innerWidth, window.innerHeight*0.9)}
               customSquareStyles={selectedSquare ? { [selectedSquare]: { backgroundColor: 'rgba(255, 255, 0, 0.4)' } } : {}}
           />
-          <div Status style={{color: stateColor}} >{mode}: {feedback}, sW: {whiteScore.toFixed(2)}, sB: {blackScore.toFixed(2)}</div>
-
+          <div Status style={{color: stateColor}} >
+              {mode}: {feedback}, sW: {whiteScore.toFixed(2)}, sB: {blackScore.toFixed(2)}
+          </div>
       </div>);
 }
 
