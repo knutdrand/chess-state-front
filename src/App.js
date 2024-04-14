@@ -15,8 +15,8 @@ function ChessApp() {
     const [blackScore, setBlackScore] = useState(0);
     const [feedback, setFeedback] = useState(''); // ['play', 'show', 'repeat'
     function getResponse(fen, sourceSquare, targetSquare) {
-        const baseUrl = 'https://chess-state.vercel.app';
-        //const baseUrl = 'http:///0.0.0.0:8000';
+        //const baseUrl = 'https://chess-state.vercel.app';
+        const baseUrl = 'http:///0.0.0.0:8000';
         const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
         const url = baseUrl + '/move/' + playerName + '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/';
         axios.post(url).then(
