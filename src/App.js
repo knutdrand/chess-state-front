@@ -21,7 +21,7 @@ function ChessApp() {
         const internalUrl = 'http:///0.0.0.0:8000';
         const baseUrl = true ? externalUrl : internalUrl;
         const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
-        const url = baseUrl + '/move/' + playerName + '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/' + piece+ '/' + elapsedTime + '/';
+        const url = baseUrl + '/move/' + playerName + '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/' + piece+ '/' + elapsedTime;
         const requestStartTime = new Date().getTime();
         axios.post(url).then(
             (response) => {
