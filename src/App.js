@@ -16,27 +16,29 @@ function ChessApp() {
     const [feedback, setFeedback] = useState(''); // ['play', 'show', 'repeat'
     const [startTime, setStartTime] = useState(0);
     function getResponse(fen, sourceSquare, targetSquare, piece) {
-        const baseUrl = 'https://chess-state.vercel.app';
+        const externalUrl = 'https://chess-state.vercel.app';
         const elapsedTime = startTime>0 ? (new Date().getTime() - startTime) / 1000 : -1;
-        //const baseUrl = 'http:///0.0.0.0:8000';
+        const internalUrl = 'http:///0.0.0.0:8000';
+        const baseUrl = true ? externalUrl : internalUrl;
         const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
         const url = baseUrl + '/move/' + playerName + '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/' + piece+ '/' + elapsedTime + '/';
         const requestStartTime = new Date().getTime();
         axios.post(url).then(
             (response) => {
-            console.log(response.data);
-            const game = new Chess(response.data.board);
-            setOrientation(game.turn() === 'w' ? 'white' : 'black'); // set orientation to the current turn
-            setGame(game);
-            setMode(response.data.mode);
-            setFeedback(response.data.mode==='show' ? response.data.correct_move : '');
-            setWhiteScore(response.data.white_score);
-            setBlackScore(response.data.black_score);
-            if (response.data.mode === 'show') setStateColor('red');
-            else if (response.data.mode === 'repeat') setStateColor('orange');
-            else setStateColor('green');
-            setStartTime(new Date().getTime());
-            console.log('Request time: ' + (new Date().getTime() - requestStartTime) + ' ms')
+                console.log('Response time: ' + (new Date().getTime() - requestStartTime) + ' ms')
+                console.log(response.data);
+                const game = new Chess(response.data.board);
+                setOrientation(game.turn() === 'w' ? 'white' : 'black'); // set orientation to the current turn
+                setGame(game);
+                setMode(response.data.mode);
+                setFeedback(response.data.mode==='show' ? response.data.correct_move : '');
+                setWhiteScore(response.data.white_score);
+                setBlackScore(response.data.black_score);
+                if (response.data.mode === 'show') setStateColor('red');
+                else if (response.data.mode === 'repeat') setStateColor('orange');
+                else setStateColor('green');
+                setStartTime(new Date().getTime());
+                console.log('Request time: ' + (new Date().getTime() - requestStartTime) + ' ms')
         }
     );
     return true;
