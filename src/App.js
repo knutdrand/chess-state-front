@@ -6,19 +6,21 @@ import { BrowserRouter as Router, Route, Routes, useParams } from 'react-router-
 
 function ChessApp() {
     let { playerName } = useParams();
-  const [game, setGame] = useState(new Chess());
-  const [stateColor, setStateColor] = useState('black');
-  const [orientation, setOrientation] = useState('white'); // ['white', 'black'
-  const [mode, setMode] = useState('play'); // ['play', 'show', 'repeat'];
+    const [game, setGame] = useState(new Chess());
+    const [stateColor, setStateColor] = useState('black');
+    const [orientation, setOrientation] = useState('white'); // ['white', 'black'
+    const [mode, setMode] = useState('play'); // ['play', 'show', 'repeat'];
     const [selectedSquare, setSelectedSquare] = useState(null); // [null, 'a2'
     const [whiteScore, setWhiteScore] = useState(0);
     const [blackScore, setBlackScore] = useState(0);
     const [feedback, setFeedback] = useState(''); // ['play', 'show', 'repeat'
-    function getResponse(fen, sourceSquare, targetSquare) {
+    const [startTime, setStartTime] = useState(0);
+    function getResponse(fen, sourceSquare, targetSquare, piece) {
         const baseUrl = 'https://chess-state.vercel.app';
+        const elapsedTime = startTime>0 ? (new Date().getTime() - startTime) / 1000 : -1;
         //const baseUrl = 'http:///0.0.0.0:8000';
         const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
-        const url = baseUrl + '/move/' + playerName + '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/';
+        const url = baseUrl + '/move/' + playerName + '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/' + piece+ '/' + elapsedTime + '/';
         axios.post(url).then(
             (response) => {
             console.log(response.data);
@@ -32,16 +34,17 @@ function ChessApp() {
             if (response.data.mode === 'show') setStateColor('red');
             else if (response.data.mode === 'repeat') setStateColor('orange');
             else setStateColor('green');
+            setStartTime(new Date().getTime());
         }
     );
     return true;
 
     }
 
-  async function onDrop(sourceSquare, targetSquare) {
+  async function onDrop(sourceSquare, targetSquare, piece) {
         const fen = game.fen();
       try {
-          const r  = game.move({from: sourceSquare, to: targetSquare});
+          const r  = game.move({from: sourceSquare, to: targetSquare, promotion: 'q'});
           if (!r) return false;
       }
         catch (e) {
@@ -49,7 +52,7 @@ function ChessApp() {
         }
 
     setGame(new Chess(game.fen()));
-      return getResponse(fen, sourceSquare, targetSquare)
+      return getResponse(fen, sourceSquare, targetSquare, piece)
     //return setTimeout(() => getResponse(fen, sourceSquare, targetSquare), 200);
   }
 
