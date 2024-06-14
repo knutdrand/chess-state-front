@@ -23,6 +23,7 @@ function ChessApp() {
         const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
         const url = baseUrl + '/move/' + playerName + '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/' + piece+ '/' + elapsedTime;
         const requestStartTime = new Date().getTime();
+        const updateUrl = baseUrl + '/update_player/' + playerName
         axios.post(url).then(
             (response) => {
                 console.log('Response time: ' + (new Date().getTime() - requestStartTime) + ' ms')
@@ -39,6 +40,7 @@ function ChessApp() {
                 else setStateColor('green');
                 setStartTime(new Date().getTime());
                 console.log('Request time: ' + (new Date().getTime() - requestStartTime) + ' ms')
+                axios.post(updateUrl)
         }
     );
     return true;
