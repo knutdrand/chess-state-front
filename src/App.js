@@ -84,7 +84,8 @@ function ChessApp() {
               customSquareStyles={selectedSquare ? { [selectedSquare]: { backgroundColor: 'rgba(255, 255, 0, 0.4)' } } : {}}
           />
           <div Status style={{color: stateColor}} >
-              {mode}: {feedback}, sW: {whiteScore.toFixed(2)}, sB: {blackScore.toFixed(2)}
+              {mode}: {feedback}, sW: {whiteScore.toFixed(2)}, sB: {blackScore.toFixed(2)}<br/>
+              FEN: {game.fen()}<br/>
           </div>
       </div>);
 }
@@ -95,6 +96,7 @@ const App = () => {
       <Routes>
         {/* Route for the chess app with player name as a URL parameter */}
         <Route path="/:playerName" element={<ChessApp />} />
+          <Route path='/' element='Welcome to Chess State!' />
       </Routes>
     </Router>
   );
