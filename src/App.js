@@ -4,8 +4,7 @@ import { Chessboard } from "react-chessboard";
 import axios from "axios";
 import { BrowserRouter as Router, Route, Routes, useParams } from 'react-router-dom';
 
-function ChessApp() {
-    let { playerName } = useParams();
+function GameScreen(playerName) {
     const [game, setGame] = useState(new Chess());
     const [stateColor, setStateColor] = useState('black');
     const [orientation, setOrientation] = useState('white'); // ['white', 'black'
@@ -15,13 +14,14 @@ function ChessApp() {
     const [blackScore, setBlackScore] = useState(0);
     const [feedback, setFeedback] = useState(''); // ['play', 'show', 'repeat'
     const [startTime, setStartTime] = useState(0);
+
     function getResponse(fen, sourceSquare, targetSquare, piece) {
         const externalUrl = 'https://chess-state.vercel.app';
-        const elapsedTime = startTime>0 ? (new Date().getTime() - startTime) / 1000 : -1;
+        const elapsedTime = startTime > 0 ? (new Date().getTime() - startTime) / 1000 : -1;
         const internalUrl = 'http:///0.0.0.0:8000';
         const baseUrl = true ? externalUrl : internalUrl;
         const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
-        const url = baseUrl + '/move/' + playerName + '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/' + piece+ '/' + elapsedTime;
+        const url = baseUrl + '/move/' + playerName + '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/' + piece + '/' + elapsedTime;
         const requestStartTime = new Date().getTime();
         const updateUrl = baseUrl + '/update_player/' + playerName
         axios.post(url).then(
@@ -32,7 +32,7 @@ function ChessApp() {
                 setOrientation(game.turn() === 'w' ? 'white' : 'black'); // set orientation to the current turn
                 setGame(game);
                 setMode(response.data.mode);
-                setFeedback(response.data.mode==='show' ? response.data.correct_move : '');
+                setFeedback(response.data.mode === 'show' ? response.data.correct_move : '');
                 setWhiteScore(response.data.white_score);
                 setBlackScore(response.data.black_score);
                 if (response.data.mode === 'show') setStateColor('red');
@@ -41,53 +41,69 @@ function ChessApp() {
                 setStartTime(new Date().getTime());
                 console.log('Request time: ' + (new Date().getTime() - requestStartTime) + ' ms')
                 axios.post(updateUrl)
-        }
-    );
-    return true;
+            }
+        );
+        return true;
 
     }
 
-  async function onDrop(sourceSquare, targetSquare, piece) {
+    async function onDrop(sourceSquare, targetSquare, piece) {
         const fen = game.fen();
-      try {
-          const r  = game.move({from: sourceSquare, to: targetSquare, promotion: 'q'});
-          if (!r) return false;
-      }
-        catch (e) {
-          return false;
+        try {
+            const r = game.move({from: sourceSquare, to: targetSquare, promotion: 'q'});
+            if (!r) return false;
+        } catch (e) {
+            return false;
         }
 
-    setGame(new Chess(game.fen()));
-      return getResponse(fen, sourceSquare, targetSquare, piece)
-    //return setTimeout(() => getResponse(fen, sourceSquare, targetSquare), 200);
-  }
+        setGame(new Chess(game.fen()));
+        return getResponse(fen, sourceSquare, targetSquare, piece)
+        //return setTimeout(() => getResponse(fen, sourceSquare, targetSquare), 200);
+    }
 
-  async function handleSquareClick(square) {
+    async function handleSquareClick(square) {
         if (selectedSquare) {
             onDrop(selectedSquare, square)
             setSelectedSquare(null);
-            }
-        else {
+        } else {
             setSelectedSquare(square);
         }
         return true
-        }
+    }
 
-  return (
-      <div className="ChessState">
-          <Chessboard
-              position={game.fen()}
-              onPieceDrop={onDrop}
-              onSquareClick={handleSquareClick}
-              boardOrientation={orientation}
-              boardWidth={Math.min(window.innerWidth, window.innerHeight*0.9)}
-              customSquareStyles={selectedSquare ? { [selectedSquare]: { backgroundColor: 'rgba(255, 255, 0, 0.4)' } } : {}}
-          />
-          <div Status style={{color: stateColor}} >
-              {mode}: {feedback}, sW: {whiteScore.toFixed(2)}, sB: {blackScore.toFixed(2)}<br/>
-              FEN: {game.fen()}<br/>
-          </div>
-      </div>);
+    return (
+        <div className="ChessState">
+            <Chessboard
+                position={game.fen()}
+                onPieceDrop={onDrop}
+                onSquareClick={handleSquareClick}
+                boardOrientation={orientation}
+                boardWidth={Math.min(window.innerWidth, window.innerHeight * 0.9)}
+                customSquareStyles={selectedSquare ? {[selectedSquare]: {backgroundColor: 'rgba(255, 255, 0, 0.4)'}} : {}}
+            />
+            <div Status style={{color: stateColor}}>
+                {mode}: {feedback}, sW: {whiteScore.toFixed(2)}, sB: {blackScore.toFixed(2)}<br/>
+                FEN: {game.fen()}<br/>
+            </div>
+        </div>);
+}
+
+function ChessApp() {
+    let { playerName } = useParams();
+    return GameScreen(playerName);
+}
+
+const  UserNameToGameScreen = () => {
+    //let user write in name and start a GameScreen on submit
+    return (
+        <div>
+        <h1>Enter your name to start playing</h1>
+            <input type="text" id="playerName" name="playerName" />
+            <button onClick={() => {window.location.href = '/' + document.getElementById('playerName').value}}>Submit</button>
+        </div>
+
+    )
+
 }
 
 const App = () => {
@@ -96,7 +112,7 @@ const App = () => {
       <Routes>
         {/* Route for the chess app with player name as a URL parameter */}
         <Route path="/:playerName" element={<ChessApp />} />
-          <Route path='/' element='Welcome to Chess State!' />
+          <Route path='/' element={<UserNameToGameScreen />} />
       </Routes>
     </Router>
   );
