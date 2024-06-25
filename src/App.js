@@ -2,7 +2,7 @@ import { useState } from "react";
 import {Chess} from "chess.js";
 import { Chessboard } from "react-chessboard";
 import axios from "axios";
-import { BrowserRouter as Router, Route, Routes, useParams } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import {jwtDecode} from "jwt-decode";
 import Login from './components/Login';
 import useToken from './useToken';
@@ -106,11 +106,6 @@ function GameScreen(token, clearToken) {
         </div>);
 }
 
-function ChessApp() {
-    let { playerName } = useParams();
-    return GameScreen(playerName);
-}
-
 const  UserNameToGameScreen = () => {
     //let user write in name and start a GameScreen on submit
     const { token, setToken } = useToken();
@@ -141,7 +136,6 @@ const App = () => {
     <Router>
       <Routes>
         {/* Route for the chess app with player name as a URL parameter */}
-          <Route path="/:playerName" element={<ChessApp />} />
           <Route path='/' element={<UserNameToGameScreen />} />
       </Routes>
     </Router>
