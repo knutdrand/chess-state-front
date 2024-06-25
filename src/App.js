@@ -7,10 +7,11 @@ import {jwtDecode} from "jwt-decode";
 import Login from './components/Login';
 import useToken from './useToken';
 
-function GameScreen(token, clearToken) {
+function GameScreen(token_obj) {
+    const token = token_obj.token_obj;
+    console.log('token:' + token)
     let jwtPayload = jwtDecode(token);
     const playerName = jwtPayload.sub;
-
     const [game, setGame] = useState(new Chess());
     const [stateColor, setStateColor] = useState('black');
     const [orientation, setOrientation] = useState('white'); // ['white', 'black'
@@ -26,11 +27,8 @@ function GameScreen(token, clearToken) {
         const elapsedTime = startTime > 0 ? (new Date().getTime() - startTime) / 1000 : -1;
         const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
         const url = baseUrl + '/move/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/' + piece + '/' + elapsedTime;
-        //const requestStartTime = new Date().getTime();
         const updateUrl = baseUrl + '/update_player/' + playerName
         let authorization = `Bearer ${token}`;
-        //console.log('Request time: ' + (new Date().getTime() - requestStartTime) + ' ms')
-        // Catch 401 error
         axios.post(url, {}, {
   headers: {
     'accept': 'application/json',
@@ -103,12 +101,9 @@ const  UserNameToGameScreen = () => {
     //let user write in name and start a GameScreen on submit
     const { token, setToken } = useToken();
     //const baseUrl = false ? 'https://chess-state.vercel.app' : 'http://0.0.0.0:8000';
-    let clearToken = () => {
-        setToken(null);
-    }
     if (token) {
-        return GameScreen(token, clearToken);
-        //return <GameScreen token={token} clearToken={clearToken}/>;
+        console.log(token)
+        return <GameScreen token_obj={token}/>;
     }
     return (
         <div>
