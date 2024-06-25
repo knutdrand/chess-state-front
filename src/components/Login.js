@@ -11,7 +11,7 @@ async function loginUser(credentials) {
   // body.append('scope', 'read write');
   // body.append('client_id', '');
   // body.append('client_secret', '');
-  const baseUrl = false ? 'https://chess-state.vercel.app' : 'http://0.0.0.0:8000';
+  const baseUrl = true ? 'https://chess-state.vercel.app' : 'http://0.0.0.0:8000';
   let response = await axios.post(baseUrl + '/token', new URLSearchParams(credentials), {headers: {
     'accept': 'application/json',
     'Content-Type': 'application/x-www-form-urlencoded'}}
