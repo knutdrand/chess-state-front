@@ -25,7 +25,7 @@ function GameScreen(token, clearToken) {
         const externalUrl = 'https://chess-state.vercel.app';
         const elapsedTime = startTime > 0 ? (new Date().getTime() - startTime) / 1000 : -1;
         const internalUrl = 'http:///0.0.0.0:8000';
-        const baseUrl = false ? externalUrl : internalUrl;
+        const baseUrl = true ? externalUrl : internalUrl;
         const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
         const url = baseUrl + '/move/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/' + piece + '/' + elapsedTime;
         //const requestStartTime = new Date().getTime();
