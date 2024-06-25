@@ -3,8 +3,15 @@ import {Chess} from "chess.js";
 import { Chessboard } from "react-chessboard";
 import axios from "axios";
 import { BrowserRouter as Router, Route, Routes, useParams } from 'react-router-dom';
+import {jwtDecode} from "jwt-decode";
+import Login from './components/Login';
 
-function GameScreen(playerName) {
+function GameScreen(token) {
+    console.log('////////////////')
+    console.log(token)
+    let jwtPayload = jwtDecode(token.token);
+    console.log(jwtPayload)
+    const playerName = jwtPayload.sub;
     const [game, setGame] = useState(new Chess());
     const [stateColor, setStateColor] = useState('black');
     const [orientation, setOrientation] = useState('white'); // ['white', 'black'
@@ -16,10 +23,11 @@ function GameScreen(playerName) {
     const [startTime, setStartTime] = useState(0);
 
     function getResponse(fen, sourceSquare, targetSquare, piece) {
+
         const externalUrl = 'https://chess-state.vercel.app';
         const elapsedTime = startTime > 0 ? (new Date().getTime() - startTime) / 1000 : -1;
         const internalUrl = 'http:///0.0.0.0:8000';
-        const baseUrl = true ? externalUrl : internalUrl;
+        const baseUrl = false ? externalUrl : internalUrl;
         const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
         const url = baseUrl + '/move/' + playerName + '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/' + piece + '/' + elapsedTime;
         const requestStartTime = new Date().getTime();
@@ -95,14 +103,24 @@ function ChessApp() {
 
 const  UserNameToGameScreen = () => {
     //let user write in name and start a GameScreen on submit
+    const [token, setToken] = useState();
+    if (token) {
+        console.log(token);
+        return <GameScreen token={token} />;
+    }
     return (
         <div>
-        <h1>Enter your name to start playing</h1>
-            <input type="text" id="playerName" name="playerName" />
-            <button onClick={() => {window.location.href = '/' + document.getElementById('playerName').value}}>Submit</button>
+            <Login setToken={setToken} />
         </div>
-
     )
+    // (
+    //     <div>
+    //     <h1>Enter your name to start playing</h1>
+    //         <input type="text" id="playerName" name="playerName" />
+    //         <button onClick={() => {window.location.href = '/' + document.getElementById('playerName').value}}>Submit</button>
+    //     </div>
+    //
+    // )
 
 }
 
@@ -111,7 +129,7 @@ const App = () => {
     <Router>
       <Routes>
         {/* Route for the chess app with player name as a URL parameter */}
-        <Route path="/:playerName" element={<ChessApp />} />
+          <Route path="/:playerName" element={<ChessApp />} />
           <Route path='/' element={<UserNameToGameScreen />} />
       </Routes>
     </Router>
