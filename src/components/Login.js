@@ -39,7 +39,6 @@ export default function Login({ setToken }) {
   client_secret: ''
 });
     let accessToken = token.access_token;
-    console.log(accessToken);
     setToken(accessToken);
   }
 

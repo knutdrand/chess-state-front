@@ -5,12 +5,10 @@ import axios from "axios";
 import { BrowserRouter as Router, Route, Routes, useParams } from 'react-router-dom';
 import {jwtDecode} from "jwt-decode";
 import Login from './components/Login';
+import useToken from './useToken';
 
-function GameScreen(token) {
-    console.log('////////////////')
-    console.log(token)
+function GameScreen(token, clearToken) {
     let jwtPayload = jwtDecode(token.token);
-    console.log(jwtPayload)
     const playerName = jwtPayload.sub;
     const [game, setGame] = useState(new Chess());
     const [stateColor, setStateColor] = useState('black');
@@ -29,13 +27,22 @@ function GameScreen(token) {
         const internalUrl = 'http:///0.0.0.0:8000';
         const baseUrl = false ? externalUrl : internalUrl;
         const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
-        const url = baseUrl + '/move/' + playerName + '/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/' + piece + '/' + elapsedTime;
-        const requestStartTime = new Date().getTime();
+        const url = baseUrl + '/move/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/' + piece + '/' + elapsedTime;
+        //const requestStartTime = new Date().getTime();
         const updateUrl = baseUrl + '/update_player/' + playerName
-        axios.post(url).then(
+        let authorization = `Bearer ${token.token}`;
+        //console.log('Request time: ' + (new Date().getTime() - requestStartTime) + ' ms')
+        // Catch 401 error
+
+
+        axios.post(url, {}, {
+  headers: {
+    'accept': 'application/json',
+    'Authorization': authorization
+  }
+}
+        ).then(
             (response) => {
-                console.log('Response time: ' + (new Date().getTime() - requestStartTime) + ' ms')
-                console.log(response.data);
                 const game = new Chess(response.data.board);
                 setOrientation(game.turn() === 'w' ? 'white' : 'black'); // set orientation to the current turn
                 setGame(game);
@@ -47,10 +54,13 @@ function GameScreen(token) {
                 else if (response.data.mode === 'repeat') setStateColor('orange');
                 else setStateColor('green');
                 setStartTime(new Date().getTime());
-                console.log('Request time: ' + (new Date().getTime() - requestStartTime) + ' ms')
                 axios.post(updateUrl)
             }
-        );
+        ).catch((error) => {
+            if (error.response.status === 401) {
+                clearToken();
+            }
+        });
         return true;
 
     }
@@ -103,10 +113,12 @@ function ChessApp() {
 
 const  UserNameToGameScreen = () => {
     //let user write in name and start a GameScreen on submit
-    const [token, setToken] = useState();
+    const { token, setToken } = useToken();
+    let clearToken = () => {
+        setToken(null);
+    }
     if (token) {
-        console.log(token);
-        return <GameScreen token={token} />;
+        return <GameScreen token={token} clearToken={clearToken}/>;
     }
     return (
         <div>
