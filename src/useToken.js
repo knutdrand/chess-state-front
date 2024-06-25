@@ -1,9 +1,16 @@
 import { useState } from 'react';
+import {jwtDecode} from "jwt-decode";
 
 export default function useToken() {
   const getToken = () => {
     const tokenString = localStorage.getItem('token');
     const userToken = JSON.parse(tokenString);
+    const payLoad = jwtDecode(userToken);
+    const expirationTime = payLoad.exp * 1000 - 60000;
+    if (new Date().getTime() > expirationTime) {
+      localStorage.removeItem('token');
+      return null;
+    }
     return userToken
   };
 

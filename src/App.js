@@ -8,8 +8,9 @@ import Login from './components/Login';
 import useToken from './useToken';
 
 function GameScreen(token, clearToken) {
-    let jwtPayload = jwtDecode(token.token);
+    let jwtPayload = jwtDecode(token);
     const playerName = jwtPayload.sub;
+
     const [game, setGame] = useState(new Chess());
     const [stateColor, setStateColor] = useState('black');
     const [orientation, setOrientation] = useState('white'); // ['white', 'black'
@@ -21,20 +22,15 @@ function GameScreen(token, clearToken) {
     const [startTime, setStartTime] = useState(0);
 
     function getResponse(fen, sourceSquare, targetSquare, piece) {
-
-        const externalUrl = 'https://chess-state.vercel.app';
+        const baseUrl = false ? 'https://chess-state.vercel.app' : 'http://0.0.0.0:8000';
         const elapsedTime = startTime > 0 ? (new Date().getTime() - startTime) / 1000 : -1;
-        const internalUrl = 'http:///0.0.0.0:8000';
-        const baseUrl = true ? externalUrl : internalUrl;
         const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
         const url = baseUrl + '/move/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/' + piece + '/' + elapsedTime;
         //const requestStartTime = new Date().getTime();
         const updateUrl = baseUrl + '/update_player/' + playerName
-        let authorization = `Bearer ${token.token}`;
+        let authorization = `Bearer ${token}`;
         //console.log('Request time: ' + (new Date().getTime() - requestStartTime) + ' ms')
         // Catch 401 error
-
-
         axios.post(url, {}, {
   headers: {
     'accept': 'application/json',
@@ -56,11 +52,8 @@ function GameScreen(token, clearToken) {
                 setStartTime(new Date().getTime());
                 axios.post(updateUrl)
             }
-        ).catch((error) => {
-            if (error.response.status === 401) {
-                clearToken();
-            }
-        });
+        );
+
         return true;
 
     }
@@ -109,26 +102,19 @@ function GameScreen(token, clearToken) {
 const  UserNameToGameScreen = () => {
     //let user write in name and start a GameScreen on submit
     const { token, setToken } = useToken();
+    //const baseUrl = false ? 'https://chess-state.vercel.app' : 'http://0.0.0.0:8000';
     let clearToken = () => {
         setToken(null);
     }
     if (token) {
-        return <GameScreen token={token} clearToken={clearToken}/>;
+        return GameScreen(token, clearToken);
+        //return <GameScreen token={token} clearToken={clearToken}/>;
     }
     return (
         <div>
             <Login setToken={setToken} />
         </div>
     )
-    // (
-    //     <div>
-    //     <h1>Enter your name to start playing</h1>
-    //         <input type="text" id="playerName" name="playerName" />
-    //         <button onClick={() => {window.location.href = '/' + document.getElementById('playerName').value}}>Submit</button>
-    //     </div>
-    //
-    // )
-
 }
 
 const App = () => {
