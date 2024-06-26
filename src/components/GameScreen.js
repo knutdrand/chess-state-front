@@ -5,9 +5,7 @@ import {apiUrl} from "../config";
 import axios from "axios";
 import {Chessboard} from "react-chessboard";
 
-export function GameScreen(token_obj) {
-    const token = token_obj.token_obj;
-    console.log('token:' + token)
+export function GameScreen({token}) {
     let jwtPayload = jwtDecode(token);
     const playerName = jwtPayload.sub;
     const [game, setGame] = useState(new Chess());

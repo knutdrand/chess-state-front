@@ -6,7 +6,7 @@ import {GameScreen} from "./components/GameScreen";
 const UserNameToGameScreen = () => {
     const { token, setToken } = useToken();
     if (token) {
-        return <GameScreen token_obj={token}/>;
+        return <GameScreen token={token}/>;
     }
     return (
         <div>
