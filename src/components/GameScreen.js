@@ -4,6 +4,8 @@ import {Chess} from "chess.js";
 import {apiUrl} from "../config";
 import axios from "axios";
 import {Chessboard} from "react-chessboard";
+import Alert from 'react-bootstrap/Alert';
+import "bootstrap/dist/css/bootstrap.min.css";
 
 export function GameScreen({token, setToken}) {
     let jwtPayload = jwtDecode(token);
@@ -54,12 +56,6 @@ export function GameScreen({token, setToken}) {
             if (error.response.status === 401) {
                 console.log('Authentication error');
                 setToken(null);
-                setShowSquare([]);
-                setMode('play');
-                setFeedback('');
-                setWhiteScore(whiteScore);
-                setBlackScore(blackScore);
-                setStartTime(new Date().getTime());
             }
             else {
                 console.log('Error: ' + error);
@@ -93,7 +89,6 @@ export function GameScreen({token, setToken}) {
 
     function getCustomSquareStyles() {
         if (mode === 'show') {
-            console.log(showSquare);
             let styles =  {[showSquare[0]]: {backgroundColor: 'rgba(255, 0, 255, 0.4)'}, [showSquare[1]]: {backgroundColor: 'rgba(255, 0, 255, 0.4)'}};
             if (selectedSquare) {
                 styles[selectedSquare] = {backgroundColor: 'rgba(255, 255, 0, 0.4)'};
@@ -122,15 +117,19 @@ function PlayerStatus({score}) {
     const progress = (score - roundedDownScore);
     return (
         <div>
-            level: {roundedDownScore} <progress value={progress} max={1}/>
+            <Alert variant='success'>Level: {roundedDownScore} <progress value={progress} max={1}/> </Alert>
         </div>)
 }
 
 function Info({mode, feedback}){
+    const text = mode === 'show' ? 'Incorrect: ' + feedback  : 'Repeat the move';
     let stateColor = 'green';
     if (mode === 'show') stateColor = 'red'
     else if (mode === 'repeat') stateColor = 'orange';
     return (
-        <div style={{color: stateColor}}>{mode}: {feedback}</div>
+        <div>
+        <Alert  variant='danger' key='danger'> {text} </Alert>
+        </div>
     )
 }
+        //<div style={{color: stateColor}}>{mode}: {feedback}</div>
