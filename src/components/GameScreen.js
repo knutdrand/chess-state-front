@@ -87,9 +87,13 @@ function Info({mode, feedback, whiteScore, blackScore}){
     let stateColor = 'green';
     if (mode === 'show') stateColor = 'red'
     else if (mode === 'repeat') stateColor = 'orange';
+    const score = whiteScore + blackScore;
+    const roundedDownScore = Math.floor(score);
+    const progress = (score - roundedDownScore);
     return (
-        <div style={{color: stateColor}}>
-            {mode}: {feedback}, sW: {whiteScore.toFixed(2)}, sB: {blackScore.toFixed(2)}<br/>
-        </div>
+        <>
+        <div style={{color: stateColor}}>{mode}: {feedback}</div>
+            <div>level: {roundedDownScore} <progress value={progress} max={1}/> </div>
+    </>
     )
 }
