@@ -99,6 +99,7 @@ export function GameScreen({token, setToken}) {
         }
     }
 
+    let boardWidth = Math.min(window.innerWidth, window.innerHeight * 0.9);
     return (
         <div className="ChessState">
             <Chessboard
@@ -106,29 +107,29 @@ export function GameScreen({token, setToken}) {
                 onPieceDrop={onDrop}
                 onSquareClick={handleSquareClick}
                 boardOrientation={orientation}
-                boardWidth={Math.min(window.innerWidth, window.innerHeight * 0.9)}
+                boardWidth={boardWidth}
                 customSquareStyles={getCustomSquareStyles()}
             />
-            {mode === 'play' ? <PlayerStatus score={whiteScore + blackScore}/> : <Info mode={mode} feedback={feedback}/>}
+            {mode === 'play' ? <PlayerStatus score={whiteScore + blackScore} width={boardWidth}/> : <Info mode={mode} feedback={feedback} width={boardWidth}/>}
         </div>);
 }
-function PlayerStatus({score}) {
+function PlayerStatus({score, width}) {
     const roundedDownScore = Math.floor(score);
     const progress = (score - roundedDownScore);
+    let style = {width: width};
     return (
-        <div>
-            <Alert variant='success'>Level: {roundedDownScore} <progress value={progress} max={1}/> </Alert>
+        <div style={style}>
+            <Alert variant='success' >Level: {roundedDownScore} <progress value={progress} max={1}/> </Alert>
         </div>)
 }
 
-function Info({mode, feedback}){
+function Info({mode, feedback, width}) {
     const text = mode === 'show' ? 'Incorrect: ' + feedback  : 'Repeat the move';
-    let stateColor = 'green';
-    if (mode === 'show') stateColor = 'red'
-    else if (mode === 'repeat') stateColor = 'orange';
+    const variant = mode === 'show' ? 'danger' : 'warning';
+    let style = {width: width};
     return (
-        <div>
-        <Alert  variant='danger' key='danger'> {text} </Alert>
+        <div style={style}>
+        <Alert  variant={variant} key={variant}> {text} </Alert>
         </div>
     )
 }
