@@ -11,7 +11,6 @@ export function GameScreen(token_obj) {
     let jwtPayload = jwtDecode(token);
     const playerName = jwtPayload.sub;
     const [game, setGame] = useState(new Chess());
-    const [stateColor, setStateColor] = useState('black');
     const [orientation, setOrientation] = useState('white'); // ['white', 'black'
     const [mode, setMode] = useState('play'); // ['play', 'show', 'repeat'];
     const [selectedSquare, setSelectedSquare] = useState(null); // [null, 'a2'
@@ -41,9 +40,6 @@ export function GameScreen(token_obj) {
                 setFeedback(response.data.mode === 'show' ? response.data.correct_move : '');
                 setWhiteScore(response.data.white_score);
                 setBlackScore(response.data.black_score);
-                if (response.data.mode === 'show') setStateColor('red');
-                else if (response.data.mode === 'repeat') setStateColor('orange');
-                else setStateColor('green');
                 setStartTime(new Date().getTime());
                 axios.post(updateUrl)
             }
@@ -84,9 +80,16 @@ export function GameScreen(token_obj) {
                 boardWidth={Math.min(window.innerWidth, window.innerHeight * 0.9)}
                 customSquareStyles={selectedSquare ? {[selectedSquare]: {backgroundColor: 'rgba(255, 255, 0, 0.4)'}} : {}}
             />
-            <div Status style={{color: stateColor}}>
-                {mode}: {feedback}, sW: {whiteScore.toFixed(2)}, sB: {blackScore.toFixed(2)}<br/>
-                FEN: {game.fen()}<br/>
-            </div>
+            <Info mode={mode} feedback={feedback} whiteScore={whiteScore} blackScore={blackScore}/>
         </div>);
+}
+function Info({mode, feedback, whiteScore, blackScore}){
+    let stateColor = 'green';
+    if (mode === 'show') stateColor = 'red'
+    else if (mode === 'repeat') stateColor = 'orange';
+    return (
+        <div style={{color: stateColor}}>
+            {mode}: {feedback}, sW: {whiteScore.toFixed(2)}, sB: {blackScore.toFixed(2)}<br/>
+        </div>
+    )
 }
