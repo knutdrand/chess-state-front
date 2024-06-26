@@ -80,20 +80,23 @@ export function GameScreen(token_obj) {
                 boardWidth={Math.min(window.innerWidth, window.innerHeight * 0.9)}
                 customSquareStyles={selectedSquare ? {[selectedSquare]: {backgroundColor: 'rgba(255, 255, 0, 0.4)'}} : {}}
             />
-            <Info mode={mode} feedback={feedback} whiteScore={whiteScore} blackScore={blackScore}/>
+            {mode === 'play' ? <PlayerStatus score={whiteScore + blackScore}/> : <Info mode={mode} feedback={feedback}/>}
         </div>);
 }
-function Info({mode, feedback, whiteScore, blackScore}){
-    let stateColor = 'green';
-    if (mode === 'show') stateColor = 'red'
-    else if (mode === 'repeat') stateColor = 'orange';
-    const score = whiteScore + blackScore;
+function PlayerStatus({score}) {
     const roundedDownScore = Math.floor(score);
     const progress = (score - roundedDownScore);
     return (
-        <>
+        <div>
+            level: {roundedDownScore} <progress value={progress} max={1}/>
+        </div>)
+}
+
+function Info({mode, feedback}){
+    let stateColor = 'green';
+    if (mode === 'show') stateColor = 'red'
+    else if (mode === 'repeat') stateColor = 'orange';
+    return (
         <div style={{color: stateColor}}>{mode}: {feedback}</div>
-            <div>level: {roundedDownScore} <progress value={progress} max={1}/> </div>
-    </>
     )
 }
