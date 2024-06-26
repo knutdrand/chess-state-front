@@ -5,7 +5,7 @@ import {apiUrl} from "../config";
 import axios from "axios";
 import {Chessboard} from "react-chessboard";
 
-export function GameScreen({token}) {
+export function GameScreen({token, setToken}) {
     let jwtPayload = jwtDecode(token);
     const playerName = jwtPayload.sub;
     const [game, setGame] = useState(new Chess());
@@ -16,7 +16,7 @@ export function GameScreen({token}) {
     const [blackScore, setBlackScore] = useState(0);
     const [feedback, setFeedback] = useState(''); // ['play', 'show', 'repeat'
     const [startTime, setStartTime] = useState(0);
-
+    const [showSquare, setShowSquare] = useState([]);
     function getResponse(fen, sourceSquare, targetSquare, piece) {
         const elapsedTime = startTime > 0 ? (new Date().getTime() - startTime) / 1000 : -1;
         const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
@@ -35,13 +35,36 @@ export function GameScreen({token}) {
                 setOrientation(game.turn() === 'w' ? 'white' : 'black'); // set orientation to the current turn
                 setGame(game);
                 setMode(response.data.mode);
+                if (response.data.mode === 'show') {
+                    let mvoe = game.move(response.data.correct_move);
+                    setShowSquare([mvoe.from, mvoe.to]);
+                    game.undo();
+                } else {
+                    setShowSquare([]);
+                }
                 setFeedback(response.data.mode === 'show' ? response.data.correct_move : '');
                 setWhiteScore(response.data.white_score);
                 setBlackScore(response.data.black_score);
                 setStartTime(new Date().getTime());
+                setToken(token)
                 axios.post(updateUrl)
             }
-        );
+        ).catch((error) => {
+            //Catch authentication error
+            if (error.response.status === 401) {
+                console.log('Authentication error');
+                setToken(null);
+                setShowSquare([]);
+                setMode('play');
+                setFeedback('');
+                setWhiteScore(whiteScore);
+                setBlackScore(blackScore);
+                setStartTime(new Date().getTime());
+            }
+            else {
+                console.log('Error: ' + error);
+            }
+        });
         return true;
     }
 
@@ -68,6 +91,19 @@ export function GameScreen({token}) {
         return true
     }
 
+    function getCustomSquareStyles() {
+        if (mode === 'show') {
+            console.log(showSquare);
+            let styles =  {[showSquare[0]]: {backgroundColor: 'rgba(255, 0, 255, 0.4)'}, [showSquare[1]]: {backgroundColor: 'rgba(255, 0, 255, 0.4)'}};
+            if (selectedSquare) {
+                styles[selectedSquare] = {backgroundColor: 'rgba(255, 255, 0, 0.4)'};
+            }
+            return styles;
+        } else {
+            return selectedSquare ? {[selectedSquare]: {backgroundColor: 'rgba(255, 255, 0, 0.4)'}} : {};
+        }
+    }
+
     return (
         <div className="ChessState">
             <Chessboard
@@ -76,7 +112,7 @@ export function GameScreen({token}) {
                 onSquareClick={handleSquareClick}
                 boardOrientation={orientation}
                 boardWidth={Math.min(window.innerWidth, window.innerHeight * 0.9)}
-                customSquareStyles={selectedSquare ? {[selectedSquare]: {backgroundColor: 'rgba(255, 255, 0, 0.4)'}} : {}}
+                customSquareStyles={getCustomSquareStyles()}
             />
             {mode === 'play' ? <PlayerStatus score={whiteScore + blackScore}/> : <Info mode={mode} feedback={feedback}/>}
         </div>);
