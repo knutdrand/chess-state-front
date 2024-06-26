@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import {jwtDecode} from "jwt-decode";
 import Login from './components/Login';
 import useToken from './useToken';
+import {apiUrl} from "./config";
 
 function GameScreen(token_obj) {
     const token = token_obj.token_obj;
@@ -23,11 +24,11 @@ function GameScreen(token_obj) {
     const [startTime, setStartTime] = useState(0);
 
     function getResponse(fen, sourceSquare, targetSquare, piece) {
-        const baseUrl = true ? 'https://chess-state.vercel.app' : 'http://0.0.0.0:8000';
+        //const baseUrl = true ? 'https://chess-state.vercel.app' : 'http://0.0.0.0:8000';
         const elapsedTime = startTime > 0 ? (new Date().getTime() - startTime) / 1000 : -1;
         const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
-        const url = baseUrl + '/move/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/' + piece + '/' + elapsedTime;
-        const updateUrl = baseUrl + '/update_player/' + playerName
+        const url = apiUrl + '/move/' + mode + '/' + urlifiedFen + '/' + sourceSquare + '/' + targetSquare + '/' + piece + '/' + elapsedTime;
+        const updateUrl = apiUrl + '/update_player/' + playerName
         let authorization = `Bearer ${token}`;
         axios.post(url, {}, {
   headers: {
@@ -97,7 +98,7 @@ function GameScreen(token_obj) {
         </div>);
 }
 
-const  UserNameToGameScreen = () => {
+const UserNameToGameScreen = () => {
     //let user write in name and start a GameScreen on submit
     const { token, setToken } = useToken();
     //const baseUrl = false ? 'https://chess-state.vercel.app' : 'http://0.0.0.0:8000';

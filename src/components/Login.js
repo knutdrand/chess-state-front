@@ -2,17 +2,10 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import './Login.css';
 import axios from "axios";
+import {apiUrl} from "../config";
 
 async function loginUser(credentials) {
-  // let body = new FormData();
-  // body.append('grant_type', 'password');
-  // body.append('username', credentials.username);
-  // body.append('password', credentials.password);
-  // body.append('scope', 'read write');
-  // body.append('client_id', '');
-  // body.append('client_secret', '');
-  const baseUrl = true ? 'https://chess-state.vercel.app' : 'http://0.0.0.0:8000';
-  let response = await axios.post(baseUrl + '/token', new URLSearchParams(credentials), {headers: {
+  let response = await axios.post(apiUrl + '/token', new URLSearchParams(credentials), {headers: {
     'accept': 'application/json',
     'Content-Type': 'application/x-www-form-urlencoded'}}
   ).then(
