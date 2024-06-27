@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import './Login.css';
 import axios from "axios";
 import {apiUrl} from "../config";
+import {Alert} from "react-bootstrap";
 
 async function loginUser(credentials) {
   let response = await axios.post(apiUrl + '/token', new URLSearchParams(credentials), {headers: {
@@ -12,7 +13,7 @@ async function loginUser(credentials) {
       (response) => {
         return response.data;
       }
-  )
+    )
   return response;
 }
 
@@ -20,19 +21,23 @@ async function loginUser(credentials) {
 export default function Login({ setToken }) {
   const [username, setUserName] = useState();
   const [password, setPassword] = useState();
-
+    const [error, setError] = useState();
   const handleSubmit = async e => {
     e.preventDefault();
-    const token = await loginUser({
-  grant_type: '',
-  username: username,
-  password: password,
-  scope: '',
-  client_id: '',
-  client_secret: ''
-});
-    let accessToken = token.access_token;
-    setToken(accessToken);
+    return await loginUser({
+        grant_type: '',
+        username: username,
+        password: password,
+        scope: '',
+        client_id: '',
+        client_secret: ''
+}).then((token) => {
+    console.log(token)
+    setToken(token.access_token)}).catch((error) => {
+        console.log('Error: ' + error);
+        setError('Invalid username or password');
+        setToken(null);
+    })
   }
 
   return(
@@ -50,6 +55,7 @@ export default function Login({ setToken }) {
         <div>
           <button type="submit">Submit</button>
         </div>
+        {error && <p><Alert variant='danger'>{error}</Alert> </p>}
       </form>
     </div>
   )
