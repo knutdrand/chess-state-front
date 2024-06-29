@@ -134,7 +134,7 @@ function Info({mode, feedback, width, link}) {
     let style = {width: width};
     return (
         <div style={style}>
-        <Alert  variant={variant} key={variant}> {text} {link && <Alert.Link href={link}>View in Chessable</Alert.Link>}</Alert>
+        <Alert  variant={variant} key={variant}> {text} {link && <Alert.Link href={link} target="_blank" rel="noopener noreferrer">View in Chessable</Alert.Link>}</Alert>
         </div>
     )
 }
