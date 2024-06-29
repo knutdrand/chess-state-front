@@ -19,6 +19,8 @@ export function GameScreen({token, setToken}) {
     const [feedback, setFeedback] = useState(''); // ['play', 'show', 'repeat'
     const [startTime, setStartTime] = useState(0);
     const [showSquare, setShowSquare] = useState([]);
+    const [link, setLink] = useState(null);
+
     function getResponse(fen, sourceSquare, targetSquare, piece) {
         const elapsedTime = startTime > 0 ? (new Date().getTime() - startTime) / 1000 : -1;
         const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
@@ -44,7 +46,8 @@ export function GameScreen({token, setToken}) {
                 } else {
                     setShowSquare([]);
                 }
-                setFeedback(response.data.mode === 'show' ? response.data.correct_move : '');
+                setFeedback(response.data.mode === 'show' ? response.data.correct_move: '');
+                setLink(response.data.message);
                 setWhiteScore(response.data.white_score);
                 setBlackScore(response.data.black_score);
                 setStartTime(new Date().getTime());
@@ -110,11 +113,13 @@ export function GameScreen({token, setToken}) {
                 boardWidth={boardWidth}
                 customSquareStyles={getCustomSquareStyles()}
             />
-            {mode === 'play' ? <PlayerStatus score={whiteScore + blackScore} width={boardWidth}/> : <Info mode={mode} feedback={feedback} width={boardWidth}/>}
+            {mode === 'play' ? <PlayerStatus score={whiteScore + blackScore} width={boardWidth}/> : <Info mode={mode} feedback={feedback} width={boardWidth} link={link}/>}
+
         </div>);
 }
 function PlayerStatus({score, width}) {
     const roundedDownScore = Math.floor(score);
+
     const progress = (score - roundedDownScore);
     let style = {width: width};
     return (
@@ -123,13 +128,13 @@ function PlayerStatus({score, width}) {
         </div>)
 }
 
-function Info({mode, feedback, width}) {
+function Info({mode, feedback, width, link}) {
     const text = mode === 'show' ? 'Incorrect: ' + feedback  : 'Repeat the move';
     const variant = mode === 'show' ? 'danger' : 'warning';
     let style = {width: width};
     return (
         <div style={style}>
-        <Alert  variant={variant} key={variant}> {text} </Alert>
+        <Alert  variant={variant} key={variant}> {text} {link && <Alert.Link href={link}>View in Chessable</Alert.Link>}</Alert>
         </div>
     )
 }
