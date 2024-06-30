@@ -1,56 +1,71 @@
-import {jwtDecode} from "jwt-decode";
-import { useState } from 'react';
+import React from 'react';
+import {Navbar, Nav, Button, Container, Alert, ProgressBar, Image} from 'react-bootstrap';
+import {jwtDecode} from 'jwt-decode';
+import { useState, useEffect } from 'react';
 import { Chess } from 'chess.js';
 import { apiUrl } from '../config';
 import axios from 'axios';
 import { Chessboard } from 'react-chessboard';
-import Alert from 'react-bootstrap/Alert';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
 import "bootstrap/dist/css/bootstrap.min.css";
-import {Button, Nav, Navbar, ProgressBar} from "react-bootstrap";
+
 
 export function MainScreen({ token, setToken }) {
   const [mode, setMode] = useState('play');
   const [score, setScore] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [link, setLink] = useState(null);
-  const boardWidth = Math.min(window.innerWidth*0.9, window.innerHeight * 0.8);
+  const [boardWidth, setBoardWidth] = useState(400);
+
+  useEffect(() => {
+    const updateBoardWidth = () => {
+      const navHeight = 56; // Approximate height of the Navbar
+      const maxBoardHeight = window.innerHeight - navHeight - 120; // Adjust for other components
+      const maxBoardWidth = window.innerWidth - 20; // Adjust for padding/margins
+      const size = Math.min(maxBoardHeight, maxBoardWidth);
+      setBoardWidth(size);
+    };
+    updateBoardWidth();
+    window.addEventListener('resize', updateBoardWidth);
+    return () => window.removeEventListener('resize', updateBoardWidth);
+  }, []);
 
   const handleLogout = () => {
     setToken(null);
   };
 
   return (
-    <Container fluid className="p-3">
-      <Navbar bg="dark" variant="dark" className="mb-3">
-        <Navbar.Brand>Chess-State</Navbar.Brand>
+    <Container fluid className="d-flex flex-column align-items-center p-3 vh-100 bg-body-tertiary">
+      <Navbar className="mb-3 w-100  justify-content-between" >
+        <Navbar.Brand>
+          <Image src="/logo192.png" alt="Chess-State Logo" width={32} height={32} className="mr-2" />
+          Chess State
+        </Navbar.Brand>
         <Nav className="ml-auto">
-          <Button variant="outline-light" onClick={handleLogout}>Logout</Button>
+          <Button onClick={handleLogout}>
+            Logout
+          </Button>
         </Nav>
       </Navbar>
-      <Row className="justify-content-center">
-        <Col xs={12} md={8} lg={6}>
-          <GameScreen
-            token={token}
-            setToken={setToken}
-            setScore={setScore}
-            setFeedback={setFeedback}
-            setLink={setLink}
-            setMode={setMode}
-            boardWidth={boardWidth}
-            mode={mode}
-          />
-          {mode === 'play' ?
-            <PlayerStatus score={score} width={boardWidth} /> :
-            <Info mode={mode} feedback={feedback} width={boardWidth} link={link} />
-          }
-        </Col>
-      </Row>
+      <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center">
+        <GameScreen
+          token={token}
+          setToken={setToken}
+          setScore={setScore}
+          setFeedback={setFeedback}
+          setLink={setLink}
+          setMode={setMode}
+          boardWidth={boardWidth}
+          mode={mode}
+        />
+        {mode === 'play' ?
+          <PlayerStatus score={score} width={boardWidth} /> :
+          <Info mode={mode} feedback={feedback} width={boardWidth} link={link} />
+        }
+      </div>
     </Container>
   );
 }
+
 
 export function GameScreen({ token, setToken, setScore, setFeedback, setLink, setMode, boardWidth, mode }) {
   let jwtPayload = jwtDecode(token);

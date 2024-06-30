@@ -10,6 +10,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.6.8",
     "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3",
     "expo-cli": "^6.3.10",
     "jwt-decode": "^4.0.0",
     "react": "^18.2.0",
