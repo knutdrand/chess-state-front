@@ -16,7 +16,7 @@ export function MainScreen({ token, setToken }) {
   const [score, setScore] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [link, setLink] = useState(null);
-  const boardWidth = Math.min(window.innerWidth, window.innerHeight * 0.8);
+  const boardWidth = Math.min(window.innerWidth*0.9, window.innerHeight * 0.8);
 
   return (
     <Container fluid className="p-3">
