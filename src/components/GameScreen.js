@@ -28,14 +28,9 @@ export function GameScreen({token, setToken, setScore, setFeedback, setLink, set
     const playerName = jwtPayload.sub;
     const [game, setGame] = useState(new Chess());
     const [orientation, setOrientation] = useState('white'); // ['white', 'black'
-    //const [mode, setMode] = useState('play'); // ['play', 'show', 'repeat'];
     const [selectedSquare, setSelectedSquare] = useState(null); // [null, 'a2'
-    //const [whiteScore, setWhiteScore] = useState(0);
-    //const [blackScore, setBlackScore] = useState(0);
-    //const [feedback, setFeedback] = useState(''); // ['play', 'show', 'repeat'
     const [startTime, setStartTime] = useState(0);
     const [showSquare, setShowSquare] = useState([]);
-    //const [link, setLink] = useState(null);
 
     function getResponse(fen, sourceSquare, targetSquare, piece) {
         const elapsedTime = startTime > 0 ? (new Date().getTime() - startTime) / 1000 : -1;
@@ -65,8 +60,6 @@ export function GameScreen({token, setToken, setScore, setFeedback, setLink, set
                 setFeedback(response.data.mode === 'show' ? response.data.correct_move: '');
                 setLink(response.data.message);
                 setScore(response.data.white_score + response.data.black_score);
-                //setWhiteScore(response.data.white_score);
-                //setBlackScore(response.data.black_score);
                 setStartTime(new Date().getTime());
                 setToken(token)
                 axios.post(updateUrl)
@@ -120,8 +113,6 @@ export function GameScreen({token, setToken, setScore, setFeedback, setLink, set
         }
     }
 
-    //let boardWidth = Math.min(window.innerWidth, window.innerHeight * 0.9);
-    //{mode === 'play' ? <PlayerStatus score={whiteScore + blackScore} width={boardWidth}/> : <Info mode={mode} feedback={feedback} width={boardWidth} link={link}/>}
     return (
         <div className="ChessState">
             <Chessboard
