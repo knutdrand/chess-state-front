@@ -1,4 +1,4 @@
-import { Container, Form, Button, Alert, Card } from 'react-bootstrap';
+import { Container, Form, Button, Alert, Card, Image} from 'react-bootstrap';
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import './Login.css';
@@ -40,11 +40,14 @@ export default function Login({ setToken }) {
     })
   }
 
-  return(
+  return (
     <Container className="d-flex justify-content-center align-items-center vh-100">
       <Card style={{ width: '24rem' }} className="p-4">
         <Card.Body>
-          <Card.Title className="text-center">Please Log In</Card.Title>
+          <div className="text-center mb-4">
+            <Image src="/logo192.png" alt="Chess-State Logo" width={64} height={64} />
+          </div>
+          <Card.Title className="text-center">Chess-State</Card.Title>
           <Form onSubmit={handleSubmit}>
             <Form.Group controlId="formBasicUsername" className="mb-3">
               <Form.Label>Username</Form.Label>
