@@ -9,7 +9,7 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import "bootstrap/dist/css/bootstrap.min.css";
-import {ProgressBar} from "react-bootstrap";
+import {Button, Nav, Navbar, ProgressBar} from "react-bootstrap";
 
 export function MainScreen({ token, setToken }) {
   const [mode, setMode] = useState('play');
@@ -18,8 +18,18 @@ export function MainScreen({ token, setToken }) {
   const [link, setLink] = useState(null);
   const boardWidth = Math.min(window.innerWidth*0.9, window.innerHeight * 0.8);
 
+  const handleLogout = () => {
+    setToken(null);
+  };
+
   return (
     <Container fluid className="p-3">
+      <Navbar bg="dark" variant="dark" className="mb-3">
+        <Navbar.Brand>Chess-State</Navbar.Brand>
+        <Nav className="ml-auto">
+          <Button variant="outline-light" onClick={handleLogout}>Logout</Button>
+        </Nav>
+      </Navbar>
       <Row className="justify-content-center">
         <Col xs={12} md={8} lg={6}>
           <GameScreen
