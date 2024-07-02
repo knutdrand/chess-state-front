@@ -90,7 +90,6 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
           'Authorization': authorization
         }
       });
-
       const updatedGame = new Chess(response.data.board);
       setOrientation(updatedGame.turn() === 'w' ? 'white' : 'black');
       setGame(updatedGame);
@@ -109,9 +108,8 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
       setScore(response.data.white_score + response.data.black_score);
       setStartTime(new Date().getTime());
       setToken(token);
-      await axios.post(updateUrl);
+
     } catch (error) {
-      console.log('Error: ', error);
       if (error?.response?.status === 401) {
         console.log('Authentication error');
         setToken(null);
@@ -119,6 +117,7 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
         setFeedback('Server error');
       }
     }
+    axios.post(updateUrl);
   }
 
   async function onDrop(sourceSquare, targetSquare, piece) {
