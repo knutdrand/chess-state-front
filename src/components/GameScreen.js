@@ -112,9 +112,11 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
       await axios.post(updateUrl);
     } catch (error) {
       console.log('Error: ', error);
-      if (error.response.status === 401) {
+      if (error?.response?.status === 401) {
         console.log('Authentication error');
         setToken(null);
+      } else {
+        setFeedback('Server error');
       }
     }
   }
