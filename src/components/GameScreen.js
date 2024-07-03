@@ -191,10 +191,20 @@ function PlayerStatus({ score, width }) {
 function Info({ mode, feedback, width, link }) {
   const text = mode === 'show' ? `Incorrect: ${feedback}` : 'Repeat the move';
   const variant = mode === 'show' ? 'danger' : 'warning';
+
+  function getElement() {
+    // check if is a link (starts with http or https):
+    if (link && link.startsWith('http')) {
+      return <Alert.Link href={link} target="_blank" rel="noopener noreferrer">View in Chessable</Alert.Link>;
+    } else{
+      return <div> {link} </div>;
+    }
+  }
+
   return (
     <Alert variant={variant} style={{ width: width }}>
-      {text}
-      {link && <Alert.Link href={link} target="_blank" rel="noopener noreferrer">View in Chessable</Alert.Link>}
+      {text} - {getElement()}
+
     </Alert>
   );
 }
