@@ -28,6 +28,10 @@ export function MainScreen({ token, setToken }) {
     window.addEventListener('resize', updateBoardWidth);
     return () => window.removeEventListener('resize', updateBoardWidth);
   }, []);
+  useEffect(() => {
+    axios.post(`${apiUrl}/update_player/${jwtDecode(token).sub}`);
+    }, [token]);
+
 
   const handleLogout = () => {
     setToken(null);
