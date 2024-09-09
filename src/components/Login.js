@@ -26,7 +26,7 @@ export default function Login({ setToken }) {
   const handleSubmit = async e => {
     e.preventDefault();
     return await loginUser({
-        grant_type: '',
+        grant_type: 'password',
         username: username,
         password: password,
         scope: '',
