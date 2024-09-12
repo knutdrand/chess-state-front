@@ -41,10 +41,25 @@ export function MainScreen({ token, setToken }) {
     inputRef.current.click();
   }
 
-  const handleFileChange = event => {
-    const fileObj = event.target.files && event.target.files[0];
-    if (!fileObj) {
-      return;
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    let authorization = `Bearer ${token}`;
+    if (file) {
+        console.log('File selected:', file);
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await axios.post(
+                apiUrl + '/add-course/', formData,
+                {headers: {
+            'accept': 'application/json',
+          'Authorization': authorization}});
+            console.log('File uploaded successfully:', response.data);
+        } catch (error) {
+            console.error('Error uploading file:', error);
+        }
     }
   };
   return (
@@ -55,17 +70,19 @@ export function MainScreen({ token, setToken }) {
           <Image src="/logo192.png" alt="Chess-State Logo" width={32} height={32} className="mr-2" />
           Chess State
         </Navbar.Brand>
+        <Navbar.Text> {jwtDecode(token).sub} </Navbar.Text>
         <Nav className="ml-auto">
           <input
               style={{display: 'none'}}
               ref={inputRef}
               type="file"
+              accept={'.pgn'}
               onChange={handleFileChange}
           />
-          <Button onClick={handleUploadClick}>Upload File</Button>
+          <Button onClick={handleUploadClick}>Add Course</Button>
           <Button onClick={handleLogout}>   Logout </Button>
-
         </Nav>
+
       </Navbar>
       <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center">
         <GameScreen
