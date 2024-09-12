@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import {Navbar, Nav, Button, Container, Alert, ProgressBar, Image} from 'react-bootstrap';
 import {jwtDecode} from 'jwt-decode';
 import { useState, useEffect } from 'react';
@@ -36,18 +36,35 @@ export function MainScreen({ token, setToken }) {
   const handleLogout = () => {
     setToken(null);
   };
+  const inputRef = useRef(null);
+  function handleUploadClick() {
+    inputRef.current.click();
+  }
 
+  const handleFileChange = event => {
+    const fileObj = event.target.files && event.target.files[0];
+    if (!fileObj) {
+      return;
+    }
+  };
   return (
     <Container fluid className="d-flex flex-column align-items-center p-3 vh-100 bg-body-tertiary">
       <Navbar className="mb-3 w-100  justify-content-between" >
+
         <Navbar.Brand>
           <Image src="/logo192.png" alt="Chess-State Logo" width={32} height={32} className="mr-2" />
           Chess State
         </Navbar.Brand>
         <Nav className="ml-auto">
-          <Button onClick={handleLogout}>
-            Logout
-          </Button>
+          <input
+              style={{display: 'none'}}
+              ref={inputRef}
+              type="file"
+              onChange={handleFileChange}
+          />
+          <Button onClick={handleUploadClick}>Upload File</Button>
+          <Button onClick={handleLogout}>   Logout </Button>
+
         </Nav>
       </Navbar>
       <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center">
