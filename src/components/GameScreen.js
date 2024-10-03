@@ -155,7 +155,7 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
         setFeedback('Server error');
       }
     }
-    //axios.post(updateUrl);
+    axios.post(updateUrl);
   }
 
   async function onDrop(sourceSquare, targetSquare, piece) {
