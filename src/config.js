@@ -1,6 +1,7 @@
 // config.js
+//# 'https://chess-state.vercel.app',
 const config = {
-    apiUrl: 'https://chess-state.vercel.app',
+    apiUrl: 'http://68.183.12.6:8000',
     localApiUrl: 'http://0.0.0.0:8000',
     is_local: false,
 };

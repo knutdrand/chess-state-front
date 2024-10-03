@@ -140,7 +140,7 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
       } else {
         setShowSquare([]);
       }
-
+      console.log(response.data);
       setFeedback(response.data.mode === 'show' ? response.data.correct_move : '');
       setLink(response.data.message);
       setScore(response.data.white_score + response.data.black_score);
@@ -155,7 +155,7 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
         setFeedback('Server error');
       }
     }
-    axios.post(updateUrl);
+    //axios.post(updateUrl);
   }
 
   async function onDrop(sourceSquare, targetSquare, piece) {
@@ -232,7 +232,9 @@ function Info({ mode, feedback, width, link }) {
 
   function getElement() {
     // check if is a link (starts with http or https):
-    if (link && link.startsWith('http')) {
+    //print link
+    console.log(link);
+    if (link && (typeof link === 'string') && link.startsWith('http')) {
       return <Alert.Link href={link} target="_blank" rel="noopener noreferrer">View in Chessable</Alert.Link>;
     } else{
       return <div> {link} </div>;
