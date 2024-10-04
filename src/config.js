@@ -3,7 +3,7 @@
 const config = {
     apiUrl: 'https://polarchess.com/',
     localApiUrl: 'https://localhost',
-    is_local: true,
+    is_local: false,
 };
 const apiUrl = config.is_local ? config.localApiUrl : config.apiUrl;
 module.exports = {config, apiUrl};
