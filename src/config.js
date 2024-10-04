@@ -1,7 +1,7 @@
 // config.js
 //# 'https://chess-state.vercel.app',
 const config = {
-    apiUrl: 'https://polarchess.com/',
+    apiUrl: 'https://polarchess.com',
     localApiUrl: 'https://localhost',
     is_local: false,
 };
