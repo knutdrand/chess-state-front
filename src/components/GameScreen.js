@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Chess} from 'chess.js';
 import {apiUrl} from '../config';
 import {Chessboard} from 'react-chessboard';
@@ -7,14 +7,15 @@ import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
 
 
-export function GameScreen({ token, setToken, setScore, setFeedback, setLink, setMode, boardWidth, mode }) {
+export function GameScreen({ token, setToken, setScore, setFeedback, setLink, setMode, boardWidth, mode, game, setGame, orientation, setOrientation}) {
   let jwtPayload = jwtDecode(token);
   const playerName = jwtPayload.sub;
-  const [game, setGame] = useState(new Chess());
-  const [orientation, setOrientation] = useState('white');
+  //const [game, setGame] = useState(new Chess());
   const [selectedSquare, setSelectedSquare] = useState(null);
   const [startTime, setStartTime] = useState(0);
   const [showSquare, setShowSquare] = useState([]);
+
+
 
   async function getResponse(fen, sourceSquare, targetSquare, piece) {
     const elapsedTime = startTime > 0 ? (new Date().getTime() - startTime) / 1000 : -1;
@@ -96,7 +97,9 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
       return selectedSquare ? { [selectedSquare]: { backgroundColor: 'rgba(255, 255, 0, 0.4)' } } : {};
     }
   }
-
+  if (!game) {
+    return <div>Loading...</div>;
+  }
   return (
     <div className="ChessState mb-3">
       <Chessboard

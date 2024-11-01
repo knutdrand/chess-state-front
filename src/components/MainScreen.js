@@ -9,10 +9,13 @@ import {GameScreen} from "./GameScreen";
 
 import Courses from './Courses'; // New component for course management
 import { Container, Navbar, Nav, Button, Image } from 'react-bootstrap';
-
-export function MainScreen({ token, setToken, apiUrl }) {
+import {Chess} from "chess.js";
+import {apiUrl} from "../config";
+export function MainScreen({ token, setToken}) {
   const [mode, setMode] = useState('play');
   const [score, setScore] = useState(0);
+  const [game, setGame] = useState(null);
+  const [orientation, setOrientation] = useState('white');
   const [feedback, setFeedback] = useState('');
   const [link, setLink] = useState(null);
   const [boardWidth, setBoardWidth] = useState(400);
@@ -31,9 +34,21 @@ export function MainScreen({ token, setToken, apiUrl }) {
     window.addEventListener('resize', updateBoardWidth);
     return () => window.removeEventListener('resize', updateBoardWidth);
   }, []);
-
   useEffect(() => {
-  }, [token, apiUrl]);
+    if (!token) return;
+    const url = `${apiUrl}/init/`;
+    const headers = { 'accept': 'application/json', 'Authorization': `Bearer ${token}` };
+    console.log(url);
+    axios.get(url, { headers })
+        .then(response => {
+          let chess = new Chess(response.data.board);
+          setGame(() => chess);
+          setGame(chess);
+          console.log('inside', chess.fen());
+          //setOrientation(chess.turn() === 'w' ? 'white' : 'black');
+          setMode('play');
+        })}, [token]);
+
 
   const handleLogout = () => {
     setToken(null);
@@ -69,6 +84,10 @@ export function MainScreen({ token, setToken, apiUrl }) {
             setMode={setMode}
             boardWidth={boardWidth}
             mode={mode}
+            game={game}
+            setGame={setGame}
+            orientation={orientation}
+            setOrientation={setOrientation}
           />
         ) : (
           <Courses apiUrl={apiUrl} token={token} />
