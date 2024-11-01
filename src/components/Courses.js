@@ -7,6 +7,8 @@ function Courses({ apiUrl, token }) {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
+    setCourses(['height', 'weight']);
+    return;
     async function fetchCourses() {
       try {
         const response = await axios.get(`${apiUrl}/courses`, {
