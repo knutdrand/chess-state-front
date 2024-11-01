@@ -1,40 +1,40 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import {apiUrl} from "../config";
-import { Button, ListGroup, Form, Modal, Dropdown } from 'react-bootstrap';
+import { apiUrl } from '../config';
+import { Accordion, Card, ListGroup, Form, Modal, Dropdown, Button } from 'react-bootstrap';
 
 function Courses({ token }) {
   const [courses, setCourses] = useState([]);
-  const [selectedCourse, setSelectedCourse] = useState(null);
   const [showAddCourseModal, setShowAddCourseModal] = useState(false);
   const [showAddChapterModal, setShowAddChapterModal] = useState(false);
   const [newCourseName, setNewCourseName] = useState('');
   const [newCourseColor, setNewCourseColor] = useState('White');
   const [file, setFile] = useState(null);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+
   const headers = {
     'accept': 'application/json',
     'Authorization': `Bearer ${token}`
-  }
+  };
+
   useEffect(() => {
     async function fetchCourses() {
       try {
-        const response = await axios.get(`${apiUrl}/list-courses`, {
-          headers: headers
-        });
+        const response = await axios.get(`${apiUrl}/list-courses`, { headers });
         setCourses(response.data);
       } catch (error) {
         console.error('Error fetching courses:', error);
       }
     }
     fetchCourses();
-  }, [apiUrl, token]);
+  }, [token]);
 
   const handleAddCourse = async () => {
     try {
       const response = await axios.post(
         `${apiUrl}/add-course`,
         { name: newCourseName, color: newCourseColor },
-        { headers: headers }
+        { headers }
       );
       setCourses([...courses, response.data]);
       setShowAddCourseModal(false);
@@ -51,7 +51,7 @@ function Courses({ token }) {
         const response = await axios.post(
           `${apiUrl}/courses/${selectedCourse.id}/chapters`,
           formData,
-          { headers: headers }
+          { headers }
         );
         const updatedCourses = courses.map(course =>
           course.id === selectedCourse.id
@@ -68,36 +68,35 @@ function Courses({ token }) {
 
   return (
     <div>
-      {selectedCourse ? (
-        <>
-          <Button variant="secondary" onClick={() => setSelectedCourse(null)}>
-            Back to Courses
-          </Button>
-          <h4>{selectedCourse.name} - Chapters</h4>
-          <ListGroup className="mt-3">
-            {selectedCourse.chapters.map(chapter => (
-              <ListGroup.Item key={chapter.id}>{chapter.name}</ListGroup.Item>
-            ))}
-          </ListGroup>
-          <Button className="mt-3" onClick={() => setShowAddChapterModal(true)}>
-            Add Chapter
-          </Button>
-        </>
-      ) : (
-        <>
-          <h4>Courses</h4>
-          <ListGroup className="mt-3">
-            {courses.map(course => (
-              <ListGroup.Item key={course.id} onClick={() => setSelectedCourse(course)}>
-                {course.name} ({course.color})
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
-          <Button className="mt-3" onClick={() => setShowAddCourseModal(true)}>
-            Add New Course
-          </Button>
-        </>
-      )}
+      <h4>Courses</h4>
+      <Button className="mt-3" onClick={() => setShowAddCourseModal(true)}>
+        Add New Course
+      </Button>
+
+      <Accordion defaultActiveKey="0" className="mt-3">
+        {courses.map((course, index) => (
+          <Accordion.Item eventKey={String(index)} key={course.id}>
+            <Accordion.Header>
+              {course.name} ({course.color})
+            </Accordion.Header>
+            <Accordion.Body>
+              <h5>Chapters</h5>
+              <ListGroup className="mt-3">
+                {course.chapters && course.chapters.length > 0 ? (
+                  course.chapters.map(chapter => (
+                    <ListGroup.Item key={chapter.id}>{chapter.name}</ListGroup.Item>
+                  ))
+                ) : (
+                  <p>No chapters available</p>
+                )}
+              </ListGroup>
+              <Button className="mt-3" onClick={() => { setSelectedCourse(course); setShowAddChapterModal(true); }}>
+                Add Chapter
+              </Button>
+            </Accordion.Body>
+          </Accordion.Item>
+        ))}
+      </Accordion>
 
       {/* Add Course Modal */}
       <Modal show={showAddCourseModal} onHide={() => setShowAddCourseModal(false)}>
@@ -113,7 +112,7 @@ function Courses({ token }) {
               onChange={(e) => setNewCourseName(e.target.value)}
             />
           </Form.Group>
-          <Form.Group>
+          <Form.Group className="mt-3">
             <Form.Label>Player Color</Form.Label>
             <Dropdown onSelect={(eventKey) => setNewCourseColor(eventKey)}>
               <Dropdown.Toggle variant="secondary" id="dropdown-basic">
@@ -151,6 +150,5 @@ function Courses({ token }) {
     </div>
   );
 }
-
 
 export default Courses;
