@@ -7,14 +7,35 @@ import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
 
 
-export function GameScreen({ token, setToken, setScore, setFeedback, setLink, setMode, boardWidth, mode, game, setGame, orientation, setOrientation}) {
+export function GameScreen({ token, setToken, setScore, setFeedback, setLink, setMode, boardWidth, mode}) {
   let jwtPayload = jwtDecode(token);
   const playerName = jwtPayload.sub;
   //const [game, setGame] = useState(new Chess());
+  const [game, setGame] = useState(null);
+  const [orientation, setOrientation] = useState('white');
+  const [playStatus, setPlayStatus] = useState('Loading');
   const [selectedSquare, setSelectedSquare] = useState(null);
   const [startTime, setStartTime] = useState(0);
   const [showSquare, setShowSquare] = useState([]);
-
+  useEffect(() => {
+    if (!token) return;
+    const url = `${apiUrl}/init/`;
+    const headers = { 'accept': 'application/json', 'Authorization': `Bearer ${token}` };
+    console.log(url);
+    axios.get(url, { headers })
+        .then(response => {
+          let chess = new Chess(response.data.board);
+          console.log('response', response.data);
+          if (response.data.success === false) {
+            setPlayStatus('No course available');
+            return;
+          }
+          setGame(() => chess);
+          setGame(chess);
+          console.log('inside', chess.fen());
+          setOrientation(chess.turn() === 'w' ? 'white' : 'black');
+          setMode('play');
+        }).catch(setPlayStatus('Server Error'))}, [token]);
 
 
   async function getResponse(fen, sourceSquare, targetSquare, piece) {
@@ -98,7 +119,7 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
     }
   }
   if (!game) {
-    return <div>Loading...</div>;
+    return <div>{playStatus}</div>;
   }
   return (
     <div className="ChessState mb-3">

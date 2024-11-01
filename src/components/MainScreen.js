@@ -14,9 +14,7 @@ import {apiUrl} from "../config";
 export function MainScreen({ token, setToken}) {
   const [mode, setMode] = useState('play');
   const [score, setScore] = useState(0);
-  const [game, setGame] = useState(null);
-  const [orientation, setOrientation] = useState('white');
-  const [feedback, setFeedback] = useState('');
+  const [feedback, setFeedback] = useState();
   const [link, setLink] = useState(null);
   const [boardWidth, setBoardWidth] = useState(400);
   const [activeTab, setActiveTab] = useState('play'); // Track active tab
@@ -34,20 +32,7 @@ export function MainScreen({ token, setToken}) {
     window.addEventListener('resize', updateBoardWidth);
     return () => window.removeEventListener('resize', updateBoardWidth);
   }, []);
-  useEffect(() => {
-    if (!token) return;
-    const url = `${apiUrl}/init/`;
-    const headers = { 'accept': 'application/json', 'Authorization': `Bearer ${token}` };
-    console.log(url);
-    axios.get(url, { headers })
-        .then(response => {
-          let chess = new Chess(response.data.board);
-          setGame(() => chess);
-          setGame(chess);
-          console.log('inside', chess.fen());
-          //setOrientation(chess.turn() === 'w' ? 'white' : 'black');
-          setMode('play');
-        })}, [token]);
+
 
 
   const handleLogout = () => {
@@ -84,10 +69,6 @@ export function MainScreen({ token, setToken}) {
             setMode={setMode}
             boardWidth={boardWidth}
             mode={mode}
-            game={game}
-            setGame={setGame}
-            orientation={orientation}
-            setOrientation={setOrientation}
           />
         ) : (
           <Courses apiUrl={apiUrl} token={token} />
