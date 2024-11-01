@@ -1,88 +1,92 @@
-import React, {useRef} from 'react';
-import {Navbar, Nav, Button, Container, Alert, ProgressBar, Image} from 'react-bootstrap';
-import {jwtDecode} from 'jwt-decode';
-import { useState, useEffect } from 'react';
-import { Chess } from 'chess.js';
-import { apiUrl } from '../config';
-import axios from 'axios';
-import { Chessboard } from 'react-chessboard';
+import React, {useEffect, useRef, useState} from "react";
+import {Alert, Button, Container, Image, Nav, Navbar, ProgressBar} from 'react-bootstrap';
+import {Chess} from 'chess.js';
+import {apiUrl} from '../config';
+import {Chessboard} from 'react-chessboard';
 import "bootstrap/dist/css/bootstrap.min.css";
+import axios from 'axios';
+import {jwtDecode} from 'jwt-decode';
+import {debounce} from 'lodash';
+import {Info} from "./Info";
 
 
-export function MainScreen({ token, setToken }) {
+export function MainScreen({ token, setToken, apiUrl }) {
   const [mode, setMode] = useState('play');
   const [score, setScore] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [link, setLink] = useState(null);
   const [boardWidth, setBoardWidth] = useState(400);
+  const decodedToken = jwtDecode(token);
 
   useEffect(() => {
-    const updateBoardWidth = () => {
+    const updateBoardWidth = debounce(() => {
       const navHeight = 56; // Approximate height of the Navbar
-      const maxBoardHeight = window.innerHeight - navHeight - 120; // Adjust for other components
-      const maxBoardWidth = window.innerWidth - 20; // Adjust for padding/margins
-      const size = Math.min(maxBoardHeight, maxBoardWidth);
-      setBoardWidth(size);
-    };
+      const maxBoardHeight = window.innerHeight - navHeight - 120;
+      const maxBoardWidth = window.innerWidth - 20;
+      setBoardWidth(Math.min(maxBoardHeight, maxBoardWidth));
+    }, 100);
+
     updateBoardWidth();
     window.addEventListener('resize', updateBoardWidth);
     return () => window.removeEventListener('resize', updateBoardWidth);
   }, []);
-  useEffect(() => {
-    axios.post(`${apiUrl}/update_player/${jwtDecode(token).sub}`);
-    }, [token]);
 
+  useEffect(() => {
+    //axios.post(`${apiUrl}/update_player/${decodedToken.sub}`);
+  }, [token, apiUrl]);
 
   const handleLogout = () => {
     setToken(null);
   };
+
   const inputRef = useRef(null);
-  function handleUploadClick() {
+
+  const handleUploadClick = () => {
     inputRef.current.click();
-  }
+  };
 
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
-    let authorization = `Bearer ${token}`;
     if (file) {
-        console.log('File selected:', file);
+      console.log('File selected:', file);
 
-        const formData = new FormData();
-        formData.append('file', file);
+      const formData = new FormData();
+      formData.append('file', file);
 
-        try {
-            const response = await axios.post(
-                apiUrl + '/add-course/', formData,
-                {headers: {
+      try {
+        const response = await axios.post(`${apiUrl}/add-course/`, formData, {
+          headers: {
             'accept': 'application/json',
-          'Authorization': authorization}});
-            console.log('File uploaded successfully:', response.data);
-        } catch (error) {
-            console.error('Error uploading file:', error);
-        }
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        console.log('File uploaded successfully:', response.data);
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        setFeedback('File upload failed. Please try again.');
+      }
     }
   };
+
   return (
     <Container fluid className="d-flex flex-column align-items-center p-3 vh-100 bg-body-tertiary">
-      <Navbar className="mb-3 w-100  justify-content-between" >
-
+      <Navbar className="mb-3 w-100 justify-content-between">
         <Navbar.Brand>
           <Image src="/logo192.png" alt="Chess-State Logo" width={32} height={32} className="mr-2" />
           Chess State
         </Navbar.Brand>
-        <Navbar.Text> {jwtDecode(token).sub} </Navbar.Text>
+        <Navbar.Text>{decodedToken.sub}</Navbar.Text>
         <Nav className="ml-auto">
           <input
-              style={{display: 'none'}}
-              ref={inputRef}
-              type="file"
-              accept={'.pgn'}
-              onChange={handleFileChange}
+            style={{ display: 'none' }}
+            ref={inputRef}
+            type="file"
+            accept=".pgn"
+            onChange={handleFileChange}
           />
           <Button onClick={handleUploadClick}>Add Course</Button>
-          <Button onClick={handleLogout}>   Logout </Button>
+          <Button onClick={handleLogout}>Logout</Button>
         </Nav>
-
       </Navbar>
       <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center">
         <GameScreen
@@ -95,15 +99,15 @@ export function MainScreen({ token, setToken }) {
           boardWidth={boardWidth}
           mode={mode}
         />
-        {mode === 'play' ?
-          <PlayerStatus score={score} width={boardWidth} /> :
+        {mode === 'play' ? (
+          <PlayerStatus score={score} width={boardWidth} />
+        ) : (
           <Info mode={mode} feedback={feedback} width={boardWidth} link={link} />
-        }
+        )}
       </div>
     </Container>
   );
 }
-
 
 export function GameScreen({ token, setToken, setScore, setFeedback, setLink, setMode, boardWidth, mode }) {
   let jwtPayload = jwtDecode(token);
@@ -226,25 +230,3 @@ function PlayerStatus({ score, width }) {
   );
 }
 
-function Info({ mode, feedback, width, link }) {
-  const text = mode === 'show' ? `Incorrect: ${feedback}` : 'Repeat the move';
-  const variant = mode === 'show' ? 'danger' : 'warning';
-
-  function getElement() {
-    // check if is a link (starts with http or https):
-    //print link
-    console.log(link);
-    if (link && (typeof link === 'string') && link.startsWith('http')) {
-      return <Alert.Link href={link} target="_blank" rel="noopener noreferrer">View in Chessable</Alert.Link>;
-    } else{
-      return <div> {link} </div>;
-    }
-  }
-
-  return (
-    <Alert variant={variant} style={{ width: width }}>
-      {text} - {getElement()}
-
-    </Alert>
-  );
-}
