@@ -1,7 +1,7 @@
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import Login from './components/Login';
 import useToken from './useToken';
-import {MainScreen} from "./components/GameScreen";
+import {MainScreen} from "./components/MainScreen";
 
 const UserNameToGameScreen = () => {
     const { token, setToken } = useToken();
