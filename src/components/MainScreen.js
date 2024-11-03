@@ -51,7 +51,7 @@ export function MainScreen({ token, setToken}) {
             <Nav.Link eventKey="play">Play</Nav.Link>
           </Nav.Item>
           <Nav.Item>
-            <Nav.Link eventKey="courses">Courses</Nav.Link>
+            <Nav.Link eventKey="courses">Manage Courses</Nav.Link>
           </Nav.Item>
         </Nav>
         <Navbar.Text>{decodedToken.sub}</Navbar.Text>
