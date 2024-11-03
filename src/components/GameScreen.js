@@ -8,8 +8,6 @@ import {jwtDecode} from 'jwt-decode';
 
 
 export function GameScreen({ token, setToken, setScore, setFeedback, setLink, setMode, boardWidth, mode}) {
-  let jwtPayload = jwtDecode(token);
-  const playerName = jwtPayload.sub;
   //const [game, setGame] = useState(new Chess());
   const [game, setGame] = useState(null);
   const [orientation, setOrientation] = useState('white');
@@ -42,7 +40,6 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
     const elapsedTime = startTime > 0 ? (new Date().getTime() - startTime) / 1000 : -1;
     const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
     const url = `${apiUrl}/move/${mode}/${urlifiedFen}/${sourceSquare}/${targetSquare}/${piece}/${elapsedTime}`;
-    const updateUrl = `${apiUrl}/update_player/${playerName}`;
     let authorization = `Bearer ${token}`;
 
     try {
@@ -79,7 +76,6 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
         setFeedback('Server error');
       }
     }
-    axios.post(updateUrl);
   }
 
   async function onDrop(sourceSquare, targetSquare, piece) {
