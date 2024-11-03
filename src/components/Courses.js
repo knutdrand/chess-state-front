@@ -31,10 +31,10 @@ function Courses({ token }) {
     setShowAddCourseModal(false);
   };
 
-  const handleAddChapter = (newChapter) => {
+  const handleAddChapter = (newChapters) => {
     const updatedCourses = courses.map(course =>
       course.id === selectedCourse.id
-        ? { ...course, chapters: [...course.chapters, newChapter] }
+        ? { ...course, chapters: [...course.chapters, ...newChapters] }
         : course
     );
     setCourses(updatedCourses);
