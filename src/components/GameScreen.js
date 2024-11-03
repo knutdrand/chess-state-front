@@ -19,7 +19,7 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
   const [showSquare, setShowSquare] = useState([]);
   useEffect(() => {
     if (!token) return;
-    const url = `${apiUrl}/init/`;
+    const url = `${apiUrl}/init`;
     const headers = { 'accept': 'application/json', 'Authorization': `Bearer ${token}` };
     console.log(url);
     axios.get(url, { headers })
