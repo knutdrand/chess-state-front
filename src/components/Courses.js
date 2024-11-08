@@ -67,8 +67,35 @@ function Courses({ token }) {
       console.error('Error deleting chapter:', error);
     }
   };
+  const handleToggleChapterEnabled = async (courseId, chapterId, newStatus) => {
+    try {
+      // Send the update to the backend
+      await axios.patch(`${apiUrl}/courses/${courseId}/chapters/${chapterId}`, {
+        enabled: newStatus,
 
+      }, { headers }
+      );
 
+      // Update the local state to reflect the change
+      setCourses((prevCourses) =>
+        prevCourses.map((course) => {
+          if (course.id === courseId) {
+            return {
+              ...course,
+              chapters: course.chapters.map((chapter) =>
+                chapter.id === chapterId
+                  ? { ...chapter, enabled: newStatus }
+                  : chapter
+              ),
+            };
+          }
+          return course;
+        })
+      );
+    } catch (error) {
+      console.error('Error updating chapter status:', error);
+    }
+  };
 
   return (
     <div>
@@ -86,6 +113,7 @@ function Courses({ token }) {
             onAddChapter={() => { setSelectedCourse(course); setShowAddChapterModal(true); }}
             onDeleteCourse={handleDeleteCourse}
             onDeleteChapter={handleDeleteChapter}
+            onToggleChapterEnabled={handleToggleChapterEnabled}
           />
         ))}
       </Accordion>
