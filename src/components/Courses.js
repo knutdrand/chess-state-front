@@ -5,10 +5,12 @@ import { Accordion, Button } from 'react-bootstrap';
 import CourseAccordionItem from './CourseAccordionItem';
 import AddCourseModal from './AddCourseModal';
 import AddChapterModal from './AddChapterModal';
+import ImportStudyModal from "./ImportStudyModal";
 
 function Courses({ token }) {
   const [courses, setCourses] = useState([]);
   const [showAddCourseModal, setShowAddCourseModal] = useState(false);
+  const [showImportStudyModal, setShowImportStudyModal] = useState(false);
   const [showAddChapterModal, setShowAddChapterModal] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const headers = { 'accept': 'application/json', 'Authorization': `Bearer ${token}` };
@@ -111,6 +113,7 @@ function Courses({ token }) {
             course={course}
             index={index}
             onAddChapter={() => { setSelectedCourse(course); setShowAddChapterModal(true); }}
+            onImportStudy={() => { setSelectedCourse(course); setShowImportStudyModal(true); }}
             onDeleteCourse={handleDeleteCourse}
             onDeleteChapter={handleDeleteChapter}
             onToggleChapterEnabled={handleToggleChapterEnabled}
@@ -128,6 +131,13 @@ function Courses({ token }) {
       <AddChapterModal
         show={showAddChapterModal}
         onHide={() => setShowAddChapterModal(false)}
+        onAddChapter={handleAddChapter}
+        headers={headers}
+        selectedCourse={selectedCourse}
+      />
+      <ImportStudyModal
+        show={showImportStudyModal}
+        onHide={() => setShowImportStudyModal(false)}
         onAddChapter={handleAddChapter}
         headers={headers}
         selectedCourse={selectedCourse}

@@ -1,6 +1,6 @@
 import { Accordion, Card, ListGroup, Button } from 'react-bootstrap';
 
-function CourseAccordionItem({ course, index, onAddChapter, onDeleteCourse, onDeleteChapter, onToggleChapterEnabled}) {
+function CourseAccordionItem({ course, index, onAddChapter, onDeleteCourse, onDeleteChapter, onToggleChapterEnabled, onImportStudy}) {
   return (
     <Accordion.Item eventKey={String(index)}>
       <Accordion.Header>
@@ -34,6 +34,9 @@ function CourseAccordionItem({ course, index, onAddChapter, onDeleteCourse, onDe
         </ListGroup>
         <Button className="mt-3" onClick={onAddChapter}>
           Add Chapter
+        </Button>
+        <Button className="mt-3" onClick={onImportStudy}>
+          Import Study
         </Button>
       </Accordion.Body>
     </Accordion.Item>
