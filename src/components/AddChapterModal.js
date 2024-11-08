@@ -21,6 +21,8 @@ function AddChapterModal({ show, onHide, onAddChapter, headers, selectedCourse }
         onAddChapter(response.data);
       } catch (error) {
         console.error('Error adding chapter:', error);
+        // Display an error message to the user
+        alert('Error adding chapter. Please try again.');
       } finally {
         setLoading(false);  // Set loading to false after the API call completes
       }
@@ -35,7 +37,7 @@ function AddChapterModal({ show, onHide, onAddChapter, headers, selectedCourse }
       <Modal.Body>
         <Form.Group>
           <Form.Label>Chapter File</Form.Label>
-          <Form.Control type="file" onChange={(e) => setFile(e.target.files[0])} />
+          <Form.Control type="file" onChange={(e) => setFile(e.target.files[0])} accept={'.pgn'} />
         </Form.Group>
       </Modal.Body>
       <Modal.Footer>
