@@ -33,7 +33,11 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
           console.log('inside', chess.fen());
           setOrientation(chess.turn() === 'w' ? 'white' : 'black');
           setMode('play');
-        }).catch(setPlayStatus('Server Error'))}, [token]);
+        }).catch(error => {
+          setFeedback('Server error');
+          console.log({error});
+    });
+    }, [token]);
 
 
   async function getResponse(fen, sourceSquare, targetSquare, piece) {
