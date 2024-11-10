@@ -98,6 +98,37 @@ function Courses({ token }) {
       console.error('Error updating chapter status:', error);
     }
   };
+    const handleToggleCourseEnabled = async (courseId, newStatus) => {
+    try {
+      // Send the update to the backend
+      console.log('courseId:', courseId);
+      console.log('newStatus:', newStatus);
+      await axios.patch(`${apiUrl}/courses/${courseId}`, {
+        enabled: newStatus,
+      }, { headers }
+      );
+
+      // Update the local state to reflect the change
+      setCourses((prevCourses) =>
+        prevCourses.map((course) => {
+          if (course.id === courseId) {
+            return {
+              ...course,
+              enabled: newStatus,
+              chapters: course.chapters.map((chapter) => {
+                return {
+                  ...chapter,
+                  enabled: newStatus,
+                }})
+            };
+          }
+          return course;
+        })
+      );
+    } catch (error) {
+      console.error('Error updating chapter status:', error);
+    }
+  };
 
   return (
     <div>
@@ -117,6 +148,7 @@ function Courses({ token }) {
             onDeleteCourse={handleDeleteCourse}
             onDeleteChapter={handleDeleteChapter}
             onToggleChapterEnabled={handleToggleChapterEnabled}
+            onToggleCourseEnabled={handleToggleCourseEnabled}
           />
         ))}
       </Accordion>

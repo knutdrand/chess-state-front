@@ -1,12 +1,20 @@
 import { Accordion, Card, ListGroup, Button } from 'react-bootstrap';
 
-function CourseAccordionItem({ course, index, onAddChapter, onDeleteCourse, onDeleteChapter, onToggleChapterEnabled, onImportStudy}) {
+function CourseAccordionItem({ course, index, onAddChapter, onDeleteCourse, onDeleteChapter, onToggleChapterEnabled, onToggleCourseEnabled, onImportStudy}) {
   return (
     <Accordion.Item eventKey={String(index)}>
       <Accordion.Header>
         {course.name} ({course.color})
         <Button variant="warning" size="sm" className="ml-3" onClick={() => onDeleteCourse(course.id)}>
           Del
+        </Button>
+        <Button
+            variant={course.enabled ? "success" : "secondary"}
+            size="sm"
+            className="ml-2"
+            onClick={() => onToggleCourseEnabled(course.id,  !course.enabled)}
+            >
+          {course.enabled ? "Disable" : "Enable"}
         </Button>
       </Accordion.Header>
         <Accordion.Body>
