@@ -15,8 +15,11 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
   const [selectedSquare, setSelectedSquare] = useState(null);
   const [startTime, setStartTime] = useState(0);
   const [showSquare, setShowSquare] = useState([]);
+  const [line, setLine] = useState({});
   useEffect(() => {
     if (!token) return;
+    console.log('initing game, current game', game);
+    if (game) return;
     const url = `${apiUrl}/init`;
     const headers = { 'accept': 'application/json', 'Authorization': `Bearer ${token}` };
     console.log(url);
@@ -28,8 +31,9 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
             setPlayStatus('No course available');
             return;
           }
-          setGame(() => chess);
+          //setGame(() => chess);
           setGame(chess);
+          setLine(response.data.line);
           console.log('inside', chess.fen());
           setOrientation(chess.turn() === 'w' ? 'white' : 'black');
           setMode('play');
@@ -52,7 +56,9 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
            from_square:  sourceSquare,
             to_square: targetSquare,
             mode: mode,
-            elapsed_time: elapsedTime },
+            elapsed_time: elapsedTime,
+            line: line,
+           },
           {
         headers: {
           'accept': 'application/json',
@@ -63,6 +69,7 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
       setOrientation(updatedGame.turn() === 'w' ? 'white' : 'black');
       setGame(updatedGame);
       setMode(response.data.mode);
+      setLine(response.data.line);
 
       if (response.data.mode === 'show') {
         let move = updatedGame.move(response.data.correct_move);
