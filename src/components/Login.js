@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import './Login.css';
 import axios from "axios";
 import {apiUrl} from "../config";
+import { Link } from 'react-router-dom';
 
 
 async function loginUser(credentials) {
@@ -78,7 +79,19 @@ export default function Login({ setToken, setIsRegistering}) {
             </Alert>
           )}
         </Card.Body>
-        Dont' have an account? <Button onClick={() => setIsRegistering(true)}>Register</Button>
+      <div className="text-center mt-3">
+      Don't have an account?{' '}
+      <a
+        href="#"
+        onClick={(e) => {
+          e.preventDefault();
+          setIsRegistering(true);
+        }}
+        style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+      >
+        Register here
+      </a>
+    </div>
       </Card>
 
     </Container>
@@ -87,3 +100,4 @@ export default function Login({ setToken, setIsRegistering}) {
 Login.propTypes = {
   setToken: PropTypes.func.isRequired
 };
+//</p>Dont' have an account? <Button onClick={() => setIsRegistering(true)} >Register</Button>
