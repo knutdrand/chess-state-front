@@ -35,12 +35,13 @@ export default function Login({ setToken, setIsRegistering}) {
         client_id: '',
         client_secret: ''
 }).then((token) => {
-    setToken(token.access_token)}).catch((error) => {
-        console.log('Error: ' + error);
-        console.log('Error: ' + error.response);
-        setError('Error loggin in: ' + error);
-        setToken(null);
-    })
+    setToken(token.access_token)})
+    //.catch((error) => {
+    //        console.log('Error: ' + error);
+        //console.log('Error: ' + error.response);
+        //setError('Error loggin in: ' + error);
+        //setToken(null);
+    //})
   }
 
   return (
