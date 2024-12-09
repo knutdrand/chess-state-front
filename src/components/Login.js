@@ -19,7 +19,8 @@ async function loginUser(credentials) {
 }
 
 
-export default function Login({ setToken }) {
+export default function Login({ setToken, setIsRegistering}) {
+  console.log(setIsRegistering);
   const [username, setUserName] = useState();
   const [password, setPassword] = useState();
     const [error, setError] = useState();
@@ -77,7 +78,9 @@ export default function Login({ setToken }) {
             </Alert>
           )}
         </Card.Body>
+        Dont' have an account? <Button onClick={() => setIsRegistering(true)}>Register</Button>
       </Card>
+
     </Container>
   );
 }
