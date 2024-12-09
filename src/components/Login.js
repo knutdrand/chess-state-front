@@ -37,7 +37,8 @@ export default function Login({ setToken, setIsRegistering}) {
 }).then((token) => {
     setToken(token.access_token)}).catch((error) => {
         console.log('Error: ' + error);
-        setError('Invalid username or password');
+        console.log('Error: ' + error.response);
+        setError('Error loggin in: ' + error);
         setToken(null);
     })
   }
