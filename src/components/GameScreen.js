@@ -7,8 +7,7 @@ import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
 
 
-export function GameScreen({ token, setToken, setScore, setFeedback, setLink, setMode, boardWidth, mode}) {
-  const [game, setGame] = useState(null);
+export function GameScreen({ token, setToken, setScore, setFeedback, setLink, setMode, boardWidth, mode, game, setGame }) {
   const [orientation, setOrientation] = useState('white');
   const [playStatus, setPlayStatus] = useState('Loading');
   const [selectedSquare, setSelectedSquare] = useState(null);
@@ -32,7 +31,6 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
           }
           setGame(chess);
           setLine(response.data.line);
-          console.log('inside', chess.fen());
           setOrientation(chess.turn() === 'w' ? 'white' : 'black');
           setMode('play');
         }).catch(error => {

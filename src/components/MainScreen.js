@@ -12,6 +12,8 @@ import {apiUrl} from "../config";
 
 export function MainScreen({ token, setToken}) {
   const [mode, setMode] = useState('play');
+  const [game, setGame] = useState(null);
+
   const [score, setScore] = useState(0);
   const [feedback, setFeedback] = useState();
   const [link, setLink] = useState(null);
@@ -45,6 +47,8 @@ export function MainScreen({ token, setToken}) {
         {activeTab === 'play' ? (
           <div>
             <GameScreen
+            game={game}
+            setGame={setGame}
             token={token}
             setToken={setToken}
             setScore={setScore}
