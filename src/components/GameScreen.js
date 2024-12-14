@@ -8,7 +8,6 @@ import {jwtDecode} from 'jwt-decode';
 
 
 export function GameScreen({ token, setToken, setScore, setFeedback, setLink, setMode, boardWidth, mode}) {
-  //const [game, setGame] = useState(new Chess());
   const [game, setGame] = useState(null);
   const [orientation, setOrientation] = useState('white');
   const [playStatus, setPlayStatus] = useState('Loading');
@@ -31,14 +30,13 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
             setPlayStatus('No course available');
             return;
           }
-          //setGame(() => chess);
           setGame(chess);
           setLine(response.data.line);
           console.log('inside', chess.fen());
           setOrientation(chess.turn() === 'w' ? 'white' : 'black');
           setMode('play');
         }).catch(error => {
-          setFeedback('Server error');
+          setFeedback('Server error: ' + error);
           console.log({error});
     });
     }, [token]);
@@ -83,8 +81,6 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
       setLink(response.data.message);
       setScore(response.data.white_score + response.data.black_score);
       setStartTime(new Date().getTime());
-      setToken(token);
-
     } catch (error) {
       if (error?.response?.status === 401) {
         console.log('Authentication error');

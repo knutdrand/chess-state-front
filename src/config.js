@@ -1,9 +1,9 @@
 // config.js
-//# 'https://chess-state.vercel.app',
+//# 'https://chess-state.vercel.app',   
 const config = {
     apiUrl: 'https://polarchess.com/api',
-    localApiUrl: 'http://localhost:8000',
-    is_local: false,
+    localApiUrl: 'http://localhost:8000/api',
+    is_local: true,
 };
 const apiUrl = config.is_local ? config.localApiUrl : config.apiUrl;
-module.exports = {config, apiUrl};
+module.exports = { config, apiUrl };
