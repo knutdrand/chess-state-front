@@ -69,6 +69,7 @@ function Courses({ token }) {
       console.error('Error deleting chapter:', error);
     }
   };
+  
   const handleToggleChapterEnabled = async (courseId, chapterId, newStatus) => {
     try {
       // Send the update to the backend
@@ -101,8 +102,6 @@ function Courses({ token }) {
     const handleToggleCourseEnabled = async (courseId, newStatus) => {
     try {
       // Send the update to the backend
-      console.log('courseId:', courseId);
-      console.log('newStatus:', newStatus);
       await axios.patch(`${apiUrl}/courses/${courseId}`, {
         enabled: newStatus,
       }, { headers }
