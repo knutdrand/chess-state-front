@@ -6,7 +6,7 @@ import {Info} from "./Info";
 import {GameScreen} from "./GameScreen";
 import {Navigation} from "./Navigation";
 import Courses from './Courses'; // New component for course management
-import { Container, Navbar, Nav, Button, Image } from 'react-bootstrap';
+import { Container, Button } from 'react-bootstrap';
 import {apiUrl} from "../config";
 
 
@@ -43,7 +43,8 @@ export function MainScreen({ token, setToken}) {
       <Navigation activeTab={activeTab} setActiveTab={setActiveTab} userName={decodedToken.sub} handleLogout={handleLogout} />
       <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center w-100">
         {activeTab === 'play' ? (
-          <GameScreen
+          <div>
+            <GameScreen
             token={token}
             setToken={setToken}
             setScore={setScore}
@@ -53,21 +54,18 @@ export function MainScreen({ token, setToken}) {
             boardWidth={boardWidth}
             mode={mode}
           />
-        ) : (
-          <Courses apiUrl={apiUrl} token={token} />
-        )}
-        {activeTab === 'play' && (
-          mode === 'play' ? (
+          {mode==='play' ? (
             <div width={boardWidth}>
               <PlayerStatus score={score} width={boardWidth-20} onSolution={(event) => {}}/>
-              
             </div>
           ) : (
             <div width={boardWidth}>
             <Info mode={mode} feedback={feedback} width={boardWidth} link={link} />
-            <Button onClick={() => {}}>Next</Button>
             </div>
-          )
+          )}
+          </div>
+        ) : (
+          <Courses apiUrl={apiUrl} token={token} />
         )}
       </div>
     </Container>
