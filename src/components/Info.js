@@ -2,7 +2,7 @@ import {Alert} from "react-bootstrap";
 import React from "react";
 
 export function Info({mode, feedback, width, link}) {
-    const text = mode === 'show' ? `Incorrect: ${feedback}` : 'Repeat the move';
+    const text = mode === 'show' ? `Correct move was: ${feedback}` : 'Repeat the move';
     const variant = mode === 'show' ? 'danger' : 'warning';
 
     function getElement() {

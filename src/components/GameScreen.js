@@ -1,5 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Chess} from 'chess.js';
+import {PlayerStatus} from './PlayerStatus';
+import {Info} from './Info';
 import {apiUrl} from '../config';
 import {Chessboard} from 'react-chessboard';
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -7,20 +9,51 @@ import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
 
 
-export function GameScreen({ token, setToken, setScore, setFeedback, setLink, setMode, boardWidth, mode, game, setGame }) {
+export function GameScreen({ token, setToken, setMode, boardWidth, mode, game, setGame }) {
   const [orientation, setOrientation] = useState('white');
   const [playStatus, setPlayStatus] = useState('Loading');
   const [selectedSquare, setSelectedSquare] = useState(null);
   const [startTime, setStartTime] = useState(0);
   const [showSquare, setShowSquare] = useState([]);
   const [line, setLine] = useState({});
+  const [score, setScore] = useState(0);
+  const [feedback, setFeedback] = useState();
+  const [link, setLink] = useState(null);
+  async function onSolution(event) {
+    const fen = game.fen();
+    const elapsedTime = startTime > 0 ? (new Date().getTime() - startTime) / 1000 : -1;
+    const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
+    const url = `${apiUrl}/show`;
+    let authorization = `Bearer ${token}`;
+
+    try {
+      const response = await axios.post(url,
+         { fen: urlifiedFen,
+            elapsed_time: elapsedTime,
+            line: line,
+           },
+          {
+        headers: {
+          'accept': 'application/json',
+          'Authorization': authorization
+        }});
+      handleResponse(response);
+    } catch (error) {
+      if (error?.response?.status === 401) {
+        console.log('Authentication error');
+        setToken(null);
+      } else {
+        setFeedback('Server error');
+      }
+    }
+  }
+
   useEffect(() => {
     if (!token) return;
     console.log('initing game, current game', game);
     if (game) return;
     const url = `${apiUrl}/init`;
     const headers = { 'accept': 'application/json', 'Authorization': `Bearer ${token}` };
-    console.log(url);
     axios.get(url, { headers })
         .then(response => {
           let chess = new Chess(response.data.board);
@@ -61,24 +94,7 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
           'Authorization': authorization
         }
       });
-      const updatedGame = new Chess(response.data.board);
-      setOrientation(updatedGame.turn() === 'w' ? 'white' : 'black');
-      setGame(updatedGame);
-      setMode(response.data.mode);
-      setLine(response.data.line);
-
-      if (response.data.mode === 'show') {
-        let move = updatedGame.move(response.data.correct_move);
-        setShowSquare([move.from, move.to]);
-        updatedGame.undo();
-      } else {
-        setShowSquare([]);
-      }
-      console.log(response.data);
-      setFeedback(response.data.mode === 'show' ? response.data.correct_move : '');
-      setLink(response.data.message);
-      setScore(response.data.white_score + response.data.black_score);
-      setStartTime(new Date().getTime());
+      handleResponse(response);
     } catch (error) {
       if (error?.response?.status === 401) {
         console.log('Authentication error');
@@ -87,6 +103,27 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
         setFeedback('Server error');
       }
     }
+  }
+
+  function handleResponse(response) {
+    const updatedGame = new Chess(response.data.board);
+    setOrientation(updatedGame.turn() === 'w' ? 'white' : 'black');
+    setGame(updatedGame);
+    setMode(response.data.mode);
+    setLine(response.data.line);
+
+    if (response.data.mode === 'show') {
+      let move = updatedGame.move(response.data.correct_move);
+      setShowSquare([move.from, move.to]);
+      updatedGame.undo();
+    } else {
+      setShowSquare([]);
+    }
+    console.log(response.data);
+    setFeedback(response.data.mode === 'show' ? response.data.correct_move : '');
+    setLink(response.data.message);
+    setScore(response.data.white_score + response.data.black_score);
+    setStartTime(new Date().getTime());
   }
 
   async function onDrop(sourceSquare, targetSquare, piece) {
@@ -138,6 +175,15 @@ export function GameScreen({ token, setToken, setScore, setFeedback, setLink, se
         boardWidth={boardWidth}
         customSquareStyles={getCustomSquareStyles()}
       />
+      {mode==='play' ? (
+            <div width={boardWidth}>
+              <PlayerStatus score={score} width={boardWidth-20} onSolution={onSolution}/>
+            </div>
+          ) : (
+            <div width={boardWidth}>
+            <Info mode={mode} feedback={feedback} width={boardWidth} link={link} />
+            </div>
+          )}
     </div>
   );
 }

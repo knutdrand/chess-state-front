@@ -13,13 +13,11 @@ import {apiUrl} from "../config";
 export function MainScreen({ token, setToken}) {
   const [mode, setMode] = useState('play');
   const [game, setGame] = useState(null);
-
-  const [score, setScore] = useState(0);
-  const [feedback, setFeedback] = useState();
-  const [link, setLink] = useState(null);
   const [boardWidth, setBoardWidth] = useState(400);
   const [activeTab, setActiveTab] = useState('play'); // Track active tab
   const decodedToken = jwtDecode(token);
+
+
 
   useEffect(() => {
     const updateBoardWidth = debounce(() => {
@@ -51,22 +49,11 @@ export function MainScreen({ token, setToken}) {
             setGame={setGame}
             token={token}
             setToken={setToken}
-            setScore={setScore}
-            setFeedback={setFeedback}
-            setLink={setLink}
-            setMode={setMode}
             boardWidth={boardWidth}
             mode={mode}
+            setMode={setMode}
           />
-          {mode==='play' ? (
-            <div width={boardWidth}>
-              <PlayerStatus score={score} width={boardWidth-20} onSolution={(event) => {}}/>
-            </div>
-          ) : (
-            <div width={boardWidth}>
-            <Info mode={mode} feedback={feedback} width={boardWidth} link={link} />
-            </div>
-          )}
+          
           </div>
         ) : (
           <Courses apiUrl={apiUrl} token={token} />
