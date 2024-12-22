@@ -4,6 +4,7 @@ import {debounce} from "lodash";
 import {PlayerStatus} from "./PlayerStatus";
 import {Info} from "./Info";
 import {GameScreen} from "./GameScreen";
+import Config from "./Config";
 import {Navigation} from "./Navigation";
 import Courses from './Courses'; // New component for course management
 import { Container, Button } from 'react-bootstrap';
@@ -56,7 +57,9 @@ export function MainScreen({ token, setToken}) {
           
           </div>
         ) : (
-          <Courses apiUrl={apiUrl} token={token} />
+          activeTab === 'courses' ? (
+          <Courses apiUrl={apiUrl} token={token} /> ) : (
+            <Config token={token} />)
         )}
       </div>
     </Container>

@@ -15,6 +15,9 @@ export function Navigation({activeTab,setActiveTab, handleLogout, userName}) {
           <Nav.Item>
             <Nav.Link eventKey="courses">Manage Courses</Nav.Link>
           </Nav.Item>
+          <Nav.Item>
+            <Nav.Link eventKey="settings">Settings</Nav.Link>
+          </Nav.Item>
         </Nav>
         <Navbar.Text>{userName}</Navbar.Text>
         <Button onClick={handleLogout}>Logout</Button>

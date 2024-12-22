@@ -12,9 +12,6 @@ function AddCourseModal({ show, onHide, onAddCourse, headers }) {
       let url = `${apiUrl}/add-course`;
       let data = { course_name: newCourseName, color: newCourseColor };
       let config = {headers: headers };
-      console.log('data:', data);
-      console.log('config', config);
-      console.log('url:', url);
       const response = await axios.post(
         url,
         data,
