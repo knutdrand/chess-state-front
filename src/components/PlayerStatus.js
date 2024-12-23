@@ -17,6 +17,7 @@ export function PlayerStatus({score, width, onSolution}) {
                 style={{width: 0.75*width}}
             />
             <Button width={width*0.2} onClick={onSolution}>Solution</Button>
+            
         </Alert>
         </div>               
     );

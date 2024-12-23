@@ -1,7 +1,7 @@
-import {Alert} from "react-bootstrap";
+import {Alert, Button} from "react-bootstrap";
 import React from "react";
 
-export function Info({mode, feedback, width, link}) {
+export function Info({mode, feedback, width, link, onExplanation}) {
     const text = mode === 'show' ? `Correct move was: ${feedback}` : 'Repeat the move';
     const variant = mode === 'show' ? 'danger' : 'warning';
 
@@ -19,7 +19,7 @@ export function Info({mode, feedback, width, link}) {
     return (
         <Alert variant={variant} style={{width: width}}>
             {text} - {getElement()}
-
+            <Button width={width*0.2} onClick={onExplanation}>Explanation</Button>
         </Alert>
     );
 }

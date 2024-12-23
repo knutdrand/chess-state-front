@@ -6,6 +6,7 @@ import {Info} from "./Info";
 import {GameScreen} from "./GameScreen";
 import Config from "./Config";
 import {Navigation} from "./Navigation";
+import Exploration2 from "./Exploration2";
 import Courses from './Courses'; // New component for course management
 import { Container, Button } from 'react-bootstrap';
 import {apiUrl} from "../config";
@@ -38,14 +39,20 @@ export function MainScreen({ token, setToken}) {
   const handleLogout = () => {
     setToken(null);
   };
-
   return (
-    <Container fluid className="d-flex flex-column align-items-center p-3 vh-100 bg-body-tertiary">
-      <Navigation activeTab={activeTab} setActiveTab={setActiveTab} userName={decodedToken.sub} handleLogout={handleLogout} />
+    <Container
+      fluid
+      className="d-flex flex-column align-items-center p-3 vh-100 bg-body-tertiary"
+    >
+      <Navigation
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        userName={decodedToken.sub}
+        handleLogout={handleLogout}
+      />
       <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center w-100">
-        {activeTab === 'play' ? (
-          <div>
-            <GameScreen
+        {activeTab === 'play' && (
+          <GameScreen
             game={game}
             setGame={setGame}
             token={token}
@@ -54,14 +61,11 @@ export function MainScreen({ token, setToken}) {
             mode={mode}
             setMode={setMode}
           />
-          
-          </div>
-        ) : (
-          activeTab === 'courses' ? (
-          <Courses apiUrl={apiUrl} token={token} /> ) : (
-            <Config token={token} />)
         )}
+        {activeTab === 'courses' && <Courses apiUrl={apiUrl} token={token} />}
+        {activeTab === 'settings' && <Config token={token} />}
       </div>
     </Container>
   );
+
 }

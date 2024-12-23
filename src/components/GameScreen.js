@@ -7,6 +7,7 @@ import {Chessboard} from 'react-chessboard';
 import "bootstrap/dist/css/bootstrap.min.css";
 import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
+import Exploration2, { ApiExploration, ExampleExploration } from "./Exploration2";
 
 
 export function GameScreen({ token, setToken, setMode, boardWidth, mode, game, setGame }) {
@@ -19,6 +20,7 @@ export function GameScreen({ token, setToken, setMode, boardWidth, mode, game, s
   const [score, setScore] = useState(0);
   const [feedback, setFeedback] = useState();
   const [link, setLink] = useState(null);
+  const [isExploring, setIsExploring] = useState(false);
   async function onSolution(event) {
     const fen = game.fen();
     const elapsedTime = startTime > 0 ? (new Date().getTime() - startTime) / 1000 : -1;
@@ -167,23 +169,39 @@ export function GameScreen({ token, setToken, setMode, boardWidth, mode, game, s
   }
   return (
     <div className="ChessState mb-3">
-      <Chessboard
-        position={game.fen()}
-        onPieceDrop={onDrop}
-        onSquareClick={handleSquareClick}
-        boardOrientation={orientation}
-        boardWidth={boardWidth}
-        customSquareStyles={getCustomSquareStyles()}
-      />
-      {mode==='play' ? (
-            <div width={boardWidth}>
-              <PlayerStatus score={score} width={boardWidth-20} onSolution={onSolution}/>
+      {isExploring ? (
+        <ApiExploration fen={game.fen()} token={token} onExit={()=>setIsExploring(false)}/>
+      ) : (
+        <>
+          <Chessboard
+            position={game.fen()}
+            onPieceDrop={onDrop}
+            onSquareClick={handleSquareClick}
+            boardOrientation={orientation}
+            boardWidth={boardWidth}
+            customSquareStyles={getCustomSquareStyles()}
+          />
+          {mode === 'play' ? (
+            <div style={{ width: boardWidth }}>
+              <PlayerStatus
+                score={score}
+                width={boardWidth - 20}
+                onSolution={onSolution}
+              />
             </div>
           ) : (
-            <div width={boardWidth}>
-            <Info mode={mode} feedback={feedback} width={boardWidth} link={link} />
+            <div style={{ width: boardWidth }}>
+              <Info
+                mode={mode}
+                feedback={feedback}
+                width={boardWidth}
+                link={link}
+                onExplanation={() => setIsExploring(true)}
+              />
             </div>
           )}
+        </>
+      )}
     </div>
   );
 }

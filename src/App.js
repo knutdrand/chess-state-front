@@ -5,7 +5,7 @@ import React, {useState} from 'react';
 import {MainScreen} from "./components/MainScreen";
 import Register from './components/register';
 import { Exploration } from './components/Exploration.tsx';
-import Exploration2 from './components/Exploration2';
+import {Exploration2, ExampleExploration} from './components/Exploration2';
 const UserNameToGameScreen = () => {
   const { token, setToken } = useToken();
   const [isRegistering, setIsRegistering] = useState(false);
@@ -26,7 +26,7 @@ const App = () => {
       <Routes>
           <Route path='/' element={<UserNameToGameScreen />} />
           <Route path='/register' element={<Register />} />
-          <Route path='/exploration' element={<Exploration2/>} />
+          <Route path='/exploration' element={<ExampleExploration/>} />
       </Routes>
     </Router>
   );

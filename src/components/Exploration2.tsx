@@ -1,31 +1,46 @@
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useState, useEffect } from "react";
 import { Chessboard } from "react-chessboard";
+import {apiUrl} from '../config';
 
 
 interface ExplainedPosition {
     fen: string;
-    comment: string;
+    explanation: string;
 }
-const example_positions: ExplainedPosition[] = [
-    {
-        fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-        comment: "This is the starting position of a chess game.",
-    },
-    {
-        fen: "rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
-        comment: "E2 to E4: White opens with King's Pawn.",
-    },
-    {
-        fen: "rnbqkbnr/pppp1ppp/8/4p3/8/4P3/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
-        comment: "E7 to E5: Black mirrors the move.",
-    },
-];
 
-const Exploration2: React.FC = () => {
-  const [position, setPosition] = useState<string>("start");
-  const [moveIndex, setMoveIndex] = useState<number>(0);
-  const explanations = example_positions;
-  // Example explanation array for each position
+
+interface ExplorationProps {
+    explanations: ExplainedPosition[];
+    onExit?: () => void;
+    cur_index: number;
+}
+
+const ExampleExploration: React.FC<ExplorationProps> = () => {
+    const example_positions: ExplainedPosition[] = [
+        {
+            fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+            explanation: "This is the starting position of a chess game.",
+        },
+        {
+            fen: "rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+            explanation: "E2 to E4: White opens with King's Pawn.",
+        },
+        {
+            fen: "rnbqkbnr/pppp1ppp/8/4p3/8/4P3/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+            explanation: "E7 to E5: Black mirrors the move.",
+        },
+    ];
+    
+
+    return (
+        <Exploration2 explanations={example_positions} cur_index={0}/>
+    );
+}
+
+const Exploration2: React.FC<ExplorationProps> = ({ explanations, cur_index, onExit }) => {
+  const [moveIndex, setMoveIndex] = useState<number>(cur_index);
+    // Example explanation array for each position
 
   const goBack = () => {
     if (moveIndex > 0) {
@@ -34,7 +49,7 @@ const Exploration2: React.FC = () => {
   };
 
   const goForward = () => {
-    if (moveIndex < example_positions.length - 1) {
+    if (moveIndex < explanations.length - 1) {
       setMoveIndex(moveIndex + 1);
     }
   };
@@ -79,7 +94,7 @@ const Exploration2: React.FC = () => {
         }}
       >
         <div style={{ flex: 1 }}>
-          <p>{explanations[moveIndex].comment}</p>
+          <p>{explanations[moveIndex>0? moveIndex-1: 0].explanation}</p>
         </div>
 
         {/* Navigation */}
@@ -93,7 +108,7 @@ const Exploration2: React.FC = () => {
           }}
         >
           <div style={{ display: "flex", height: "100%", flexDirection: flexDirection}}>
-          <img src="/teacher2.jpg" alt="teacher" style={{width: "70%", height: "100%"}}/>
+          <img src="/teacher4.jpg" alt="teacher" style={{width: "70%", height: "100%"}}/>
           <div style={{display: "flex", flexDirection: 'row'}    }>
           <button
             onClick={goBack}
@@ -107,8 +122,12 @@ const Exploration2: React.FC = () => {
             disabled={moveIndex === explanations.length - 1}
             style={{ flex: 1, marginLeft: "5px", padding: "5px" }}
           >
+            
             &gt;
           </button>
+          <button onClick={onExit} style={{ flex: 1, padding: "5px" }}>
+            Exit
+            </button>
             </div>
           </div>
           </div>
@@ -117,4 +136,66 @@ const Exploration2: React.FC = () => {
   );
 };
 
+interface ApiExplorationProps {
+    fen: string;
+    token: string;
+}
+
+
+
+
+interface ApiExplorationProps {
+  fen: string;
+  token: string;
+    onExit: () => void; 
+}
+
+interface ExplanationResult {
+    explanations: ExplainedPosition[];
+    cur_index: number;
+    }
+
+const ApiExploration: React.FC<ApiExplorationProps> = ({ fen, token, onExit }) => {
+  const [explorations, setExplorations] = useState<ExplanationResult | null>(null); // State to store fetched data
+  const [loading, setLoading] = useState(true); // State to handle loading
+  const [error, setError] = useState<string | null>(null); // State for error handling
+
+  useEffect(() => {
+    const fetchExplorations = async () => {
+        const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
+        const url = apiUrl + "/explanation/" + urlifiedFen;
+        console.log(url);
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            accept: "application/json",
+            Authorization: "Bearer " + token,
+          },
+        });
+        console.log(response.data);
+        setExplorations(response.data); // Save the data
+      } catch (err) {
+        setError("Failed to fetch exploration data");
+      } finally {
+        setLoading(false); // Stop the loading indicator
+      }
+    };
+
+    fetchExplorations();
+  }, [fen, token]); // Dependencies ensure this effect runs when `fen` or `token` changes
+
+  if (loading) {
+    return <div>Loading...</div>; // Loading indicator
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>; // Error message
+  }
+  if (!explorations) {
+    return <div>No data found</div>; // No data message
+  }
+  return <Exploration2 explanations={explorations.explanations} onExit={onExit} cur_index={explorations.cur_index}/>; // Pass fetched data to Exploration2
+};
+
 export default Exploration2;
+export { ExampleExploration, ApiExploration };
