@@ -1,4 +1,5 @@
 import {Alert, Button, ProgressBar} from "react-bootstrap";
+import KeyIcon from '@mui/icons-material/Key';
 import React from "react";
 
 export function PlayerStatus({score, width, onSolution}) {
@@ -9,15 +10,15 @@ export function PlayerStatus({score, width, onSolution}) {
         <div>
         <Alert variant='success' style={{ width: width }} className="text-center d-flex align-items-center justify-content-between">
         
-            <ProgressBar
+        {     <ProgressBar
                 now={progress}
                 label={`Level: ${roundedDownScore}`}
                 className="mt-2"
                 variant="info"
                 style={{width: 0.75*width}}
             />
-            <Button width={width*0.2} onClick={onSolution}>Solution</Button>
-            
+         }    <Button width={width*0.2} onClick={onSolution}><KeyIcon/></Button>
+
         </Alert>
         </div>               
     );

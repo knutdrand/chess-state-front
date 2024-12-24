@@ -185,7 +185,7 @@ export function GameScreen({ token, setToken, setMode, boardWidth, mode, game, s
             <div style={{ width: boardWidth }}>
               <PlayerStatus
                 score={score}
-                width={boardWidth - 20}
+                width={boardWidth}
                 onSolution={onSolution}
               />
             </div>
