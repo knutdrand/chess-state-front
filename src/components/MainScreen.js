@@ -10,6 +10,7 @@ import Exploration2 from "./Exploration2";
 import Courses from './Courses'; // New component for course management
 import { Container, Button } from 'react-bootstrap';
 import {apiUrl} from "../config";
+import { Height } from "@mui/icons-material";
 
 
 export function MainScreen({ token, setToken}) {
