@@ -152,10 +152,7 @@ export function GameScreen({ token, setToken, setMode, boardWidth, mode, game, s
 
   function getCustomSquareStyles() {
     if (mode === 'show') {
-      let styles = {
-        [showSquare[0]]: { backgroundColor: 'rgba(255, 0, 255, 0.4)' },
-        [showSquare[1]]: { backgroundColor: 'rgba(255, 0, 255, 0.4)' }
-      };
+      let styles = {};
       if (selectedSquare) {
         styles[selectedSquare] = { backgroundColor: 'rgba(255, 255, 0, 0.4)' };
       }
@@ -180,6 +177,7 @@ export function GameScreen({ token, setToken, setMode, boardWidth, mode, game, s
             boardOrientation={orientation}
             boardWidth={boardWidth}
             customSquareStyles={getCustomSquareStyles()}
+            customArrows={showSquare ? [showSquare] : []}
           />
           {mode === 'play' ? (
             <div style={{ width: boardWidth }}>
