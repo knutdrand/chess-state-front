@@ -11,7 +11,7 @@ import Courses from './Courses'; // New component for course management
 import { Container, Button } from 'react-bootstrap';
 import {apiUrl} from "../config";
 import { Height } from "@mui/icons-material";
-
+import './MainScreen.css';
 
 export function MainScreen({ token, setToken}) {
   const [mode, setMode] = useState('play');
@@ -19,8 +19,6 @@ export function MainScreen({ token, setToken}) {
   const [boardWidth, setBoardWidth] = useState(400);
   const [activeTab, setActiveTab] = useState('play'); // Track active tab
   const decodedToken = jwtDecode(token);
-
-
 
   useEffect(() => {
     const updateBoardWidth = debounce(() => {
@@ -41,17 +39,14 @@ export function MainScreen({ token, setToken}) {
     setToken(null);
   };
   return (
-    <Container
-      fluid
-      className="d-flex flex-column align-items-center p-3 vh-100 bg-body-tertiary"
-    >
+    <div className='main-screen'>
       <Navigation
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         userName={decodedToken.sub}
         handleLogout={handleLogout}
       />
-      <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center w-100">
+      <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center w-100" style={{marginTop: '20px'}}>
         {activeTab === 'play' && (
           <GameScreen
             game={game}
@@ -66,7 +61,7 @@ export function MainScreen({ token, setToken}) {
         {activeTab === 'courses' && <Courses apiUrl={apiUrl} token={token} />}
         {activeTab === 'settings' && <Config token={token} />}
       </div>
-    </Container>
+    </div>
   );
 
 }

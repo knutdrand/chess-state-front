@@ -1,0 +1,12 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .main-screen {
+    display: grid;
+    grid-template-rows: 60px 1fr minmax(60px, 1fr);
+    height: 100vh;
+  }
