@@ -8,9 +8,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
 import Exploration2, { ApiExploration, ExampleExploration } from "./Exploration2";
+import {Box} from '@mui/material';
 
-
-export function GameScreen({ token, setToken, setMode, boardWidth, mode, game, setGame }) {
+export function GameScreen({ token, setToken, setMode, boardWidth, mode, game, setGame, screenOrientation }) {
   const [orientation, setOrientation] = useState('white');
   const [playStatus, setPlayStatus] = useState('Loading');
   const [selectedSquare, setSelectedSquare] = useState(null);
@@ -164,12 +164,15 @@ export function GameScreen({ token, setToken, setMode, boardWidth, mode, game, s
   if (!game) {
     return <div>{playStatus}</div>;
   }
+  console.log('flexDirection', screenOrientation);
   return (
-    <div className="ChessState mb-3">
+    <Box>
       {isExploring ? (
         <ApiExploration fen={game.fen()} token={token} onExit={()=>setIsExploring(false)}/>
       ) : (
-        <>
+        //<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2}}>
+          <Box sx={{ width: boardWidth, height: boardWidth, flex: 0 }}> 
           <Chessboard
             position={game.fen()}
             onPieceDrop={onDrop}
@@ -179,16 +182,15 @@ export function GameScreen({ token, setToken, setMode, boardWidth, mode, game, s
             customSquareStyles={getCustomSquareStyles()}
             customArrows={showSquare ? [showSquare] : []}
           />
+          </Box>
+          <Box style={{flex: 1, my: 0, height: '100%'}}>
           {mode === 'play' ? (
-            <div style={{ width: boardWidth }}>
               <PlayerStatus
                 score={score}
                 width={boardWidth}
                 onSolution={onSolution}
               />
-            </div>
           ) : (
-            <div style={{ width: boardWidth }}>
               <Info
                 mode={mode}
                 feedback={feedback}
@@ -196,11 +198,11 @@ export function GameScreen({ token, setToken, setMode, boardWidth, mode, game, s
                 link={link}
                 onExplanation={() => setIsExploring(true)}
               />
-            </div>
           )}
-        </>
+          </Box>          
+          </Box>
       )}
-    </div>
+    </Box>
   );
 }
 

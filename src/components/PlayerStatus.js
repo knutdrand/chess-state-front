@@ -10,22 +10,21 @@ export function PlayerStatus({ score, width, onSolution }) {
     <Box
       sx={{
         width: width,
-        display: "flex",
-        margin: "16px auto",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
+        height: '100%',
+        margin: 1,
       }}
     >
       <Alert
         severity="success"
+        icon={false}
         sx={{
           width: "100%",
+          height: '100%',
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           flexDirection: "row",
-          padding: "16px",
+          padding: 2,
         }}
       >
         {/* <Box sx={{ flex: 1 }}>

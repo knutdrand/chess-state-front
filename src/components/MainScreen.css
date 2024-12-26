@@ -6,7 +6,8 @@ html, body {
   }
 
   .main-screen {
-    display: grid;
-    grid-template-rows: 60px 1fr minmax(60px, 1fr);
     height: 100vh;
+    flex-direction: column;
+    display: flex;
   }
+  

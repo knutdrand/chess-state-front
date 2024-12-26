@@ -1,4 +1,4 @@
-import { Box, Alert, Button, Link } from "@mui/material";
+import { Box, Alert, Button, Link, Typography } from "@mui/material";
 import { OpenInFull } from "@mui/icons-material";
 import React from "react";
 
@@ -32,9 +32,8 @@ export function Info({ mode, feedback, width, link, onExplanation }: InfoProps) 
     <Box
       sx={{
         width: width,
-        display: "flex",
-        margin: "16px auto",
-        flexDirection: "row",
+        maxHeight: '100px',//'calc(100vh-${width}px-60px-16px)',
+        margin: 2,
         alignItems: "center",
         justifyContent: "center",
       }}
@@ -48,24 +47,29 @@ export function Info({ mode, feedback, width, link, onExplanation }: InfoProps) 
           justifyContent: "space-between",
           alignItems: "center",
           flexDirection: "row",
-          padding: "16px",
+          padding: 2,
         }}
       >
-        <div style={{ display: "flex", flexDirection: "row", alignItems: "space-between" }}>
-        <div >{getElement()}</div>
-
+        <Box sx={{ display: "flex", flexDirection: "row", alignItems: "space-between" }}>
+        <Box sx={{flex: 1}}>
+        <Typography sx={{display: '-webkit-box',
+          textOverflow: "ellipsis", overflow: "hidden", maxHeight: "100px", WebkitBoxOrient: "vertical",
+    WebkitLineClamp: 3,}}>
+          {getElement()}    
+          </Typography>
+        </Box>
         <Button
           onClick={onExplanation}
           sx={{
             flexShrink: 0,
             minWidth: "auto",
             padding: 1,
-            marginLeft: 2,
+            mx: 2,
           }}
         >
           <OpenInFull/>
         </Button>
-        </div>
+        </Box>
       </Alert>
     </Box>
   );

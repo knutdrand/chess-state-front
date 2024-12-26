@@ -8,26 +8,33 @@ import Config from "./Config";
 import {Navigation} from "./Navigation";
 import Exploration2 from "./Exploration2";
 import Courses from './Courses'; // New component for course management
-import { Container, Button } from 'react-bootstrap';
 import {apiUrl} from "../config";
 import { Height } from "@mui/icons-material";
+import { Box, Container, Button } from "@mui/material";
 import './MainScreen.css';
+
+
+const navHeight = 56;
+const minInfoWidth = 300;
+const minInfoHeight = 128;
+const margin = 2;
 
 export function MainScreen({ token, setToken}) {
   const [mode, setMode] = useState('play');
   const [game, setGame] = useState(null);
   const [boardWidth, setBoardWidth] = useState(400);
   const [activeTab, setActiveTab] = useState('play'); // Track active tab
+  const [screenOrientation, setScreenOrientation] = useState('column'); // Track screen orientation
   const decodedToken = jwtDecode(token);
 
   useEffect(() => {
     const updateBoardWidth = debounce(() => {
-      const navHeight = 56;
-      const maxBoardHeight = window.innerHeight - navHeight - 120;
-      const maxBoardWidth = window.innerWidth - 20;
-      setBoardWidth(Math.min(maxBoardHeight, maxBoardWidth));
-    }, 100);
-
+      const maxBoardHeight = window.innerHeight - navHeight - minInfoHeight - 3*margin*8;
+      const maxBoardWidth = window.innerWidth-2*margin*8;
+      const newBoardWidth = Math.min(maxBoardHeight, maxBoardWidth);
+      setBoardWidth(newBoardWidth);
+      setScreenOrientation('column');
+    });
     updateBoardWidth();
     window.addEventListener('resize', updateBoardWidth);
     return () => window.removeEventListener('resize', updateBoardWidth);
@@ -39,14 +46,18 @@ export function MainScreen({ token, setToken}) {
     setToken(null);
   };
   return (
-    <div className='main-screen'>
+    //<div className='main-screen'>
+    <Box sx={{display: 'flex', flexDirection: 'column', height: '100vh'}}>
+      <Box sx={{height: navHeight}}>
       <Navigation
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         userName={decodedToken.sub}
         handleLogout={handleLogout}
       />
-      <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center w-100" style={{marginTop: '20px'}}>
+      </Box>
+      <Box sx={{flex: 1, marginTop: margin}}>
+
         {activeTab === 'play' && (
           <GameScreen
             game={game}
@@ -54,14 +65,14 @@ export function MainScreen({ token, setToken}) {
             token={token}
             setToken={setToken}
             boardWidth={boardWidth}
+            screenOrientation={screenOrientation}
             mode={mode}
             setMode={setMode}
           />
         )}
         {activeTab === 'courses' && <Courses apiUrl={apiUrl} token={token} />}
         {activeTab === 'settings' && <Config token={token} />}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
-
 }

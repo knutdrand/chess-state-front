@@ -60,11 +60,12 @@ const Exploration2: React.FC<ExplorationProps> = ({ explanations, cur_index, onE
       style={{
         display: "flex",
         flexDirection: flexDirection,
-        height: "100vh",
+        height: "100vh-60px",
         width: "100vw",
         padding: "10px",
         boxSizing: "border-box",
       }}
+
     >
       {/* Chessboard Section */}
       <div
@@ -76,7 +77,7 @@ const Exploration2: React.FC<ExplorationProps> = ({ explanations, cur_index, onE
         }}
       >
         <Chessboard
-          boardWidth={Math.min(window.innerHeight, window.innerWidth) * 0.95}
+          boardWidth={Math.min(window.innerHeight-60, window.innerWidth) * 0.95}
           position={explanations[moveIndex].fen}
         />
       </div>
