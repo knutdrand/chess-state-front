@@ -58,7 +58,6 @@ export function Navigation({ activeTab, setActiveTab, handleLogout, userName }: 
           startIcon={<LogoutIcon />} 
           onClick={handleLogout}
         >
-          Logout
         </Button>
       </Toolbar>
     </AppBar>
