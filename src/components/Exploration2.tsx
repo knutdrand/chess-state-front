@@ -1,5 +1,7 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
+import IconButton from '@mui/material/IconButton';
+import { ArrowForwardIos, ArrowBackIos, ExitToApp } from "@mui/icons-material";
 import { Chessboard } from "react-chessboard";
 import {apiUrl} from '../config';
 
@@ -111,24 +113,40 @@ const Exploration2: React.FC<ExplorationProps> = ({ explanations, cur_index, onE
           <div style={{ display: "flex", height: "100%", flexDirection: flexDirection}}>
           <img src="/teacher4.jpg" alt="teacher" style={{width: "70%", height: "100%"}}/>
           <div style={{display: "flex", flexDirection: 'row'}    }>
-          <button
+          <IconButton 
+            onClick={goBack}
+            disabled={moveIndex === 0}
+          >
+            <ArrowBackIos />
+          </IconButton>
+          <IconButton 
+            onClick={goBack}
+            
+            disabled={moveIndex === explanations.length - 1}
+          >
+            <ArrowForwardIos />
+          </IconButton>
+{/*           <button
             onClick={goBack}
             disabled={moveIndex === 0}
             style={{ flex: 1, marginRight: "5px", padding: "5px" }}
           >
             &lt;
-          </button>
-          <button
+          </button> */}
+          {/* <button
             onClick={goForward}
             disabled={moveIndex === explanations.length - 1}
             style={{ flex: 1, marginLeft: "5px", padding: "5px" }}
           >
             
             &gt;
-          </button>
-          <button onClick={onExit} style={{ flex: 1, padding: "5px" }}>
+          </button> */}
+          <IconButton onClick={onExit}>
+            <ExitToApp />
+          </IconButton>
+          {/* <button onClick={onExit} style={{ flex: 1, padding: "5px" }}>
             Exit
-            </button>
+            </button> */}
             </div>
           </div>
           </div>
