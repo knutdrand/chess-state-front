@@ -4,6 +4,7 @@ import IconButton from '@mui/material/IconButton';
 import { ArrowForwardIos, ArrowBackIos, ExitToApp } from "@mui/icons-material";
 import { Chessboard } from "react-chessboard";
 import {apiUrl} from '../config';
+import { Pagination, PaginationItem, Typography } from "@mui/material";
 
 
 interface ExplainedPosition {
@@ -95,8 +96,13 @@ const Exploration2: React.FC<ExplorationProps> = ({ explanations, cur_index, onE
           padding: "10px",
           maxHeight: "100%",
         }}
-      >
+      >          
         <div style={{ flex: 1 }}>
+        <Pagination count = {explanations.length} page={moveIndex+1} onChange={(event, value) => setMoveIndex(value-1)} sx={{whiteSpace: 'nowrap', overflow: 'hidden'}}
+          renderItem={(item) => 
+          <PaginationItem {...item} sx={{color: item.page && explanations[item.page-1].explanation === '' ? 'primary.main': 'background.default' }}/>
+          }
+          />
           <p>{explanations[moveIndex>0? moveIndex-1: 0].explanation}</p>
         </div>
 
@@ -126,27 +132,9 @@ const Exploration2: React.FC<ExplorationProps> = ({ explanations, cur_index, onE
           >
             <ArrowForwardIos />
           </IconButton>
-{/*           <button
-            onClick={goBack}
-            disabled={moveIndex === 0}
-            style={{ flex: 1, marginRight: "5px", padding: "5px" }}
-          >
-            &lt;
-          </button> */}
-          {/* <button
-            onClick={goForward}
-            disabled={moveIndex === explanations.length - 1}
-            style={{ flex: 1, marginLeft: "5px", padding: "5px" }}
-          >
-            
-            &gt;
-          </button> */}
           <IconButton onClick={onExit}>
             <ExitToApp />
           </IconButton>
-          {/* <button onClick={onExit} style={{ flex: 1, padding: "5px" }}>
-            Exit
-            </button> */}
             </div>
           </div>
           </div>
