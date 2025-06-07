@@ -9,6 +9,7 @@ import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
 import Exploration2, { ApiExploration, ExampleExploration } from "./Exploration2";
 import {Box} from '@mui/material';
+import { moveApi } from '../api/apiClient';
 
 export function GameScreen({ token, setToken, setMode, boardWidth, mode, game, setGame, screenOrientation }) {
   const [orientation, setOrientation] = useState('white');
@@ -78,27 +79,21 @@ export function GameScreen({ token, setToken, setMode, boardWidth, mode, game, s
   async function getResponse(fen, sourceSquare, targetSquare, piece) {
     const elapsedTime = startTime > 0 ? (new Date().getTime() - startTime) / 1000 : -1;
     const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
-    const url = `${apiUrl}/move`;
-    let authorization = `Bearer ${token}`;
-
+    
     try {
-      const response = await axios.post(url,
-         { fen: urlifiedFen,
-           from_square:  sourceSquare,
-            to_square: targetSquare,
-            mode: mode,
-            elapsed_time: elapsedTime,
-            line: line,
-           },
-          {
-        headers: {
-          'accept': 'application/json',
-          'Authorization': authorization
-        }
-      });
-      handleResponse(response);
+      const moveRequest = {
+        fen: urlifiedFen,
+        from_square: sourceSquare,
+        to_square: targetSquare,
+        mode: mode,
+        elapsed_time: elapsedTime,
+        line: line,
+      };
+      
+      const response = await moveApi.move(moveRequest);
+      handleResponse({ data: response });
     } catch (error) {
-      if (error?.response?.status === 401) {
+      if (error.status === 401) {
         console.log('Authentication error');
         setToken(null);
       } else {

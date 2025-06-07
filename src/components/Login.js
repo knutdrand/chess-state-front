@@ -5,20 +5,26 @@ import './Login.css';
 import axios from "axios";
 import {apiUrl} from "../config";
 import { Link } from 'react-router-dom';
+import { tokenApi } from '../api/apiClient';
 
-
-async function loginUser(credentials) {
-  let response = await axios.post(apiUrl + '/token', new URLSearchParams(credentials), {headers: {
-    'accept': 'application/json',
-    'Content-Type': 'application/x-www-form-urlencoded'}}
-  ).then(
-      (response) => {
-        return response.data;
-      }
-    )
-  return response;
+async function handleLogin(e) {
+  e.preventDefault();
+  setIsLoading(true);
+  
+  try {
+    const formData = new FormData();
+    formData.append('username', username);
+    formData.append('password', password);
+    
+    const response = await tokenApi.loginForAccessToken(formData);
+    setToken(response.access_token);
+    navigate('/');
+  } catch (error) {
+    setError('Invalid username or password');
+  } finally {
+    setIsLoading(false);
+  }
 }
-
 
 export default function Login({ setToken, setIsRegistering}) {
   console.log(setIsRegistering);
