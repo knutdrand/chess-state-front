@@ -7,12 +7,11 @@ interface InfoProps {
   mode: string;
   feedback: string;
   width: string;
-  link: string;
+  link: string | null;
   onExplanation: () => void;
 }
 
-export function Info({ mode, feedback, width, link, onExplanation }: InfoProps) {
-  const text = mode === "show" ? {feedback} : "Repeat the move";
+export function Info({ mode, width, link, onExplanation }: InfoProps) {
   const variant = mode === "show" ? "error" : "warning";
 
   function getElement() {

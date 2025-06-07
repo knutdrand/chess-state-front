@@ -119,7 +119,7 @@ const Exploration2: React.FC<ExplorationProps> = ({ explanations, cur_index, onE
           <div style={{ display: "flex", height: "100%", flexDirection: flexDirection}}>
           <img src="/teacher4.jpg" alt="teacher" style={{width: "70%", height: "100%"}}/>
           <div style={{display: "flex", flexDirection: 'row'}    }>
-          <IconButton 
+          {/* <IconButton 
             onClick={goBack}
             disabled={moveIndex === 0}
           >
@@ -134,7 +134,7 @@ const Exploration2: React.FC<ExplorationProps> = ({ explanations, cur_index, onE
           </IconButton>
           <IconButton onClick={onExit}>
             <ExitToApp />
-          </IconButton>
+          </IconButton> */}
             </div>
           </div>
           </div>

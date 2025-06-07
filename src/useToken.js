@@ -4,17 +4,28 @@ import {jwtDecode} from "jwt-decode";
 export default function useToken() {
   const getToken = () => {
     const tokenString = localStorage.getItem('token');
-    const userToken = JSON.parse(tokenString);
-    if (!userToken) {
+    if (!tokenString || tokenString === 'null') {
       return null;
     }
-    const payLoad = jwtDecode(userToken);
-    const expirationTime = payLoad.exp * 1000 - 60000;
-    if (new Date().getTime() > expirationTime) {
+
+    try {
+      const userToken = JSON.parse(tokenString);
+      if (!userToken) {
+        return null;
+      }
+
+      const payLoad = jwtDecode(userToken);
+      const expirationTime = payLoad.exp * 1000 - 60000;
+      if (new Date().getTime() > expirationTime) {
+        localStorage.removeItem('token');
+        return null;
+      }
+      return userToken;
+    } catch (error) {
+      // Handle JSON parse errors or JWT decode errors
       localStorage.removeItem('token');
       return null;
     }
-    return userToken
   };
 
   const [token, setToken] = useState(getToken());
