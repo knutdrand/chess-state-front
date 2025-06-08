@@ -1,7 +1,7 @@
 import { Container, Form, Button, Alert, Card, Image } from 'react-bootstrap';
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { apiClient } from '../api/apiClient';
+import { api } from '../api/apiClient';
 
 export default function Register({ setToken, setIsRegistering}) {
   const [username, setUserName] = useState('');
@@ -9,7 +9,7 @@ export default function Register({ setToken, setIsRegistering}) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-    const [invitationCode, setInvitationCode] = useState('');   
+  const [invitationCode, setInvitationCode] = useState('');   
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,13 +23,14 @@ export default function Register({ setToken, setIsRegistering}) {
     }
 
     try {
-      const formData = new FormData();
+      const formData = new URLSearchParams();
       formData.append('username', username);
       formData.append('password', password);
       formData.append('invitation_code', invitationCode);
       formData.append('grant_type', 'password');
       
-      const response = await apiClient.apis.register.apiRegisterPost(formData);
+      // Update to use the api object instead of apiClient
+      const response = await api.register(username, password, invitationCode);
       setSuccess('User registered successfully. You can now log in.');
       setToken(response.access_token);
       setIsRegistering(false);
