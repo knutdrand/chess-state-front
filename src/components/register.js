@@ -1,21 +1,7 @@
 import { Container, Form, Button, Alert, Card, Image } from 'react-bootstrap';
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
-import { apiUrl } from '../config';
-
-async function registerUser(credentials) {
-  return axios
-    .post(apiUrl + '/register', new URLSearchParams(credentials), {
-      headers: {
-        'accept': 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    })
-    .then((response) => {
-      return response.data;
-    });
-}
+import { apiClient } from '../api/apiClient';
 
 export default function Register({ setToken, setIsRegistering}) {
   const [username, setUserName] = useState('');
@@ -37,19 +23,16 @@ export default function Register({ setToken, setIsRegistering}) {
     }
 
     try {
-      const token = await registerUser({
-        grant_type: 'password',
-        username: username,
-        password: password,
-        invitation_code: invitationCode,
-        scope: '',
-        client_id: '',
-        client_secret: '',
-      });
+      const formData = new FormData();
+      formData.append('username', username);
+      formData.append('password', password);
+      formData.append('invitation_code', invitationCode);
+      formData.append('grant_type', 'password');
+      
+      const response = await apiClient.apis.register.apiRegisterPost(formData);
       setSuccess('User registered successfully. You can now log in.');
-      setToken(token.access_token);
+      setToken(response.access_token);
       setIsRegistering(false);
-        
     } catch (error) {
       console.error('Error:', error);
       setError(

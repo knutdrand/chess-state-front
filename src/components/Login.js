@@ -5,50 +5,31 @@ import './Login.css';
 import axios from "axios";
 import {apiUrl} from "../config";
 import { Link } from 'react-router-dom';
-import { tokenApi } from '../api/apiClient';
-
-async function handleLogin(e) {
-  e.preventDefault();
-  setIsLoading(true);
-  
-  try {
-    const formData = new FormData();
-    formData.append('username', username);
-    formData.append('password', password);
-    
-    const response = await tokenApi.loginForAccessToken(formData);
-    setToken(response.access_token);
-    navigate('/');
-  } catch (error) {
-    setError('Invalid username or password');
-  } finally {
-    setIsLoading(false);
-  }
-}
+import { api } from '../api/apiClient';
 
 export default function Login({ setToken, setIsRegistering}) {
   console.log(setIsRegistering);
   const [username, setUserName] = useState();
   const [password, setPassword] = useState();
-    const [error, setError] = useState();
-  const handleSubmit = async e => {
+  const [error, setError] = useState();
+  const [loading, setLoading] = useState(false);
+  
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    return await loginUser({
-        grant_type: 'password',
-        username: username,
-        password: password,
-        scope: '',
-        client_id: '',
-        client_secret: ''
-}).then((token) => {
-    setToken(token.access_token)})
-    //.catch((error) => {
-    //        console.log('Error: ' + error);
-        //console.log('Error: ' + error.response);
-        //setError('Error loggin in: ' + error);
-        //setToken(null);
-    //})
-  }
+    setError('');
+    setLoading(true);
+    
+    try {
+      const response = await api.login(username, password);
+      setToken(response.access_token);
+      api.setAuthToken(response.access_token);
+    } catch (error) {
+      setError('Invalid username or password');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Container className="d-flex justify-content-center align-items-center vh-100">

@@ -2,14 +2,12 @@ import React, {useEffect, useState} from "react";
 import {Chess} from 'chess.js';
 import {PlayerStatus} from './PlayerStatus';
 import {Info} from './Info';
-import {apiUrl} from '../config';
 import {Chessboard} from 'react-chessboard';
 import "bootstrap/dist/css/bootstrap.min.css";
-import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
 import Exploration2, { ApiExploration, ExampleExploration } from "./Exploration2";
 import {Box} from '@mui/material';
-import { moveApi } from '../api/apiClient';
+import { api } from '../api/apiClient';
 
 export function GameScreen({ token, setToken, setMode, boardWidth, mode, game, setGame, screenOrientation }) {
   const [orientation, setOrientation] = useState('white');
@@ -22,82 +20,84 @@ export function GameScreen({ token, setToken, setMode, boardWidth, mode, game, s
   const [feedback, setFeedback] = useState();
   const [link, setLink] = useState(null);
   const [isExploring, setIsExploring] = useState(false);
+
+  // Set up authentication when token changes
+  useEffect(() => {
+    if (token) {
+      api.setAuthToken(token);
+    }
+  }, [token]);
+
   async function onSolution(event) {
+    if (!game) return;
+    
     const fen = game.fen();
     const elapsedTime = startTime > 0 ? (new Date().getTime() - startTime) / 1000 : -1;
-    const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
-    const url = `${apiUrl}/show`;
-    let authorization = `Bearer ${token}`;
-
+    
     try {
-      const response = await axios.post(url,
-         { fen: urlifiedFen,
-            elapsed_time: elapsedTime,
-            line: line,
-           },
-          {
-        headers: {
-          'accept': 'application/json',
-          'Authorization': authorization
-        }});
-      handleResponse(response);
+      const response = await api.show(
+        fen,
+        elapsedTime,
+        line
+      );
+      handleResponse({ data: response });
     } catch (error) {
-      if (error?.response?.status === 401) {
+      if (error.response?.status === 401) {
         console.log('Authentication error');
         setToken(null);
       } else {
         setFeedback('Server error');
+        console.error(error);
       }
     }
   }
 
   useEffect(() => {
     if (!token) return;
-    console.log('initing game, current game', game);
     if (game) return;
-    const url = `${apiUrl}/init`;
-    const headers = { 'accept': 'application/json', 'Authorization': `Bearer ${token}` };
-    axios.get(url, { headers })
-        .then(response => {
-          let chess = new Chess(response.data.board);
-          console.log('response', response.data);
-          if (response.data.success === false) {
-            setPlayStatus('No course available');
-            return;
-          }
-          setGame(chess);
-          setLine(response.data.line);
-          setOrientation(chess.turn() === 'w' ? 'white' : 'black');
-          setMode('play');
-        }).catch(error => {
-          setFeedback('Server error: ' + error);
-          console.log({error});
-    });
-    }, [token]);
-
+    
+    api.setAuthToken(token);
+    
+    api.init()
+      .then(response => {
+        let chess = new Chess(response.board);
+        if (response.success === false) {
+          setPlayStatus('No course available');
+          return;
+        }
+        setGame(chess);
+        setLine(response.line);
+        setOrientation(chess.turn() === 'w' ? 'white' : 'black');
+        setMode('play');
+      })
+      .catch(error => {
+        setFeedback('Server error: ' + error);
+        console.error(error);
+      });
+  }, [token]);
 
   async function getResponse(fen, sourceSquare, targetSquare, piece) {
     const elapsedTime = startTime > 0 ? (new Date().getTime() - startTime) / 1000 : -1;
-    const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
     
     try {
       const moveRequest = {
-        fen: urlifiedFen,
+        fen: fen.replace(/ /g, "_").replace(/\//g, '+'),
         from_square: sourceSquare,
         to_square: targetSquare,
         mode: mode,
         elapsed_time: elapsedTime,
-        line: line,
+        line: line
       };
       
-      const response = await moveApi.move(moveRequest);
+      const response = await api.move(moveRequest);
       handleResponse({ data: response });
     } catch (error) {
-      if (error.status === 401) {
+      if (error.response?.status === 401) {
         console.log('Authentication error');
         setToken(null);
       } else {
         setFeedback('Server error');
+        console.error(error);
       }
     }
   }
