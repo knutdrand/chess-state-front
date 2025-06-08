@@ -1,32 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import { apiUrl } from '../config';
-
-// Define types for your API responses
-export interface TokenResponse {
-  access_token: string;
-  token_type: string;
-}
-
-export interface MoveRequest {
-  fen: string;
-  from_square: string;
-  to_square: string;
-  mode: string;
-  elapsed_time?: number;
-  line?: string[];
-}
-
-export interface MoveResponse {
-  board: string;
-  is_correct: boolean;
-  correct_move?: string;
-  message?: string;
-  mode: string;
-  white_score: number;
-  black_score: number;
-  endgame_level: number;
-  line?: string[];
-}
+import { TokenResponse, MoveRequest, MoveResponse } from '../types';
 
 // Create API client class
 class ApiClient {
@@ -60,6 +34,22 @@ class ApiClient {
     return response.data;
   }
   
+  async register(username: string, password: string, invitationCode: string): Promise<TokenResponse> {
+    const formData = new URLSearchParams();
+    formData.append('username', username);
+    formData.append('password', password);
+    formData.append('invitation_code', invitationCode);
+    formData.append('grant_type', 'password');
+    
+    const response = await this.client.post<TokenResponse>('/register', formData, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+    
+    return response.data;
+  }
+  
   // Move API
   async init(): Promise<MoveResponse> {
     const response = await this.client.get<MoveResponse>('/init');
@@ -67,7 +57,17 @@ class ApiClient {
   }
   
   async move(request: MoveRequest): Promise<MoveResponse> {
-    const response = await this.client.post<MoveResponse>('/move', request);
+    const moveRequest: MoveRequest = {
+      fen: request.fen,
+      from_square: request.from_square,
+      to_square: request.to_square,
+      mode: request.mode || 'play',
+      elapsed_time: request.elapsed_time || -1,
+      piece: request.piece || null,
+      line: Array.isArray(request.line) ? request.line : []
+    };
+    
+    const response = await this.client.post<MoveResponse>('/move', moveRequest);
     return response.data;
   }
   
