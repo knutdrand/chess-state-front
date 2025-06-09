@@ -7,6 +7,11 @@ import {MainScreen} from "./components/MainScreen";
 import Register from './components/register';
 import { Exploration } from './components/Exploration.tsx';
 import {Exploration2, ExampleExploration} from './components/Exploration2';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+// Create a client
+const queryClient = new QueryClient();
+
 const UserNameToGameScreen = () => {
   const { token, setToken } = useToken();
   const [isRegistering, setIsRegistering] = useState(false);
@@ -23,13 +28,15 @@ const UserNameToGameScreen = () => {
 
 const App = () => {
   return (
-    <Router>
-      <Routes>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <Routes>
           <Route path='/' element={<UserNameToGameScreen />} />
           <Route path='/register' element={<Register />} />
           <Route path='/exploration' element={<ExampleExploration/>} />
-      </Routes>
-    </Router>
+        </Routes>
+      </Router>
+    </QueryClientProvider>
   );
 };
 

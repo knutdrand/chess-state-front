@@ -7,10 +7,8 @@ import {GameScreen} from "./GameScreen";
 import Config from "./Config";
 import {Navigation} from "./Navigation";
 import Exploration2 from "./Exploration2";
-import Courses from './Courses'; // New component for course management
-import {apiUrl} from "../config";
-import { Height } from "@mui/icons-material";
-import { Box, Container, Button } from "@mui/material";
+import Courses from './Courses';
+import { Box, Container, Button, AppBar, Toolbar, Typography } from "@mui/material";
 import './MainScreen.css';
 
 
@@ -70,7 +68,7 @@ export function MainScreen({ token, setToken}) {
             setMode={setMode}
           />
         )}
-        {activeTab === 'courses' && <Courses apiUrl={apiUrl} token={token} />}
+        {activeTab === 'courses' && <Courses token={token} />}
         {activeTab === 'settings' && <Config token={token} />}
       </Box>
     </Box>

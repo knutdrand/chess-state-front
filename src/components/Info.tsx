@@ -12,7 +12,7 @@ interface InfoProps {
 }
 
 export function Info({ mode, width, link, onExplanation }: InfoProps) {
-  const variant = mode === "show" ? "error" : "warning";
+  const variant = mode === "show" ? "error" : (mode === "repeat" ? "warning" : "info");
 
   function getElement() {
     // Check if the link starts with http or https
@@ -31,8 +31,8 @@ export function Info({ mode, width, link, onExplanation }: InfoProps) {
     <Box
       sx={{
         width: width,
-        maxHeight: '100px',//'calc(100vh-${width}px-60px-16px)',
-        margin: 2,
+        maxHeight: '300px',
+        margin: 1,
         alignItems: "center",
         justifyContent: "center",
       }}
@@ -44,30 +44,47 @@ export function Info({ mode, width, link, onExplanation }: InfoProps) {
           width: "100%",
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "center",
+          alignItems: "flex-start",
           flexDirection: "row",
-          padding: 2,
+          padding: 1,
         }}
       >
-        <Box sx={{ display: "flex", flexDirection: "row", alignItems: "space-between" }}>
-        <Box sx={{flex: 1}}>
-        <Typography sx={{display: '-webkit-box',
-          textOverflow: "ellipsis", overflow: "hidden", maxHeight: "100px", WebkitBoxOrient: "vertical",
-    WebkitLineClamp: 3,}}>
-          {getElement()}    
-          </Typography>
-        </Box>
-        <Button
-          onClick={onExplanation}
-          sx={{
-            flexShrink: 0,
-            minWidth: "auto",
-            padding: 1,
-            mx: 2,
-          }}
-        >
-          <OpenInFull/>
-        </Button>
+        <Box sx={{ 
+          display: "flex", 
+          flexDirection: "row", 
+          alignItems: "flex-start", 
+          width: "100%",
+          gap: 1
+        }}>
+          <Box sx={{ flex: 1 }}>
+            <Typography 
+              sx={{
+                display: '-webkit-box',
+                textOverflow: "ellipsis", 
+                overflow: "auto",
+                maxHeight: "270px",
+                WebkitBoxOrient: "vertical",
+                WebkitLineClamp: 15,
+                fontSize: "0.95rem",
+                lineHeight: 1.4,
+              }}
+            >
+              {getElement()}    
+            </Typography>
+          </Box>
+          <Button
+            onClick={onExplanation}
+            sx={{
+              flexShrink: 0,
+              minWidth: "32px",
+              height: "32px",
+              padding: 0.5,
+              alignSelf: "flex-start",
+            }}
+            size="small"
+          >
+            <OpenInFull fontSize="small" />
+          </Button>
         </Box>
       </Alert>
     </Box>

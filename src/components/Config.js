@@ -1,36 +1,57 @@
 
+import React, { useState } from 'react';
+import { 
+  Box, 
+  Typography, 
+  TextField, 
+  Button, 
+  Paper, 
+  Alert, 
+  CircularProgress 
+} from '@mui/material';
 import axios from 'axios';
 import { apiUrl } from '../config';
 
-import React, { useState } from 'react';
-
-const Config = ({token}) => {
+const Config = ({ token }) => {
   const [rating, setRating] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
-  const headers = { 'accept': 'application/json', 'Authorization': `Bearer ${token}` };
+  const [messageType, setMessageType] = useState('info');
+  
+  const headers = { 
+    'accept': 'application/json', 
+    'Authorization': `Bearer ${token}` 
+  };
+  
   const handleSubmit = async () => {
     if (rating === '') {
       setMessage('Rating cannot be empty');
+      setMessageType('error');
       return;
     }
-
+    
+    const ratingNum = parseInt(rating);
+    if (isNaN(ratingNum) || ratingNum < 0 || ratingNum > 3000) {
+      setMessage('Please enter a valid rating between 0 and 3000');
+      setMessageType('error');
+      return;
+    }
+    
     setLoading(true);
-    setMessage(null);
-
     try {
-        console.log('headers:', headers);
-        axios.patch(`${apiUrl}/player-config`, {rating: rating}, {headers: headers}).then(response => {
-            console.log(response.data);
-        }).catch(error => {
-            console.error('Error setting config:', error);
-        });
-        
-
-      //const data = await response.json();
-      //setMessage(`Success: ${data.message}`);
+      const response = await axios.patch(
+        `${apiUrl}/player-config`, 
+        { rating: ratingNum },
+        { headers }
+      );
+      
+      setMessage('Rating updated successfully');
+      setMessageType('success');
     } catch (error) {
-      setMessage('Error updating configuration');
+      console.error('Error updating rating:', error);
+
+      setMessage('Failed to update rating');
+      setMessageType('error');
     } finally {
       setLoading(false);
     }

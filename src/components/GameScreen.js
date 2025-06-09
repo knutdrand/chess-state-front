@@ -1,204 +1,189 @@
-import React, {useEffect, useState} from "react";
-import {Chess} from 'chess.js';
-import {PlayerStatus} from './PlayerStatus';
-import {Info} from './Info';
-import {Chessboard} from 'react-chessboard';
-import "bootstrap/dist/css/bootstrap.min.css";
-import {jwtDecode} from 'jwt-decode';
-import Exploration2, { ApiExploration, ExampleExploration } from "./Exploration2";
-import {Box} from '@mui/material';
-import { api } from '../api/apiClient';
+import React, { useState, useEffect } from "react";
+import { Chess } from 'chess.js';
+import { Chessboard } from "react-chessboard";
+import { Box, Grid, Paper, Typography, Button, CircularProgress, Stack } from "@mui/material";
+import { DefaultService, OpenAPI } from "../api";
+import { Info } from "./Info";
+import { baseUrl } from '../config';
 
-export function GameScreen({ token, setToken, setMode, boardWidth, mode, game, setGame, screenOrientation }) {
+export function GameScreen({ game, setGame, token, setToken, boardWidth, screenOrientation, mode, setMode }) {
+  const [position, setPosition] = useState("start");
   const [orientation, setOrientation] = useState('white');
-  const [playStatus, setPlayStatus] = useState('Loading');
-  const [selectedSquare, setSelectedSquare] = useState(null);
-  const [startTime, setStartTime] = useState(0);
-  const [showSquare, setShowSquare] = useState([]);
-  const [line, setLine] = useState({});
-  const [score, setScore] = useState(0);
-  const [feedback, setFeedback] = useState();
-  const [link, setLink] = useState(null);
-  const [isExploring, setIsExploring] = useState(false);
-
-  // Set up authentication when token changes
+  const [rightClickedSquares, setRightClickedSquares] = useState({});
+  const [moveSquares, setMoveSquares] = useState({});
+  const [optionSquares, setOptionSquares] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [explanation, setExplanation] = useState(null);
+  const [playerStatus, setPlayerStatus] = useState(null);
+  const [showSquares, setShowSquares] = useState([]);
+  // Configure the API with the token
   useEffect(() => {
-    if (token) {
-      api.setAuthToken(token);
-    }
+    OpenAPI.BASE = baseUrl;
+    OpenAPI.TOKEN = token;
+    OpenAPI.HEADERS = {
+      'Authorization': `Bearer ${token}`
+    };
   }, [token]);
 
-  async function onSolution(event) {
+  useEffect(() => {
+    if (!game) {
+      initGame();
+    }
+  }, []);
+
+  const initGame = async () => {
+    setLoading(true);
+    try {
+      // Use the correct method from DefaultService
+      const response = await DefaultService.initApiInitGet();
+      const chess = new Chess(response.board)
+      setGame(chess);
+      setPosition(response.board);
+      setOrientation(chess.turn() === 'w' ? 'white' : 'black');
+      setLoading(false);
+      setMode('play');
+    } catch (error) {
+      console.error("Error initializing game:", error);
+      // Check if it's an authentication error
+      if (error.response && error.response.status === 401) {
+        setToken(null); // Clear token to redirect to login
+      }
+      setLoading(false);
+    }
+  };
+
+  const makeMove = async (move) => {
     if (!game) return;
     
-    const fen = game.fen();
-    const elapsedTime = startTime > 0 ? (new Date().getTime() - startTime) / 1000 : -1;
-    
     try {
-      const response = await api.show(
-        fen,
-        elapsedTime,
-        line
-      );
-      handleResponse({ data: response });
-    } catch (error) {
-      if (error.response?.status === 401) {
-        console.log('Authentication error');
-        setToken(null);
-      } else {
-        setFeedback('Server error');
-        console.error(error);
-      }
-    }
-  }
-
-  useEffect(() => {
-    if (!token) return;
-    if (game) return;
-    
-    api.setAuthToken(token);
-    
-    api.init()
-      .then(response => {
-        let chess = new Chess(response.board);
-        if (response.success === false) {
-          setPlayStatus('No course available');
-          return;
+      const gameCopy = new Chess(game.fen());
+      const result = gameCopy.move(move);
+      const oldFen = position;
+      if (result) {
+        setGame(gameCopy);
+        
+        setPosition(gameCopy.fen());
+        
+        // Send move to API using DefaultService
+        const response = await DefaultService.moveApiMovePost({
+          fen: oldFen,
+          from_square: move.from,
+          to_square: move.to,
+          mode: mode,
+          elapsed_time: -1,
+          piece: move.promotion || undefined
+        });
+        
+        // Handle opponent's move
+        const newGameCopy = new Chess(response.board);
+        
+        if (response.mode==='show') {
+          let move = newGameCopy.move(response.correct_move);
+          setShowSquares([move.from, move.to]);
+          console.log('show', response.correct_move);
+          console.log([move.from, move.to]);
+          newGameCopy.undo();
+        } else {
+          setShowSquares([]);
         }
-        setGame(chess);
-        setLine(response.line);
-        setOrientation(chess.turn() === 'w' ? 'white' : 'black');
-        setMode('play');
-      })
-      .catch(error => {
-        setFeedback('Server error: ' + error);
-        console.error(error);
-      });
-  }, [token]);
-
-  async function getResponse(fen, sourceSquare, targetSquare, piece) {
-    const elapsedTime = startTime > 0 ? (new Date().getTime() - startTime) / 1000 : -1;
-    
-    try {
-      const moveRequest = {
-        fen: fen.replace(/ /g, "_").replace(/\//g, '+'),
-        from_square: sourceSquare,
-        to_square: targetSquare,
-        mode: mode,
-        elapsed_time: elapsedTime,
-        line: line
-      };
-      
-      const response = await api.move(moveRequest);
-      handleResponse({ data: response });
+        setOrientation(newGameCopy.turn() === 'w' ? 'white' : 'black');
+        setGame(newGameCopy);
+        setPosition(newGameCopy.fen());
+        setMode(response.mode);
+        setExplanation(response.message);
+        setPlayerStatus(response.mode);
+      }
     } catch (error) {
-      if (error.response?.status === 401) {
-        console.log('Authentication error');
-        setToken(null);
-      } else {
-        setFeedback('Server error');
-        console.error(error);
+      console.error("Error making move:", error);
+      // Check if it's an authentication error
+      if (error.response && error.response.status === 401) {
+        setToken(null); // Clear token to redirect to login
       }
     }
+  };
+
+  function onDrop(sourceSquare, targetSquare) {
+    const move = {
+      from: sourceSquare,
+      to: targetSquare,
+      promotion: "q" // always promote to queen for simplicity
+    };
+    
+    makeMove(move);
+    return true;
   }
 
-  function handleResponse(response) {
-    const updatedGame = new Chess(response.data.board);
-    setOrientation(updatedGame.turn() === 'w' ? 'white' : 'black');
-    setGame(updatedGame);
-    setMode(response.data.mode);
-    setLine(response.data.line);
-
-    if (response.data.mode === 'show') {
-      let move = updatedGame.move(response.data.correct_move);
-      setShowSquare([move.from, move.to]);
-      updatedGame.undo();
-    } else {
-      setShowSquare([]);
-    }
-    console.log(response.data);
-    setFeedback(response.data.mode === 'show' ? response.data.correct_move : '');
-    setLink(response.data.message);
-    setScore(response.data.white_score + response.data.black_score);
-    setStartTime(new Date().getTime());
+  function onSquareClick(square) {
+    // Implementation for square click handling
+    // ...
   }
 
-  async function onDrop(sourceSquare, targetSquare, piece) {
-    const fen = game.fen();
-    try {
-      const result = game.move({ from: sourceSquare, to: targetSquare, promotion: 'q' });
-      if (!result) return false;
-    } catch (e) {
-      return false;
-    }
-
-    setGame(new Chess(game.fen()));
-    return getResponse(fen, sourceSquare, targetSquare, piece);
+  function onSquareRightClick(square) {
+    // Implementation for right-click handling
+    // ...
   }
 
-  async function handleSquareClick(square) {
-    if (selectedSquare) {
-      onDrop(selectedSquare, square);
-      setSelectedSquare(null);
-    } else {
-      setSelectedSquare(square);
-    }
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
-  function getCustomSquareStyles() {
-    if (mode === 'show') {
-      let styles = {};
-      if (selectedSquare) {
-        styles[selectedSquare] = { backgroundColor: 'rgba(255, 255, 0, 0.4)' };
-      }
-      return styles;
-    } else {
-      return selectedSquare ? { [selectedSquare]: { backgroundColor: 'rgba(255, 255, 0, 0.4)' } } : {};
-    }
-  }
-  if (!game) {
-    return <div>{playStatus}</div>;
-  }
-  console.log('flexDirection', screenOrientation);
   return (
-    <Box>
-      {isExploring ? (
-        <ApiExploration fen={game.fen()} token={token} onExit={()=>setIsExploring(false)}/>
-      ) : (
-        //<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2}}>
-          <Box sx={{ width: boardWidth, height: boardWidth, flex: 0 }}> 
-          <Chessboard
-            position={game.fen()}
-            onPieceDrop={onDrop}
-            onSquareClick={handleSquareClick}
-            boardOrientation={orientation}
-            boardWidth={boardWidth}
-            customSquareStyles={getCustomSquareStyles()}
-            customArrows={showSquare ? [showSquare] : []}
-          />
-          </Box>
-          <Box style={{flex: 1, my: 0, height: '100%'}}>
-          {mode === 'play' ? (
-              <PlayerStatus
-                score={score}
-                width={boardWidth}
-                onSolution={onSolution}
-              />
-          ) : (
-              <Info
-                mode={mode}
-                feedback={feedback}
-                width={boardWidth}
-                link={link}
-                onExplanation={() => setIsExploring(true)}
-              />
-          )}
-          </Box>          
-          </Box>
-      )}
+    <Box sx={{ display: 'flex', flexDirection: screenOrientation, height: '100%' }}>
+      <Box sx={{ 
+        width: boardWidth, 
+        height: boardWidth,
+        margin: 'auto'
+      }}>
+        <Chessboard
+          position={position}
+          onPieceDrop={onDrop}
+          onSquareClick={onSquareClick}
+          onSquareRightClick={onSquareRightClick}
+          boardOrientation={orientation}
+          customArrows={showSquares ? [showSquares] : []}
+          customSquareStyles={{
+            ...moveSquares,
+            ...optionSquares,
+            ...rightClickedSquares
+          }}
+        />
+      </Box>
+      
+      <Box sx={{ 
+        flex: 1, 
+        display: 'flex', 
+        flexDirection: 'column',
+        p: 2,
+        minWidth: 300
+      }}>
+        
+        <Paper elevation={3} sx={{ p: 2, flex: 1, overflow: 'auto' }}>
+          <Info link={explanation} mode={mode} />
+        </Paper>
+        
+        {/* <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            onClick={initGame}
+            fullWidth
+          >
+            New Game
+          </Button>
+          <Button 
+            variant="outlined" 
+            color="secondary"
+            onClick={() => setMode(mode === 'play' ? 'explore' : 'play')}
+            fullWidth
+          >
+            {mode === 'play' ? 'Explore' : 'Play'}
+          </Button>
+        </Stack> */}
+      </Box>
     </Box>
   );
 }
-
-

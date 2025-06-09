@@ -1,60 +1,92 @@
-import { useState } from 'react';
-import { Modal, Form, Button, Dropdown } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { 
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  DialogActions, 
+  Button, 
+  TextField, 
+  FormControl, 
+  InputLabel, 
+  Select, 
+  MenuItem 
+} from '@mui/material';
 import axios from 'axios';
 import { apiUrl } from '../config';
 
-function AddCourseModal({ show, onHide, onAddCourse, headers }) {
+function AddCourseModal({ open, onClose, onAddCourse, token }) {
   const [newCourseName, setNewCourseName] = useState('');
   const [newCourseColor, setNewCourseColor] = useState('White');
 
   const handleSaveCourse = async () => {
     try {
-      let url = `${apiUrl}/add-course`;
-      let data = { course_name: newCourseName, color: newCourseColor };
-      let config = {headers: headers };
+      const headers = { 
+        'accept': 'application/json', 
+        'Authorization': `Bearer ${token}` 
+      };
+      
       const response = await axios.post(
-        url,
-        data,
-        config
+        `${apiUrl}/add-course`,
+        { course_name: newCourseName, color: newCourseColor },
+        { headers }
       );
+      
       onAddCourse(response.data);
+      onClose();
+      // Reset form
+      setNewCourseName('');
+      setNewCourseColor('White');
     } catch (error) {
       console.error('Error adding course:', error);
     }
   };
 
   return (
-    <Modal show={show} onHide={onHide}>
-      <Modal.Header closeButton>
-        <Modal.Title>Add New Course</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <Form.Group>
-          <Form.Label>Course Name</Form.Label>
-          <Form.Control
-            type="text"
-            value={newCourseName}
-            onChange={(e) => setNewCourseName(e.target.value)}
-          />
-        </Form.Group>
-        <Form.Group className="mt-3">
-          <Form.Label>Player Color</Form.Label>
-          <Dropdown onSelect={(eventKey) => setNewCourseColor(eventKey)}>
-            <Dropdown.Toggle variant="secondary" id="dropdown-basic">
-              {newCourseColor}
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item eventKey="White">White</Dropdown.Item>
-              <Dropdown.Item eventKey="Black">Black</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
-        </Form.Group>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>Close</Button>
-        <Button variant="primary" onClick={handleSaveCourse}>Save Course</Button>
-      </Modal.Footer>
-    </Modal>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle>Add New Course</DialogTitle>
+      <DialogContent>
+        <TextField
+          autoFocus
+          margin="dense"
+          id="courseName"
+          label="Course Name"
+          type="text"
+          fullWidth
+          variant="outlined"
+          value={newCourseName}
+          onChange={(e) => setNewCourseName(e.target.value)}
+          sx={{ mb: 2, mt: 1 }}
+        />
+        
+        <FormControl fullWidth variant="outlined">
+          <InputLabel id="color-select-label">Color</InputLabel>
+          <Select
+            labelId="color-select-label"
+            id="color-select"
+            value={newCourseColor}
+            onChange={(e) => setNewCourseColor(e.target.value)}
+            label="Color"
+          >
+            <MenuItem value="White">White</MenuItem>
+            <MenuItem value="Black">Black</MenuItem>
+            <MenuItem value="Both">Both</MenuItem>
+          </Select>
+        </FormControl>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="primary">
+          Cancel
+        </Button>
+        <Button 
+          onClick={handleSaveCourse} 
+          color="primary" 
+          variant="contained"
+          disabled={!newCourseName}
+        >
+          Add Course
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
 

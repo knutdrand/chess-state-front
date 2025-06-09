@@ -1,20 +1,33 @@
+
 // @ts-nocheck
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { apiUrl } from "../config";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Box,
   Button,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Typography,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Collapse,
+  IconButton,
 } from "@mui/material";
+import {
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
+  createColumnHelper,
+} from "@tanstack/react-table";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import AddCourseModal from "./AddCourseModal";
 import AddChapterModal from "./AddChapterModal";
 import ImportStudyModal from "./ImportStudyModal";
-import CourseAccordionItem from "./CourseAccordionItem";
 import axios from "axios";
 
 const fetchCourses = async (token) => {
@@ -49,6 +62,7 @@ const Courses = ({ token }: CoursesProps) => {
   const [showImportStudyModal, setShowImportStudyModal] = useState<boolean>(false);
   const [showAddChapterModal, setShowAddChapterModal] = useState<boolean>(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
   // Query: Fetch courses
   const { data: courses = [], isLoading } = useQuery(
@@ -126,15 +140,92 @@ const Courses = ({ token }: CoursesProps) => {
     }
   );
 
+  const toggleRowExpanded = (courseId: string) => {
+    setExpandedRows(prev => ({
+      ...prev,
+      [courseId]: !prev[courseId]
+    }));
+  };
+
+  const columnHelper = createColumnHelper<Course>();
+  
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor("name", {
+        header: "Course Name",
+        cell: info => info.getValue(),
+      }),
+      columnHelper.accessor("enabled", {
+        header: "Status",
+        cell: info => (
+          <Button
+            variant={info.getValue() ? "contained" : "outlined"}
+            color={info.getValue() ? "success" : "warning"}
+            size="small"
+            onClick={() => toggleEnabledMutation.mutate({
+              courseId: info.row.original.id,
+              enabled: !info.getValue(),
+            })}
+          >
+            {info.getValue() ? "Enabled" : "Disabled"}
+          </Button>
+        ),
+      }),
+      columnHelper.display({
+        id: "actions",
+        header: "Actions",
+        cell: info => (
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => {
+                setSelectedCourse(info.row.original);
+                setShowAddChapterModal(true);
+              }}
+            >
+              Add Chapter
+            </Button>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => {
+                setSelectedCourse(info.row.original);
+                setShowImportStudyModal(true);
+              }}
+            >
+              Import Study
+            </Button>
+            <Button
+              variant="outlined"
+              color="error"
+              size="small"
+              onClick={() => deleteCourseMutation.mutate(info.row.original.id)}
+            >
+              Delete
+            </Button>
+            <IconButton onClick={() => toggleRowExpanded(info.row.original.id)}>
+              {expandedRows[info.row.original.id] ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            </IconButton>
+          </Box>
+        ),
+      }),
+    ],
+    [expandedRows]
+  );
+
+  const table = useReactTable({
+    data: courses,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
   if (isLoading) {
     return <Typography>Loading...</Typography>;
   }
 
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        Courses
-      </Typography>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Button
         variant="contained"
         onClick={() => setShowAddCourseModal(true)}
@@ -143,51 +234,115 @@ const Courses = ({ token }: CoursesProps) => {
         Add New Course
       </Button>
 
-      <Accordion>
-        {courses.map((course: Course, index: number) => (
-          <Accordion key={course.id}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography>{course.name}</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <CourseAccordionItem
-                course={course}
-                index={index}
-                onAddChapter={() => {
-                  setSelectedCourse(course);
-                  setShowAddChapterModal(true);
-                }}
-                onImportStudy={() => {
-                  setSelectedCourse(course);
-                  setShowImportStudyModal(true);
-                }}
-                onDeleteCourse={() =>
-                  deleteCourseMutation.mutate(course.id)
-                }
-                onDeleteChapter={(chapterId) =>
-                  deleteChapterMutation.mutate({
-                    courseId: course.id,
-                    chapterId,
-                  })
-                }
-                onToggleChapterEnabled={(chapterId, enabled) =>
-                  toggleEnabledMutation.mutate({
-                    courseId: course.id,
-                    chapterId,
-                    enabled,
-                  })
-                }
-                onToggleCourseEnabled={(enabled) =>
-                  toggleEnabledMutation.mutate({
-                    courseId: course.id,
-                    enabled,
-                  })
-                }
-              />
-            </AccordionDetails>
-          </Accordion>
-        ))}
-      </Accordion>
+      <TableContainer 
+        component={Paper} 
+        sx={{ 
+          flex: 1,
+          overflow: 'auto',
+          maxHeight: 'calc(100vh - 180px)' // Adjust this value based on your header size
+        }}
+      >
+        <Table stickyHeader>
+          <TableHead>
+            {table.getHeaderGroups().map(headerGroup => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map(header => (
+                  <TableCell 
+                    key={header.id}
+                    sx={{ 
+                      backgroundColor: 'background.paper',
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 1
+                    }}
+                  >
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableHead>
+          <TableBody>
+            {table.getRowModel().rows.map(row => (
+              <React.Fragment key={row.id}>
+                <TableRow>
+                  {row.getVisibleCells().map(cell => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+                {expandedRows[row.original.id] && (
+                  <TableRow>
+                    <TableCell colSpan={columns.length}>
+                      <Collapse in={expandedRows[row.original.id]} timeout="auto" unmountOnExit>
+                        <Box sx={{ margin: 1 }}>
+                          <Typography variant="h6" gutterBottom component="div">
+                            Chapters
+                          </Typography>
+                          {row.original.chapters && row.original.chapters.length > 0 ? (
+                            <Table size="small">
+                              <TableHead>
+                                <TableRow>
+                                  <TableCell>Chapter Name</TableCell>
+                                  <TableCell>Status</TableCell>
+                                  <TableCell>Actions</TableCell>
+                                </TableRow>
+                              </TableHead>
+                              <TableBody>
+                                {row.original.chapters.map((chapter) => (
+                                  <TableRow key={chapter.id}>
+                                    <TableCell>{chapter.name}</TableCell>
+                                    <TableCell>
+                                      <Button
+                                        variant={chapter.enabled ? "contained" : "outlined"}
+                                        color={chapter.enabled ? "success" : "warning"}
+                                        size="small"
+                                        onClick={() => toggleEnabledMutation.mutate({
+                                          courseId: row.original.id,
+                                          chapterId: chapter.id,
+                                          enabled: !chapter.enabled,
+                                        })}
+                                      >
+                                        {chapter.enabled ? "Enabled" : "Disabled"}
+                                      </Button>
+                                    </TableCell>
+                                    <TableCell>
+                                      <Button
+                                        variant="outlined"
+                                        color="error"
+                                        size="small"
+                                        onClick={() => deleteChapterMutation.mutate({
+                                          courseId: row.original.id,
+                                          chapterId: chapter.id,
+                                        })}
+                                      >
+                                        Delete
+                                      </Button>
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          ) : (
+                            <Typography color="text.secondary">No chapters available</Typography>
+                          )}
+                        </Box>
+                      </Collapse>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </React.Fragment>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       <AddCourseModal
         open={showAddCourseModal}
@@ -202,7 +357,7 @@ const Courses = ({ token }: CoursesProps) => {
         onClose={() => setShowAddChapterModal(false)}
         onAddChapter={(newChapters) =>
           addChapterMutation.mutate({
-            courseId: selectedCourse.id,
+            courseId: selectedCourse?.id,
             newChapters,
           })
         }

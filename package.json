@@ -8,6 +8,8 @@
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^6.3.0",
     "@react-oauth/google": "^0.12.1",
+    "@tanstack/react-query": "^4.29.5",
+    "@tanstack/react-table": "^8.21.3",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "",
     "@testing-library/user-event": "^13.5.0",

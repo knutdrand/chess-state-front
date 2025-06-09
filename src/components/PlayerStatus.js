@@ -1,52 +1,57 @@
-import React from "react";
-import { Box, Button, LinearProgress, Alert } from "@mui/material";
-import KeyIcon from "@mui/icons-material/Key";
+import React from 'react';
+import { Box, Typography, LinearProgress, Chip, Stack, Avatar } from '@mui/material';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 
-export function PlayerStatus({ score, width, onSolution }) {
-  const roundedDownScore = Math.floor(score);
-  const progress = (score - roundedDownScore) * 100;
+export function PlayerStatus({ playerStatus }) {
+  if (!playerStatus) return null;
+
+  const { name, rating, progress, level, achievements } = playerStatus;
 
   return (
-    <Box
-      sx={{
-        width: width,
-        height: '100%',
-        margin: 1,
-      }}
-    >
-      <Alert
-        severity="success"
-        icon={false}
-        sx={{
-          width: "100%",
-          height: '100%',
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexDirection: "row",
-          padding: 2,
-        }}
-      >
-        {/* <Box sx={{ flex: 1 }}>
-          <LinearProgress
-            variant="determinate"
-            value={progress}
-            sx={{ width: "75%", margin: "auto", mb: 2 }}
-          />
-          <Box textAlign="center">Level: {roundedDownScore}</Box>
-        </Box> */}
-        <Button
-          onClick={onSolution}
-          sx={{
-            flexShrink: 0,
-            minWidth: "auto",
-            padding: 1,
-            marginLeft: 2,
-          }}
-        >
-          <KeyIcon />
-        </Button>
-      </Alert>
+    <Box>
+      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
+        <Avatar sx={{ bgcolor: 'primary.main' }}>
+          {name ? name.charAt(0).toUpperCase() : 'U'}
+        </Avatar>
+        <Box sx={{ flex: 1 }}>
+          <Typography variant="h6">{name || 'Unknown Player'}</Typography>
+          <Typography variant="body2" color="text.secondary">
+            Rating: {rating || 'N/A'}
+          </Typography>
+        </Box>
+      </Stack>
+
+      <Box sx={{ mb: 2 }}>
+        <Typography variant="body2" gutterBottom>
+          Level {level || 1} Progress
+        </Typography>
+        <LinearProgress 
+          variant="determinate" 
+          value={progress || 0} 
+          sx={{ height: 10, borderRadius: 5 }}
+        />
+      </Box>
+
+      {achievements && achievements.length > 0 && (
+        <Box>
+          <Typography variant="body2" gutterBottom>
+            Achievements
+          </Typography>
+          <Stack direction="row" spacing={1} flexWrap="wrap">
+            {achievements.map((achievement, index) => (
+              <Chip
+                key={index}
+                icon={<EmojiEventsIcon />}
+                label={achievement}
+                size="small"
+                color="primary"
+                variant="outlined"
+                sx={{ mb: 1 }}
+              />
+            ))}
+          </Stack>
+        </Box>
+      )}
     </Box>
   );
 }
