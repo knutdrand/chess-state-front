@@ -1,7 +1,6 @@
-import { Box, Paper, Button, Link, Typography } from "@mui/material";
+import { Box, Button, Link, Typography } from "@mui/material";
 import { OpenInFull } from "@mui/icons-material";
-import React from "react";
-
+import React, { useState, useEffect } from "react";
 
 interface InfoProps {
   mode: string;
@@ -9,9 +8,19 @@ interface InfoProps {
   width: string;
   link: string | null;
   onExplanation: () => void;
+  animationKey?: number; // Add this prop to trigger animation
 }
 
-export function Info({ mode, width, link, onExplanation }: InfoProps) {
+export function Info({ mode, width, link, onExplanation, animationKey = 0 }: InfoProps) {
+  const [visible, setVisible] = useState(true);
+  
+  // Reset animation when animationKey, mode, or link changes
+  useEffect(() => {
+    setVisible(false);
+    const timer = setTimeout(() => setVisible(true), 100);
+    return () => clearTimeout(timer);
+  }, [animationKey, mode, link]);
+
   // Determine border color based on mode
   const getBorderColor = () => {
     if (mode === "show") return "error.main";
@@ -33,12 +42,6 @@ export function Info({ mode, width, link, onExplanation }: InfoProps) {
   }
 
   return (
-    <Paper elevation={3} sx={{
-       borderRadius: 1,
-      border: 5,
-      borderColor: getBorderColor()}
-    }>
-        
     <Box
       sx={{
         width: width,
@@ -57,6 +60,10 @@ export function Info({ mode, width, link, onExplanation }: InfoProps) {
           flexDirection: "row",
           padding: 1,
           bgcolor: "background.paper", // White background
+          border: visible ? 5 : 0,
+          borderColor: getBorderColor(),
+          borderRadius: 1,
+          transition: "border 0.2s ease-in-out",
         }}
       >
         <Box sx={{ 
@@ -98,6 +105,5 @@ export function Info({ mode, width, link, onExplanation }: InfoProps) {
         </Box>
       </Box>
     </Box>
-    </Paper>
   );
 }

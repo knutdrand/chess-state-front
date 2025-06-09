@@ -16,6 +16,7 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
   const [explanation, setExplanation] = useState(null);
   const [playerStatus, setPlayerStatus] = useState(null);
   const [showSquares, setShowSquares] = useState([]);
+  const [infoAnimationKey, setInfoAnimationKey] = useState(0);
   // Configure the API with the token
   useEffect(() => {
     OpenAPI.BASE = baseUrl;
@@ -92,6 +93,7 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
         setMode(response.mode);
         setExplanation(response.message);
         setPlayerStatus(response.mode);
+        setInfoAnimationKey(prev => prev + 1);
       }
     } catch (error) {
       console.error("Error making move:", error);
@@ -199,7 +201,11 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
       }}>
         
         
-          <Info link={explanation} mode={mode} />
+          <Info 
+            link={explanation} 
+            mode={mode} 
+            animationKey={infoAnimationKey} 
+          />
         
         {/* <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
           <Button 
