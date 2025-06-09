@@ -114,8 +114,45 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
   }
 
   function onSquareClick(square) {
-    // Implementation for square click handling
-    // ...
+    // If we already have a piece selected
+    if (Object.keys(moveSquares).length > 0) {
+      const move = {
+        from: Object.keys(moveSquares)[0],
+        to: square,
+        promotion: "q" // always promote to queen for simplicity
+      };
+      
+      // Clear the selected square
+      setMoveSquares({});
+      setOptionSquares({});
+      
+      // Make the move
+      makeMove(move);
+      return;
+    }
+    
+    // Otherwise, select the piece and show possible moves
+    const piece = game?.get(square);
+    if (piece && piece.color === (game.turn() === 'w' ? 'w' : 'b')) {
+      // Highlight the selected square
+      setMoveSquares({
+        [square]: {
+          background: "rgba(100, 100, 255, 0.3)"
+        }
+      });
+      
+      // Show possible moves
+      const moves = game.moves({ square, verbose: true });
+      const newOptionSquares = {};
+      moves.forEach(move => {
+        newOptionSquares[move.to] = {
+          background: "rgba(0, 128, 0, 0.2)",
+          borderRadius: "50%",
+          boxShadow: "inset 0 0 0 8px rgba(0, 128, 0, 0.1)"
+        };
+      });
+      setOptionSquares(newOptionSquares);
+    }
   }
 
   function onSquareRightClick(square) {
