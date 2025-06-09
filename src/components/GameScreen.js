@@ -198,9 +198,8 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
         minWidth: 300
       }}>
         
-        <Paper elevation={3} sx={{ p: 2, flex: 1, overflow: 'auto' }}>
+        
           <Info link={explanation} mode={mode} />
-        </Paper>
         
         {/* <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
           <Button 

@@ -1,4 +1,4 @@
-import { Box, Alert, Button, Link, Typography } from "@mui/material";
+import { Box, Paper, Button, Link, Typography } from "@mui/material";
 import { OpenInFull } from "@mui/icons-material";
 import React from "react";
 
@@ -12,7 +12,12 @@ interface InfoProps {
 }
 
 export function Info({ mode, width, link, onExplanation }: InfoProps) {
-  const variant = mode === "show" ? "error" : (mode === "repeat" ? "warning" : "info");
+  // Determine border color based on mode
+  const getBorderColor = () => {
+    if (mode === "show") return "error.main";
+    if (mode === "repeat") return "warning.main";
+    return "success.main";
+  };
 
   function getElement() {
     // Check if the link starts with http or https
@@ -28,6 +33,12 @@ export function Info({ mode, width, link, onExplanation }: InfoProps) {
   }
 
   return (
+    <Paper elevation={3} sx={{
+       borderRadius: 1,
+      border: 5,
+      borderColor: getBorderColor()}
+    }>
+        
     <Box
       sx={{
         width: width,
@@ -37,9 +48,7 @@ export function Info({ mode, width, link, onExplanation }: InfoProps) {
         justifyContent: "center",
       }}
     >
-      <Alert
-        severity={variant}
-        icon={false} // Removes the default icon
+      <Box
         sx={{
           width: "100%",
           display: "flex",
@@ -47,6 +56,7 @@ export function Info({ mode, width, link, onExplanation }: InfoProps) {
           alignItems: "flex-start",
           flexDirection: "row",
           padding: 1,
+          bgcolor: "background.paper", // White background
         }}
       >
         <Box sx={{ 
@@ -86,7 +96,8 @@ export function Info({ mode, width, link, onExplanation }: InfoProps) {
             <OpenInFull fontSize="small" />
           </Button>
         </Box>
-      </Alert>
+      </Box>
     </Box>
+    </Paper>
   );
 }
