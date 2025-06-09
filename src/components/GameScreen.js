@@ -6,15 +6,13 @@ import { DefaultService, OpenAPI } from "../api";
 import { Info } from "./Info";
 import { baseUrl } from '../config';
 
-export function GameScreen({ game, setGame, token, setToken, boardWidth, screenOrientation, mode, setMode }) {
+export function GameScreen({position, setPosition, token, setToken, boardWidth, screenOrientation, gameState, setGameState }) {
   // Board state
-  const [position, setPosition] = useState("start");
-  const [orientation, setOrientation] = useState('white');
-  
+  //const [orientation, setOrientation] = useState('white');
+  //const [gameState, setGameState] = useState(null);
   // UI state
   const [loading, setLoading] = useState(false);
   const [explanation, setExplanation] = useState(null);
-  const [playerStatus, setPlayerStatus] = useState(null);
   const [infoAnimationKey, setInfoAnimationKey] = useState(0);
   
   // Square highlighting state
@@ -24,7 +22,7 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
     rightClickedSquares: {}
   });
   const [showSquares, setShowSquares] = useState([]);
-
+  console.log('reload', position);
   // Configure the API with the token
   useEffect(() => {
     OpenAPI.BASE = baseUrl;
@@ -34,30 +32,37 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
     };
   }, [token]);
 
-  // Initialize game if not already initialized
+  // itialize game if not already initialized
   useEffect(() => {
-    if (!game) {
+    if (position){
+      console.log('already have a game', position);
+    }
+    if (!position) {
       initGame();
     }
   }, []);
 
+  const getOrientation= (fen) => {
+    const game = new Chess(fen);
+    return game.turn() === 'w' ? 'white' : 'black';
+  }
+
   // Update board when game changes
-  useEffect(() => {
-    if (game && position !== game.fen()) {
-      setPosition(game.fen());
+  /* useEffect(() => {
+    if (!gameState) return;
+    const game = new Chess(gameState.fen);
+    if (orientation !== (game.turn() === 'w' ? 'white' : 'black')) {
       setOrientation(game.turn() === 'w' ? 'white' : 'black');
     }
-  }, [game, position]);
+  }, [gameState]); */
 
   const initGame = async () => {
     setLoading(true);
     try {
       const response = await DefaultService.initApiInitGet();
-      const chess = new Chess(response.board);
-      setGame(chess);
-      setPosition(response.board);
-      setOrientation(chess.turn() === 'w' ? 'white' : 'black');
-      setMode('play');
+      console.log('init', response);
+      setPosition(response.fen);
+      setGameState(response);
     } catch (error) {
       console.error("Error initializing game:", error);
       if (error.response && error.response.status === 401) {
@@ -69,29 +74,28 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
   };
 
   const makeMove = useCallback(async (move) => {
-    if (!game) return;
+    
+    if (!position) {
+      console.log('no game');
+      return;
+    }
     
     try {
-      const gameCopy = new Chess(game.fen());
+      const gameCopy = new Chess(position);
       const result = gameCopy.move(move);
-      const oldFen = position;
-      
       if (result) {
-        setGame(gameCopy);
         setPosition(gameCopy.fen());
-        
         const response = await DefaultService.moveApiMovePost({
-          fen: oldFen,
+          state:gameState,
           from_square: move.from,
           to_square: move.to,
-          mode: mode,
           elapsed_time: -1,
           piece: move.promotion || undefined
         });
         
-        const newGameCopy = new Chess(response.board);
+        const newGameCopy = new Chess(gameState.fen);
         
-        if (response.mode === 'show') {
+        if (response.state.mode === 'show') {
           let move = newGameCopy.move(response.correct_move);
           setShowSquares([move.from, move.to]);
           newGameCopy.undo();
@@ -99,12 +103,10 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
           setShowSquares([]);
         }
         
-        setOrientation(newGameCopy.turn() === 'w' ? 'white' : 'black');
-        setGame(newGameCopy);
-        setPosition(newGameCopy.fen());
-        setMode(response.mode);
+        //setOrientation(newGameCopy.turn() === 'w' ? 'white' : 'black');
+        setGameState(response.state);
+        setPosition(response.state.fen);
         setExplanation(response.message);
-        setPlayerStatus(response.mode);
         setInfoAnimationKey(prev => prev + 1);
         
         // Clear any square highlights
@@ -120,7 +122,7 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
         setToken(null);
       }
     }
-  }, [game, position, mode, setGame, setToken]);
+  }, [position, gameState, setToken]);
 
   const onDrop = useCallback((sourceSquare, targetSquare) => {
     makeMove({
@@ -153,8 +155,8 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
     }
     
     // Otherwise, select the piece and show possible moves
-    if (!game) return;
-    
+    if (!position) return;
+    const game = new Chess(position);
     const piece = game.get(square);
     if (piece && piece.color === (game.turn() === 'w' ? 'w' : 'b')) {
       // Highlight the selected square
@@ -181,7 +183,7 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
         optionSquares
       }));
     }
-  }, [game, makeMove, squareStyles.moveSquares]);
+  }, [makeMove, squareStyles.moveSquares]);
 
   const onSquareRightClick = useCallback((square) => {
     // Implementation for right-click handling
@@ -195,7 +197,9 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
       </Box>
     );
   }
-
+  console.log('loading')
+  console.log('gameState', gameState);
+  console.log('position', position);
   return (
     <Box sx={{ display: 'flex', flexDirection: screenOrientation, height: '100%' }}>
       <Box sx={{ 
@@ -208,14 +212,14 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
           onPieceDrop={onDrop}
           onSquareClick={onSquareClick}
           onSquareRightClick={onSquareRightClick}
-          boardOrientation={orientation}
+          boardOrientation={getOrientation(gameState?.fen)}
           customArrows={showSquares.length ? [showSquares] : []}
           customSquareStyles={{
             ...squareStyles.moveSquares,
             ...squareStyles.optionSquares,
             ...squareStyles.rightClickedSquares
           }}
-        />
+        /> : <div>Loading...</div>
       </Box>
       
       <Box sx={{ 
@@ -227,7 +231,7 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
       }}>
         <Info 
           link={explanation} 
-          mode={mode} 
+          mode={gameState?.mode || 'play'} 
           animationKey={infoAnimationKey} 
         />
       </Box>
