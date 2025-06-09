@@ -1,22 +1,30 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Chess } from 'chess.js';
 import { Chessboard } from "react-chessboard";
-import { Box, Grid, Paper, Typography, Button, CircularProgress, Stack } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import { DefaultService, OpenAPI } from "../api";
 import { Info } from "./Info";
 import { baseUrl } from '../config';
 
 export function GameScreen({ game, setGame, token, setToken, boardWidth, screenOrientation, mode, setMode }) {
+  // Board state
   const [position, setPosition] = useState("start");
   const [orientation, setOrientation] = useState('white');
-  const [rightClickedSquares, setRightClickedSquares] = useState({});
-  const [moveSquares, setMoveSquares] = useState({});
-  const [optionSquares, setOptionSquares] = useState({});
+  
+  // UI state
   const [loading, setLoading] = useState(false);
   const [explanation, setExplanation] = useState(null);
   const [playerStatus, setPlayerStatus] = useState(null);
-  const [showSquares, setShowSquares] = useState([]);
   const [infoAnimationKey, setInfoAnimationKey] = useState(0);
+  
+  // Square highlighting state
+  const [squareStyles, setSquareStyles] = useState({
+    moveSquares: {},
+    optionSquares: {},
+    rightClickedSquares: {}
+  });
+  const [showSquares, setShowSquares] = useState([]);
+
   // Configure the API with the token
   useEffect(() => {
     OpenAPI.BASE = baseUrl;
@@ -26,46 +34,52 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
     };
   }, [token]);
 
+  // Initialize game if not already initialized
   useEffect(() => {
     if (!game) {
       initGame();
     }
   }, []);
 
+  // Update board when game changes
+  useEffect(() => {
+    if (game && position !== game.fen()) {
+      setPosition(game.fen());
+      setOrientation(game.turn() === 'w' ? 'white' : 'black');
+    }
+  }, [game, position]);
+
   const initGame = async () => {
     setLoading(true);
     try {
-      // Use the correct method from DefaultService
       const response = await DefaultService.initApiInitGet();
-      const chess = new Chess(response.board)
+      const chess = new Chess(response.board);
       setGame(chess);
       setPosition(response.board);
       setOrientation(chess.turn() === 'w' ? 'white' : 'black');
-      setLoading(false);
       setMode('play');
     } catch (error) {
       console.error("Error initializing game:", error);
-      // Check if it's an authentication error
       if (error.response && error.response.status === 401) {
-        setToken(null); // Clear token to redirect to login
+        setToken(null);
       }
+    } finally {
       setLoading(false);
     }
   };
 
-  const makeMove = async (move) => {
+  const makeMove = useCallback(async (move) => {
     if (!game) return;
     
     try {
       const gameCopy = new Chess(game.fen());
       const result = gameCopy.move(move);
       const oldFen = position;
+      
       if (result) {
         setGame(gameCopy);
-        
         setPosition(gameCopy.fen());
         
-        // Send move to API using DefaultService
         const response = await DefaultService.moveApiMovePost({
           fen: oldFen,
           from_square: move.from,
@@ -75,18 +89,16 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
           piece: move.promotion || undefined
         });
         
-        // Handle opponent's move
         const newGameCopy = new Chess(response.board);
         
-        if (response.mode==='show') {
+        if (response.mode === 'show') {
           let move = newGameCopy.move(response.correct_move);
           setShowSquares([move.from, move.to]);
-          console.log('show', response.correct_move);
-          console.log([move.from, move.to]);
           newGameCopy.undo();
         } else {
           setShowSquares([]);
         }
+        
         setOrientation(newGameCopy.turn() === 'w' ? 'white' : 'black');
         setGame(newGameCopy);
         setPosition(newGameCopy.fen());
@@ -94,39 +106,46 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
         setExplanation(response.message);
         setPlayerStatus(response.mode);
         setInfoAnimationKey(prev => prev + 1);
+        
+        // Clear any square highlights
+        setSquareStyles({
+          moveSquares: {},
+          optionSquares: {},
+          rightClickedSquares: {}
+        });
       }
     } catch (error) {
       console.error("Error making move:", error);
-      // Check if it's an authentication error
       if (error.response && error.response.status === 401) {
-        setToken(null); // Clear token to redirect to login
+        setToken(null);
       }
     }
-  };
+  }, [game, position, mode, setGame, setToken]);
 
-  function onDrop(sourceSquare, targetSquare) {
-    const move = {
+  const onDrop = useCallback((sourceSquare, targetSquare) => {
+    makeMove({
       from: sourceSquare,
       to: targetSquare,
-      promotion: "q" // always promote to queen for simplicity
-    };
-    
-    makeMove(move);
+      promotion: "q"
+    });
     return true;
-  }
+  }, [makeMove]);
 
-  function onSquareClick(square) {
+  const onSquareClick = useCallback((square) => {
     // If we already have a piece selected
-    if (Object.keys(moveSquares).length > 0) {
+    if (Object.keys(squareStyles.moveSquares).length > 0) {
       const move = {
-        from: Object.keys(moveSquares)[0],
+        from: Object.keys(squareStyles.moveSquares)[0],
         to: square,
-        promotion: "q" // always promote to queen for simplicity
+        promotion: "q"
       };
       
       // Clear the selected square
-      setMoveSquares({});
-      setOptionSquares({});
+      setSquareStyles(prev => ({
+        ...prev,
+        moveSquares: {},
+        optionSquares: {}
+      }));
       
       // Make the move
       makeMove(move);
@@ -134,41 +153,40 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
     }
     
     // Otherwise, select the piece and show possible moves
-    const piece = game?.get(square);
+    if (!game) return;
+    
+    const piece = game.get(square);
     if (piece && piece.color === (game.turn() === 'w' ? 'w' : 'b')) {
       // Highlight the selected square
-      setMoveSquares({
+      const moveSquares = {
         [square]: {
           background: "rgba(100, 100, 255, 0.3)"
         }
-      });
+      };
       
       // Show possible moves
       const moves = game.moves({ square, verbose: true });
-      const newOptionSquares = {};
+      const optionSquares = {};
       moves.forEach(move => {
-        newOptionSquares[move.to] = {
+        optionSquares[move.to] = {
           background: "rgba(0, 128, 0, 0.2)",
           borderRadius: "50%",
           boxShadow: "inset 0 0 0 8px rgba(0, 128, 0, 0.1)"
         };
       });
-      setOptionSquares(newOptionSquares);
+      
+      setSquareStyles(prev => ({
+        ...prev,
+        moveSquares,
+        optionSquares
+      }));
     }
-  }
+  }, [game, makeMove, squareStyles.moveSquares]);
 
-  function onSquareRightClick(square) {
+  const onSquareRightClick = useCallback((square) => {
     // Implementation for right-click handling
     // ...
-  }
-
-  useEffect(() => {
-    // Update position whenever game changes, but only if it's different
-    if (game && position !== game.fen()) {
-      setPosition(game.fen());
-      setOrientation(game.turn() === 'w' ? 'white' : 'black');
-    }
-  }, [game, position]);
+  }, []);
 
   if (loading) {
     return (
@@ -191,11 +209,11 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
           onSquareClick={onSquareClick}
           onSquareRightClick={onSquareRightClick}
           boardOrientation={orientation}
-          customArrows={showSquares ? [showSquares] : []}
+          customArrows={showSquares.length ? [showSquares] : []}
           customSquareStyles={{
-            ...moveSquares,
-            ...optionSquares,
-            ...rightClickedSquares
+            ...squareStyles.moveSquares,
+            ...squareStyles.optionSquares,
+            ...squareStyles.rightClickedSquares
           }}
         />
       </Box>
@@ -207,13 +225,11 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
         p: 2,
         minWidth: 300
       }}>
-        
-        
-          <Info 
-            link={explanation} 
-            mode={mode} 
-            animationKey={infoAnimationKey} 
-          />
+        <Info 
+          link={explanation} 
+          mode={mode} 
+          animationKey={infoAnimationKey} 
+        />
       </Box>
     </Box>
   );
