@@ -38,8 +38,6 @@ export function MainScreen({ token, setToken}) {
     return () => window.removeEventListener('resize', updateBoardWidth);
   }, []);
 
-
-
   const handleLogout = () => {
     setToken(null);
   };

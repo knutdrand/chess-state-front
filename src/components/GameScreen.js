@@ -162,6 +162,14 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
     // ...
   }
 
+  useEffect(() => {
+    // Update position whenever game changes, but only if it's different
+    if (game && position !== game.fen()) {
+      setPosition(game.fen());
+      setOrientation(game.turn() === 'w' ? 'white' : 'black');
+    }
+  }, [game, position]);
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
@@ -206,25 +214,6 @@ export function GameScreen({ game, setGame, token, setToken, boardWidth, screenO
             mode={mode} 
             animationKey={infoAnimationKey} 
           />
-        
-        {/* <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-          <Button 
-            variant="contained" 
-            color="primary" 
-            onClick={initGame}
-            fullWidth
-          >
-            New Game
-          </Button>
-          <Button 
-            variant="outlined" 
-            color="secondary"
-            onClick={() => setMode(mode === 'play' ? 'explore' : 'play')}
-            fullWidth
-          >
-            {mode === 'play' ? 'Explore' : 'Play'}
-          </Button>
-        </Stack> */}
       </Box>
     </Box>
   );
