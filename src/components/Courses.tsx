@@ -65,11 +65,14 @@ const Courses = ({ token }: CoursesProps) => {
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
   // Query: Fetch courses
-  const { data: courses = [], isLoading } = useQuery(
+  const { data: courses = [], isLoading, error } = useQuery(
     ["courses", token],
     () => fetchCourses(token),
     {
       enabled: !!token,
+      retry: 1,
+      retryDelay: 1000,
+      networkMode: 'online',
     }
   );
 
@@ -224,6 +227,22 @@ const Courses = ({ token }: CoursesProps) => {
     return <Typography>Loading...</Typography>;
   }
 
+  if (error) {
+    return (
+      <Box sx={{ p: 2 }}>
+        <Typography color="error" variant="h6" gutterBottom>
+          Connection Error
+        </Typography>
+        <Typography color="text.secondary">
+          Failed to connect to backend: {error.message}
+        </Typography>
+        <Typography variant="body2" sx={{ mt: 1 }}>
+          Make sure your backend service is running on localhost.
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Button
@@ -367,6 +386,13 @@ const Courses = ({ token }: CoursesProps) => {
         open={showImportStudyModal}
         onClose={() => setShowImportStudyModal(false)}
         courseId={selectedCourse?.id}
+        token={token}
+        onAddChapter={(newChapters) =>
+          addChapterMutation.mutate({
+            courseId: selectedCourse?.id,
+            newChapters,
+          })
+        }
       />
     </Box>
   );

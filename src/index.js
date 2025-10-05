@@ -2,12 +2,21 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
+import ExplorationPreview from './components/ExplorationPreview';
 import reportWebVitals from './reportWebVitals';
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
+// Check if we're in preview mode
+const isPreviewMode = process.env.REACT_APP_PREVIEW === 'true';
+
 root.render(
   //<React.StrictMode>
-    <App />
+    isPreviewMode ? <ExplorationPreview /> : <App />
   //</React.StrictMode>
 );
 

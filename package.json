@@ -6,6 +6,7 @@
     "@chrisoakman/chessboardjs": "",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@fontsource/roboto": "^5.2.8",
     "@mui/icons-material": "^6.3.0",
     "@react-oauth/google": "^0.12.1",
     "@tanstack/react-query": "^4.29.5",
@@ -32,7 +33,8 @@
     "generate-api": "npx openapi-typescript-codegen --input ./openapi.json --output ./src/api --client axios",
     "start": "npm run generate-api && react-scripts start",
     "build": "npm run generate-api && react-scripts build",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "preview": "REACT_APP_PREVIEW=true react-scripts start"
   },
   "eslintConfig": {
     "extends": [

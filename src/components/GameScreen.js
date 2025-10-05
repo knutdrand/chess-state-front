@@ -4,6 +4,7 @@ import { Chessboard } from "react-chessboard";
 import { Box, CircularProgress } from "@mui/material";
 import { DefaultService, OpenAPI } from "../api";
 import { Info } from "./Info";
+import { ApiExploration } from "./ExplorationModern";
 import { baseUrl } from '../config';
 
 export function GameScreen({position, setPosition, token, setToken, boardWidth, screenOrientation, gameState, setGameState }) {
@@ -12,8 +13,10 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
   //const [gameState, setGameState] = useState(null);
   // UI state
   const [loading, setLoading] = useState(false);
+  const [recieveTimeStamp, setRecieveTimeStamp] = useState(null);
   const [explanation, setExplanation] = useState(null);
   const [infoAnimationKey, setInfoAnimationKey] = useState(0);
+  const [showExploration, setShowExploration] = useState(false);
   
   // Square highlighting state
   const [squareStyles, setSquareStyles] = useState({
@@ -62,6 +65,7 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
       const response = await DefaultService.initApiInitGet();
       console.log('init', response);
       setPosition(response.fen);
+      setRecieveTimeStamp(Date.now())
       setGameState(response);
     } catch (error) {
       console.error("Error initializing game:", error);
@@ -83,13 +87,15 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
     try {
       const gameCopy = new Chess(position);
       const result = gameCopy.move(move);
+
       if (result) {
         setPosition(gameCopy.fen());
+        const elapsedTime=recieveTimeStamp ? Date.now()-recieveTimeStamp : -1;
         const response = await DefaultService.moveApiMovePost({
           state:gameState,
           from_square: move.from,
           to_square: move.to,
-          elapsed_time: -1,
+          elapsed_time: elapsedTime,
           piece: move.promotion || undefined
         });
         
@@ -106,6 +112,7 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
         //setOrientation(newGameCopy.turn() === 'w' ? 'white' : 'black');
         setGameState(response.state);
         setPosition(response.state.fen);
+        setRecieveTimeStamp(Date.now())
         setExplanation(response.message);
         setInfoAnimationKey(prev => prev + 1);
         
@@ -190,6 +197,14 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
     // ...
   }, []);
 
+  const handleExploration = useCallback(() => {
+    setShowExploration(true);
+  }, []);
+
+  const handleExplorationExit = useCallback(() => {
+    setShowExploration(false);
+  }, []);
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
@@ -200,6 +215,19 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
   console.log('loading')
   console.log('gameState', gameState);
   console.log('position', position);
+  
+  // Show exploration mode if requested
+  if (showExploration && position) {
+    return (
+      <ApiExploration
+        fen={position}
+        token={token}
+        onExit={handleExplorationExit}
+        boardOrientation={getOrientation(gameState?.fen)}
+      />
+    );
+  }
+
   return (
     <Box sx={{ display: 'flex', flexDirection: screenOrientation, height: '100%' }}>
       <Box sx={{ 
@@ -232,7 +260,9 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
         <Info 
           link={explanation} 
           mode={gameState?.mode || 'play'} 
-          animationKey={infoAnimationKey} 
+          animationKey={infoAnimationKey}
+          onExplanation={handleExploration}
+          width="100%"
         />
       </Box>
     </Box>

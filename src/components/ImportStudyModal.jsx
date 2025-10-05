@@ -9,8 +9,7 @@ import {
   CircularProgress,
   Box
 } from '@mui/material';
-import axios from 'axios';
-import { apiUrl } from '../config';
+import { DefaultService } from '../api';
 
 function ImportStudyModal({ open, onClose, courseId, token, onAddChapter }) {
   const [studyId, setStudyId] = useState('');
@@ -21,24 +20,23 @@ function ImportStudyModal({ open, onClose, courseId, token, onAddChapter }) {
       setLoading(true);
       
       try {
-        const headers = { 
-          'accept': 'application/json', 
-          'Authorization': `Bearer ${token}` 
-        };
-        
-        const response = await axios.post(
-          `${apiUrl}/courses/${courseId}/study`,
-          { study_id: studyId },
-          { headers }
+        const response = await DefaultService.addStudyApiCoursesCourseIdStudyPost(
+          courseId,
+          { study_id: studyId }
         );
         
-        onAddChapter(response.data);
+        onAddChapter(response);
         onClose();
         setStudyId('');
       } catch (error) {
         console.error('Error adding chapter:', error);
+        console.error('Error details:', error.body);
+        console.error('Error status:', error.status);
         // Display an error message to the user
-        alert('Error adding chapter. Please try again.');
+        const errorMessage = error.status === 401 
+          ? 'Authentication failed. Please log in again.'
+          : `Error adding chapter: ${error.body?.detail || error.message}. Please try again.`;
+        alert(errorMessage);
       } finally {
         setLoading(false);
       }
