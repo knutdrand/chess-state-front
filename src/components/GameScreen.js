@@ -92,7 +92,7 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
         setPosition(gameCopy.fen());
         const elapsedTime=recieveTimeStamp ? Date.now()-recieveTimeStamp : -1;
         const response = await DefaultService.moveApiMovePost({
-          state:gameState,
+          state: gameState,
           from_square: move.from,
           to_square: move.to,
           elapsed_time: elapsedTime,
