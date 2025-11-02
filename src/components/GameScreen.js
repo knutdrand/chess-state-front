@@ -212,10 +212,23 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
       </Box>
     );
   }
+
+  // Check if user has no courses or position available
+  if (!position && !loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', p: 4 }}>
+        <Box sx={{ textAlign: 'center' }}>
+          <h2>No courses available</h2>
+          <p>Please contact an administrator to set up courses for your account.</p>
+        </Box>
+      </Box>
+    );
+  }
+
   console.log('loading')
   console.log('gameState', gameState);
   console.log('position', position);
-  
+
   // Show exploration mode if requested
   if (showExploration && position) {
     return (
