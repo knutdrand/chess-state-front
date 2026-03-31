@@ -27,6 +27,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import AddCourseModal from "./AddCourseModal";
 import AddChapterModal from "./AddChapterModal";
+import AddResourceCourseModal from "./AddResourceCourseModal";
 import ImportStudyModal from "./ImportStudyModal";
 import axios from "axios";
 
@@ -61,6 +62,7 @@ const Courses = ({ token }: CoursesProps) => {
   const [showAddCourseModal, setShowAddCourseModal] = useState<boolean>(false);
   const [showImportStudyModal, setShowImportStudyModal] = useState<boolean>(false);
   const [showAddChapterModal, setShowAddChapterModal] = useState<boolean>(false);
+  const [showAddResourceCourseModal, setShowAddResourceCourseModal] = useState<boolean>(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
@@ -245,13 +247,20 @@ const Courses = ({ token }: CoursesProps) => {
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Button
-        variant="contained"
-        onClick={() => setShowAddCourseModal(true)}
-        sx={{ mb: 2 }}
-      >
-        Add New Course
-      </Button>
+      <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+        <Button
+          variant="contained"
+          onClick={() => setShowAddCourseModal(true)}
+        >
+          Add New Course
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={() => setShowAddResourceCourseModal(true)}
+        >
+          Add Built-in Course
+        </Button>
+      </Box>
 
       <TableContainer 
         component={Paper} 
@@ -380,6 +389,13 @@ const Courses = ({ token }: CoursesProps) => {
             newChapters,
           })
         }
+      />
+
+      <AddResourceCourseModal
+        open={showAddResourceCourseModal}
+        onClose={() => setShowAddResourceCourseModal(false)}
+        token={token}
+        onCourseAdded={() => queryClient.invalidateQueries(["courses", token])}
       />
 
       <ImportStudyModal
