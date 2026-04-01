@@ -110,16 +110,15 @@ export default function Register({ setToken, setIsRegistering}) {
         </Card.Body>
         <div   className="text-center mt-3">
         Already have an account?{' '}
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
+        <button
+          type="button"
+          onClick={() => {
             setIsRegistering(false);
           }}
-          style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+          style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline', background: 'none', border: 'none', padding: 0, font: 'inherit' }}
         >
             Login here
-        </a>
+        </button>
         </div>
 
       </Card>

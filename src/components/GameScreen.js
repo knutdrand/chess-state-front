@@ -43,6 +43,7 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
     if (!position) {
       initGame();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getOrientation= (fen) => {
@@ -129,7 +130,7 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
         setToken(null);
       }
     }
-  }, [position, gameState, setToken]);
+  }, [position, gameState, setToken, recieveTimeStamp, setGameState, setPosition]);
 
   const onDrop = useCallback((sourceSquare, targetSquare) => {
     makeMove({
@@ -190,7 +191,7 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
         optionSquares
       }));
     }
-  }, [makeMove, squareStyles.moveSquares]);
+  }, [makeMove, squareStyles.moveSquares, position]);
 
   const onSquareRightClick = useCallback((square) => {
     // Implementation for right-click handling

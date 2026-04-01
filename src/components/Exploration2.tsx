@@ -1,10 +1,8 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
-import IconButton from '@mui/material/IconButton';
-import { ArrowForwardIos, ArrowBackIos, ExitToApp } from "@mui/icons-material";
 import { Chessboard } from "react-chessboard";
 import {apiUrl} from '../config';
-import { Pagination, PaginationItem, Typography } from "@mui/material";
+import { Pagination, PaginationItem } from "@mui/material";
 
 
 interface ExplainedPosition {
@@ -45,17 +43,6 @@ const Exploration2: React.FC<ExplorationProps> = ({ explanations, cur_index, onE
   const [moveIndex, setMoveIndex] = useState<number>(cur_index);
     // Example explanation array for each position
 
-  const goBack = () => {
-    if (moveIndex > 0) {
-      setMoveIndex(moveIndex - 1);
-    }
-  };
-
-  const goForward = () => {
-    if (moveIndex < explanations.length - 1) {
-      setMoveIndex(moveIndex + 1);
-    }
-  };
   const flexDirection = window.innerWidth > window.innerHeight ? "row" : "column";
   const crossAxis = window.innerWidth > window.innerHeight ? "column" : "row";
   return (

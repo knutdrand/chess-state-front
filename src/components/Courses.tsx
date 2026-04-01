@@ -216,7 +216,7 @@ const Courses = ({ token }: CoursesProps) => {
         ),
       }),
     ],
-    [expandedRows]
+    [expandedRows, columnHelper, deleteCourseMutation, toggleEnabledMutation]
   );
 
   const table = useReactTable({

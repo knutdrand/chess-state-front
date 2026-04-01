@@ -2,9 +2,6 @@ import { Container, Form, Button, Alert, Card, Image} from 'react-bootstrap';
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import './Login.css';
-import axios from "axios";
-import {apiUrl} from "../config";
-import { Link } from 'react-router-dom';
 import { api } from '../api/apiClient';
 
 export default function Login({ setToken, setIsRegistering}) {
@@ -12,6 +9,7 @@ export default function Login({ setToken, setIsRegistering}) {
   const [username, setUserName] = useState();
   const [password, setPassword] = useState();
   const [error, setError] = useState();
+  // eslint-disable-next-line no-unused-vars
   const [loading, setLoading] = useState(false);
   
   const handleSubmit = async (e) => {
@@ -70,16 +68,15 @@ export default function Login({ setToken, setIsRegistering}) {
         </Card.Body>
       <div className="text-center mt-3">
       Don't have an account?{' '}
-      <a
-        href="#"
-        onClick={(e) => {
-          e.preventDefault();
+      <button
+        type="button"
+        onClick={() => {
           setIsRegistering(true);
         }}
-        style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+        style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline', background: 'none', border: 'none', padding: 0, font: 'inherit' }}
       >
         Register here
-      </a>
+      </button>
     </div>
       </Card>
 

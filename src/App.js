@@ -1,12 +1,10 @@
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import Login from './components/Login';
 import useToken from './useToken';
-import Container from '@mui/material/Container';
 import React, {useState} from 'react';
 import {MainScreen} from "./components/MainScreen";
 import Register from './components/register';
-import { Exploration } from './components/Exploration.tsx';
-import {Exploration2, ExampleExploration} from './components/Exploration2';
+import {ExampleExploration} from './components/Exploration2';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Create a client

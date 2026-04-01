@@ -5,12 +5,11 @@ import {GameScreen} from "./GameScreen";
 import Config from "./Config";
 import {Navigation} from "./Navigation";
 import Courses from './Courses';
-import { Box, Container, Button, AppBar, Toolbar, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import './MainScreen.css';
 
 
 const navHeight = 56;
-const minInfoWidth = 300;
 const minInfoHeight = 128;
 const margin = 2;
 

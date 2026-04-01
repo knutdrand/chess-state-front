@@ -1,14 +1,5 @@
 
 import React, { useState } from 'react';
-import { 
-  Box, 
-  Typography, 
-  TextField, 
-  Button, 
-  Paper, 
-  Alert, 
-  CircularProgress 
-} from '@mui/material';
 import axios from 'axios';
 import { apiUrl } from '../config';
 
@@ -16,7 +7,7 @@ const Config = ({ token }) => {
   const [rating, setRating] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
-  const [messageType, setMessageType] = useState('info');
+  const [, setMessageType] = useState('info');
   
   const headers = { 
     'accept': 'application/json', 
@@ -39,7 +30,7 @@ const Config = ({ token }) => {
     
     setLoading(true);
     try {
-      const response = await axios.patch(
+      await axios.patch(
         `${apiUrl}/player-config`, 
         { rating: ratingNum },
         { headers }
