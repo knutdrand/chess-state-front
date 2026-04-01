@@ -5,6 +5,7 @@ import { apiUrl } from '../config';
 
 const Config = ({ token }) => {
   const [rating, setRating] = useState('');
+  const [allowedMistakes, setAllowedMistakes] = useState(3);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [, setMessageType] = useState('info');
@@ -31,17 +32,17 @@ const Config = ({ token }) => {
     setLoading(true);
     try {
       await axios.patch(
-        `${apiUrl}/player-config`, 
-        { rating: ratingNum },
+        `${apiUrl}/player-config`,
+        { rating: ratingNum, allowed_mistakes: allowedMistakes },
         { headers }
       );
       
-      setMessage('Rating updated successfully');
+      setMessage('Settings updated successfully');
       setMessageType('success');
     } catch (error) {
       console.error('Error updating rating:', error);
 
-      setMessage('Failed to update rating');
+      setMessage('Failed to update settings');
       setMessageType('error');
     } finally {
       setLoading(false);
@@ -50,7 +51,7 @@ const Config = ({ token }) => {
 
   return (
     <div style={{ maxWidth: '400px', margin: '0 auto', padding: '20px' }}>
-      <h2>Set Chess Rating</h2>
+      <h2>Settings</h2>
       <div style={{ marginBottom: '15px' }}>
         <label htmlFor="rating" style={{ display: 'block', marginBottom: '5px' }}>Chess Rating</label>
         <input
@@ -58,6 +59,18 @@ const Config = ({ token }) => {
           type="number"
           value={rating}
           onChange={(e) => setRating(Number(e.target.value) || '')}
+          style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+        />
+      </div>
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="allowedMistakes" style={{ display: 'block', marginBottom: '5px' }}>Allowed Mistakes (1-10)</label>
+        <input
+          id="allowedMistakes"
+          type="number"
+          min={1}
+          max={10}
+          value={allowedMistakes}
+          onChange={(e) => setAllowedMistakes(Math.max(1, Math.min(10, Number(e.target.value) || 1)))}
           style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
         />
       </div>
@@ -74,7 +87,7 @@ const Config = ({ token }) => {
           cursor: loading ? 'not-allowed' : 'pointer',
         }}
       >
-        {loading ? 'Updating...' : 'Update Rating'}
+        {loading ? 'Updating...' : 'Save Settings'}
       </button>
       {message && <p style={{ marginTop: '10px', color: message.startsWith('Success') ? 'green' : 'red' }}>{message}</p>}
     </div>
