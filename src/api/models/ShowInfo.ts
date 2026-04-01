@@ -3,9 +3,10 @@
 /* tslint:disable */
 /* eslint-disable */
 
+import type { State } from './State';
+
 export type ShowInfo = {
-    fen: string;
+    state: State;
     elapsed_time?: number;
-    line?: (Array<string> | null);
 };
 

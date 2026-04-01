@@ -3,9 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type InitResponse = {
-    board: string;
-    success: boolean;
-    line?: (Array<string> | null);
+export type AvailableCourse = {
+    folder_name: string;
+    color: string;
 };
 

@@ -3,13 +3,13 @@
 /* tslint:disable */
 /* eslint-disable */
 
+import type { State } from './State';
+
 export type Move = {
-    fen: string;
+    state: State;
     from_square: string;
     to_square: string;
-    mode: string;
     elapsed_time?: number;
     piece?: (string | null);
-    line?: (Array<string> | null);
 };
 

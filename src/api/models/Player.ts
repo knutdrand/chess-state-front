@@ -7,5 +7,7 @@ export type Player = {
     player_id?: (number | null);
     name: string;
     rating_range?: (number | null);
+    do_puzzles?: boolean;
+    allowed_mistakes?: number;
 };
 

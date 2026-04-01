@@ -2,6 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AddResourceCourseRequest } from '../models/AddResourceCourseRequest';
+import type { AvailableCourse } from '../models/AvailableCourse';
 import type { Body_add_chapters_api_courses__course_id__chapters_post } from '../models/Body_add_chapters_api_courses__course_id__chapters_post';
 import type { Body_login_for_access_token_api_token_post } from '../models/Body_login_for_access_token_api_token_post';
 import type { Body_register_user_api_register_post } from '../models/Body_register_user_api_register_post';
@@ -9,12 +11,12 @@ import type { ChapterModel } from '../models/ChapterModel';
 import type { CourseInfo } from '../models/CourseInfo';
 import type { CourseModel } from '../models/CourseModel';
 import type { ExplanationResponse } from '../models/ExplanationResponse';
-import type { InitResponse } from '../models/InitResponse';
 import type { Move } from '../models/Move';
 import type { MoveResponse } from '../models/MoveResponse';
 import type { Player } from '../models/Player';
 import type { PlayerConfig } from '../models/PlayerConfig';
 import type { ShowInfo } from '../models/ShowInfo';
+import type { State } from '../models/State';
 import type { StudyData } from '../models/StudyData';
 import type { Token } from '../models/Token';
 import type { UpdateChapterStatus } from '../models/UpdateChapterStatus';
@@ -80,10 +82,10 @@ export class DefaultService {
 
     /**
      * Init
-     * @returns InitResponse Successful Response
+     * @returns State Successful Response
      * @throws ApiError
      */
-    public static initApiInitGet(): CancelablePromise<InitResponse> {
+    public static initApiInitGet(): CancelablePromise<State> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/init',
@@ -215,6 +217,38 @@ export class DefaultService {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/add-course',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: `Validation Error`,
+            },
+        });
+    }
+
+    /**
+     * Available Courses
+     * @returns AvailableCourse Successful Response
+     * @throws ApiError
+     */
+    public static availableCoursesApiAvailableCoursesGet(): CancelablePromise<Array<AvailableCourse>> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/available-courses',
+        });
+    }
+
+    /**
+     * Add Resource Course
+     * @param requestBody
+     * @returns CourseModel Successful Response
+     * @throws ApiError
+     */
+    public static addResourceCourseApiAddResourceCoursePost(
+        requestBody: AddResourceCourseRequest,
+    ): CancelablePromise<CourseModel> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/add-resource-course',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -368,6 +402,19 @@ export class DefaultService {
             errors: {
                 422: `Validation Error`,
             },
+        });
+    }
+
+    /**
+     * Export Attempts
+     * Export all attempts for ML service training. Returns JSON array ordered by timestamp.
+     * @returns any Successful Response
+     * @throws ApiError
+     */
+    public static exportAttemptsApiAttemptsExportGet(): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/attempts/export',
         });
     }
 

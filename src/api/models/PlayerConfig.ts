@@ -5,5 +5,7 @@
 
 export type PlayerConfig = {
     rating: number;
+    do_puzzles?: boolean;
+    allowed_mistakes?: number;
 };
 

@@ -3,11 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { State } from './State';
-
-export type MoveResponse = {
-    state: State;
-    correct_move: string;
-    message: string;
+export type AddResourceCourseRequest = {
+    folder_name: string;
 };
 
