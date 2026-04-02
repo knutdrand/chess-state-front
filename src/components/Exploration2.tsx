@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Chessboard } from "react-chessboard";
 import { DefaultService } from '../api';
-import { Pagination, PaginationItem } from "@mui/material";
+import { Box, Pagination, PaginationItem } from "@mui/material";
 
 
 interface ExplainedPosition {
@@ -31,7 +31,7 @@ const ExampleExploration: React.FC<ExplorationProps> = () => {
             explanation: "E7 to E5: Black mirrors the move.",
         },
     ];
-    
+
 
     return (
         <Exploration2 explanations={example_positions} cur_index={0}/>
@@ -40,92 +40,92 @@ const ExampleExploration: React.FC<ExplorationProps> = () => {
 
 const Exploration2: React.FC<ExplorationProps> = ({ explanations, cur_index, onExit }) => {
   const [moveIndex, setMoveIndex] = useState<number>(cur_index);
-    // Example explanation array for each position
 
-  const flexDirection = window.innerWidth > window.innerHeight ? "row" : "column";
-  const crossAxis = window.innerWidth > window.innerHeight ? "column" : "row";
+  const isLandscape = window.innerWidth > window.innerHeight;
+  const flexDirection = isLandscape ? "row" : "column";
+  const crossAxis = isLandscape ? "column" : "row";
+
   return (
-    <div
-      style={{
+    <Box
+      sx={{
         display: "flex",
-        flexDirection: flexDirection,
-        height: "100vh-60px",
+        flexDirection,
+        height: "calc(100vh - 60px)",
         width: "100vw",
-        padding: "10px",
+        p: 1.25,
         boxSizing: "border-box",
       }}
-
     >
       {/* Chessboard Section */}
-      <div
-        style={{
-          flex: window.innerWidth > window.innerHeight ? 1 : "auto",
+      <Box
+        sx={{
+          flex: isLandscape ? 1 : "auto",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
         }}
       >
         <Chessboard
-          boardWidth={Math.min(window.innerHeight-60, window.innerWidth) * 0.95}
+          boardWidth={Math.min(window.innerHeight - 60, window.innerWidth) * 0.95}
           position={explanations[moveIndex].fen}
         />
-      </div>
+      </Box>
 
       {/* Explanations and Navigation Section */}
-      <div
-        style={{
+      <Box
+        sx={{
           flex: 1,
           display: "flex",
           flexDirection: crossAxis,
           justifyContent: "space-between",
           alignItems: "center",
-          padding: "10px",
+          p: 1.25,
           maxHeight: "100%",
         }}
-      >          
-        <div style={{ flex: 1 }}>
-        <Pagination count = {explanations.length} page={moveIndex+1} onChange={(event, value) => setMoveIndex(value-1)} sx={{whiteSpace: 'nowrap', overflow: 'hidden'}}
-          renderItem={(item) => 
-          <PaginationItem {...item} sx={{color: item.page && explanations[item.page-1].explanation === '' ? 'primary.main': 'background.default' }}/>
-          }
+      >
+        <Box sx={{ flex: 1 }}>
+          <Pagination
+            count={explanations.length}
+            page={moveIndex + 1}
+            onChange={(event, value) => setMoveIndex(value - 1)}
+            sx={{ whiteSpace: 'nowrap', overflow: 'hidden' }}
+            renderItem={(item) =>
+              <PaginationItem
+                {...item}
+                sx={{
+                  color: item.page && explanations[item.page - 1].explanation === ''
+                    ? 'primary.main'
+                    : 'background.default',
+                }}
+              />
+            }
           />
-          <p>{explanations[moveIndex>0? moveIndex-1: 0].explanation}</p>
-        </div>
+          <p>{explanations[moveIndex > 0 ? moveIndex - 1 : 0].explanation}</p>
+        </Box>
 
         {/* Navigation */}
-        <div
-          style={{
+        <Box
+          sx={{
             flex: 0.5,
             display: "flex",
             justifyContent: "space-between",
             width: "100%",
-            maxWidth: "400px",
+            maxWidth: 400,
           }}
         >
-          <div style={{ display: "flex", height: "100%", flexDirection: flexDirection}}>
-          <img src="/teacher4.jpg" alt="teacher" style={{width: "70%", height: "100%"}}/>
-          <div style={{display: "flex", flexDirection: 'row'}    }>
-          {/* <IconButton 
-            onClick={goBack}
-            disabled={moveIndex === 0}
-          >
-            <ArrowBackIos />
-          </IconButton>
-          <IconButton 
-            onClick={goBack}
-            
-            disabled={moveIndex === explanations.length - 1}
-          >
-            <ArrowForwardIos />
-          </IconButton>
-          <IconButton onClick={onExit}>
-            <ExitToApp />
-          </IconButton> */}
-            </div>
-          </div>
-          </div>
-        </div>
-      </div>
+          <Box sx={{ display: "flex", height: "100%", flexDirection }}>
+            <Box
+              component="img"
+              src="/teacher4.jpg"
+              alt="teacher"
+              sx={{ width: "70%", height: "100%" }}
+            />
+            <Box sx={{ display: "flex", flexDirection: 'row' }}>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   );
 };
 
@@ -140,9 +140,9 @@ interface ExplanationResult {
     }
 
 const ApiExploration: React.FC<ApiExplorationProps> = ({ fen, onExit }) => {
-  const [explorations, setExplorations] = useState<ExplanationResult | null>(null); // State to store fetched data
-  const [loading, setLoading] = useState(true); // State to handle loading
-  const [error, setError] = useState<string | null>(null); // State for error handling
+  const [explorations, setExplorations] = useState<ExplanationResult | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchExplorations = async () => {
@@ -150,28 +150,28 @@ const ApiExploration: React.FC<ApiExplorationProps> = ({ fen, onExit }) => {
       try {
         const response = await DefaultService.explanationApiExplanationFenGet(urlifiedFen);
         console.log(response);
-        setExplorations(response as unknown as ExplanationResult); // Save the data
+        setExplorations(response as unknown as ExplanationResult);
       } catch (err) {
         setError("Failed to fetch exploration data");
       } finally {
-        setLoading(false); // Stop the loading indicator
+        setLoading(false);
       }
     };
 
     fetchExplorations();
-  }, [fen]); // Dependencies ensure this effect runs when `fen` or `token` changes
+  }, [fen]);
 
   if (loading) {
-    return <div>Loading...</div>; // Loading indicator
+    return <div>Loading...</div>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>; // Error message
+    return <div>Error: {error}</div>;
   }
   if (!explorations) {
-    return <div>No data found</div>; // No data message
+    return <div>No data found</div>;
   }
-  return <Exploration2 explanations={explorations.explanations} onExit={onExit} cur_index={explorations.cur_index}/>; // Pass fetched data to Exploration2
+  return <Exploration2 explanations={explorations.explanations} onExit={onExit} cur_index={explorations.cur_index}/>;
 };
 
 export default Exploration2;

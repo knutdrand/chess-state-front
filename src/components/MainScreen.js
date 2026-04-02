@@ -5,7 +5,6 @@ import Config from "./Config";
 import {Navigation} from "./Navigation";
 import Courses from './Courses';
 import { Box } from "@mui/material";
-import './MainScreen.css';
 import { useUiStore } from '../stores/uiStore';
 
 
@@ -34,7 +33,7 @@ export function MainScreen() {
   }, [setBoardWidth, setScreenOrientation]);
 
   return (
-    <Box sx={{display: 'flex', flexDirection: 'column', height: viewportHeight}}>
+    <Box sx={{display: 'flex', flexDirection: 'column', height: viewportHeight, overflow: 'hidden'}}>
       <Box sx={{height: navHeight}}>
       <Navigation />
       </Box>

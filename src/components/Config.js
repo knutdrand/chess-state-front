@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { Box, TextField, Button, Alert, Typography } from '@mui/material';
 import { DefaultService } from '../api';
 
 const Config = () => {
@@ -7,7 +8,7 @@ const Config = () => {
   const [allowedMistakes, setAllowedMistakes] = useState(3);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
-  const [, setMessageType] = useState('info');
+  const [messageType, setMessageType] = useState('info');
 
   const handleSubmit = async () => {
     if (rating === '') {
@@ -43,47 +44,42 @@ const Config = () => {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '0 auto', padding: '20px' }}>
-      <h2>Settings</h2>
-      <div style={{ marginBottom: '15px' }}>
-        <label htmlFor="rating" style={{ display: 'block', marginBottom: '5px' }}>Chess Rating</label>
-        <input
-          id="rating"
-          type="number"
-          value={rating}
-          onChange={(e) => setRating(Number(e.target.value) || '')}
-          style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-        />
-      </div>
-      <div style={{ marginBottom: '15px' }}>
-        <label htmlFor="allowedMistakes" style={{ display: 'block', marginBottom: '5px' }}>Allowed Mistakes (1-10)</label>
-        <input
-          id="allowedMistakes"
-          type="number"
-          min={1}
-          max={10}
-          value={allowedMistakes}
-          onChange={(e) => setAllowedMistakes(Math.max(1, Math.min(10, Number(e.target.value) || 1)))}
-          style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-        />
-      </div>
-      <button
+    <Box sx={{ maxWidth: 400, mx: 'auto', p: 2.5 }}>
+      <Typography variant="h5" sx={{ mb: 2 }}>Settings</Typography>
+      <TextField
+        id="rating"
+        label="Chess Rating"
+        type="number"
+        value={rating}
+        onChange={(e) => setRating(Number(e.target.value) || '')}
+        fullWidth
+        margin="normal"
+      />
+      <TextField
+        id="allowedMistakes"
+        label="Allowed Mistakes (1-10)"
+        type="number"
+        inputProps={{ min: 1, max: 10 }}
+        value={allowedMistakes}
+        onChange={(e) => setAllowedMistakes(Math.max(1, Math.min(10, Number(e.target.value) || 1)))}
+        fullWidth
+        margin="normal"
+      />
+      <Button
+        variant="contained"
         onClick={handleSubmit}
         disabled={loading}
-        style={{
-          width: '100%',
-          padding: '10px',
-          backgroundColor: '#007BFF',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: loading ? 'not-allowed' : 'pointer',
-        }}
+        fullWidth
+        sx={{ mt: 1 }}
       >
         {loading ? 'Updating...' : 'Save Settings'}
-      </button>
-      {message && <p style={{ marginTop: '10px', color: message.startsWith('Success') ? 'green' : 'red' }}>{message}</p>}
-    </div>
+      </Button>
+      {message && (
+        <Alert severity={messageType === 'success' ? 'success' : 'error'} sx={{ mt: 1.5 }}>
+          {message}
+        </Alert>
+      )}
+    </Box>
   );
 };
 
