@@ -29,6 +29,7 @@ import AddCourseModal from "./AddCourseModal";
 import AddChapterModal from "./AddChapterModal";
 import AddResourceCourseModal from "./AddResourceCourseModal";
 import ImportStudyModal from "./ImportStudyModal";
+import TreeExplorer from "./TreeExplorer";
 import axios from "axios";
 import { useAuthStore } from "../stores/authStore";
 
@@ -63,6 +64,7 @@ const Courses = () => {
   const [showAddResourceCourseModal, setShowAddResourceCourseModal] = useState<boolean>(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
+  const [treeExploreCourseId, setTreeExploreCourseId] = useState<number | null>(null);
 
   // Query: Fetch courses
   const { data: courses = [], isLoading, error } = useQuery(
@@ -201,6 +203,13 @@ const Courses = () => {
             </Button>
             <Button
               variant="outlined"
+              size="small"
+              onClick={() => setTreeExploreCourseId(Number(info.row.original.id))}
+            >
+              Tree
+            </Button>
+            <Button
+              variant="outlined"
               color="error"
               size="small"
               onClick={() => deleteCourseMutation.mutate(info.row.original.id)}
@@ -222,6 +231,19 @@ const Courses = () => {
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
+
+  // Show tree explorer when a course is selected
+  if (treeExploreCourseId !== null && token) {
+    return (
+      <Box sx={{ height: '100%' }}>
+        <TreeExplorer
+          courseId={treeExploreCourseId}
+          token={token}
+          onExit={() => setTreeExploreCourseId(null)}
+        />
+      </Box>
+    );
+  }
 
   if (isLoading) {
     return <Typography>Loading...</Typography>;
