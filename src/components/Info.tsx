@@ -51,7 +51,7 @@ export function Info({ mode, width, link, onExplanation, animationKey = 0 }: Inf
         </Link>
       );
     } else {
-      return <div>{link}</div>;
+      return <span>{link}</span>;
     }
   }
 
