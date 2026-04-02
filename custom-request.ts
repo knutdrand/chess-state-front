@@ -9,8 +9,6 @@
  */
 import axios from 'axios';
 import type { AxiosError, AxiosRequestConfig, AxiosResponse, AxiosInstance } from 'axios';
-import FormData from 'form-data';
-
 import { ApiError } from './ApiError';
 import type { ApiRequestOptions } from './ApiRequestOptions';
 import type { ApiResult } from './ApiResult';
@@ -114,8 +112,19 @@ const getUrl = (config: OpenAPIConfig, options: ApiRequestOptions): string => {
     return url;
 };
 
-export const getFormData = (options: ApiRequestOptions): FormData | undefined => {
+export const getFormData = (options: ApiRequestOptions): FormData | URLSearchParams | undefined => {
     if (options.formData) {
+        // Use URLSearchParams for application/x-www-form-urlencoded
+        if (options.mediaType === 'application/x-www-form-urlencoded') {
+            const params = new URLSearchParams();
+            Object.entries(options.formData)
+                .filter(([_, value]) => isDefined(value))
+                .forEach(([key, value]) => {
+                    params.append(key, String(value));
+                });
+            return params;
+        }
+
         const formData = new FormData();
 
         const process = (key: string, value: any) => {
@@ -150,18 +159,16 @@ export const resolve = async <T>(options: ApiRequestOptions, resolver?: T | Reso
     return resolver;
 };
 
-export const getHeaders = async (config: OpenAPIConfig, options: ApiRequestOptions, formData?: FormData): Promise<Record<string, string>> => {
+export const getHeaders = async (config: OpenAPIConfig, options: ApiRequestOptions, formData?: FormData | URLSearchParams): Promise<Record<string, string>> => {
     const token = await resolve(options, config.TOKEN);
     const username = await resolve(options, config.USERNAME);
     const password = await resolve(options, config.PASSWORD);
     const additionalHeaders = await resolve(options, config.HEADERS);
-    const formHeaders = (typeof formData?.getHeaders === 'function' && formData?.getHeaders()) || {}
 
     const headers = Object.entries({
         Accept: 'application/json',
         ...additionalHeaders,
         ...options.headers,
-        ...formHeaders,
     })
     .filter(([_, value]) => isDefined(value))
     .reduce((headers, [key, value]) => ({
@@ -205,7 +212,7 @@ export const sendRequest = async <T>(
     options: ApiRequestOptions,
     url: string,
     body: any,
-    formData: FormData | undefined,
+    formData: FormData | URLSearchParams | undefined,
     headers: Record<string, string>,
     onCancel: OnCancel,
     axiosClient: AxiosInstance
