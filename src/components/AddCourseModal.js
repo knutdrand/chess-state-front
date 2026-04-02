@@ -11,7 +11,7 @@ import {
   Select, 
   MenuItem 
 } from '@mui/material';
-import httpClient from '../httpClient';
+import { DefaultService } from '../api';
 
 function AddCourseModal({ open, onClose, onAddCourse }) {
   const [newCourseName, setNewCourseName] = useState('');
@@ -19,12 +19,12 @@ function AddCourseModal({ open, onClose, onAddCourse }) {
 
   const handleSaveCourse = async () => {
     try {
-      const response = await httpClient.post(
-        '/api/add-course',
-        { course_name: newCourseName, color: newCourseColor }
-      );
-      
-      onAddCourse(response.data);
+      const response = await DefaultService.addCourseApiAddCoursePost({
+        course_name: newCourseName,
+        color: newCourseColor,
+      });
+
+      onAddCourse(response);
       onClose();
       // Reset form
       setNewCourseName('');

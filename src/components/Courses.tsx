@@ -29,12 +29,7 @@ import AddChapterModal from "./AddChapterModal";
 import AddResourceCourseModal from "./AddResourceCourseModal";
 import ImportStudyModal from "./ImportStudyModal";
 import TreeExplorer from "./TreeExplorer";
-import httpClient from "../httpClient";
-
-const fetchCourses = async () => {
-  const response = await httpClient.get('/api/list-courses');
-  return response.data;
-};
+import { DefaultService } from "../api";
 
 interface Course{
   id: string;
@@ -64,7 +59,7 @@ const Courses = () => {
   // Query: Fetch courses
   const { data: courses = [], isLoading, error } = useQuery(
     ["courses"],
-    () => fetchCourses(),
+    () => DefaultService.listCoursesApiListCoursesGet(),
     {
       retry: 1,
       retryDelay: 1000,
@@ -72,43 +67,19 @@ const Courses = () => {
     }
   );
 
-  // Mutation: Add course
-  const addCourseMutation = useMutation(
-    (newCourse) =>
-      httpClient.post('/api/courses', newCourse),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(["courses"]);
-        setShowAddCourseModal(false);
-      },
-    }
-  );
-
   // Mutation: Delete course
   const deleteCourseMutation = useMutation(
-    (courseId) =>
-      httpClient.delete(`/api/courses/${courseId}`),
+    (courseId: number) =>
+      DefaultService.deleteCourseApiCoursesCourseIdDelete(courseId),
     {
       onSuccess: () => queryClient.invalidateQueries(["courses"]),
     }
   );
 
-  // Mutation: Add chapter
-  const addChapterMutation = useMutation(
-    ({ courseId, newChapters }) =>
-      httpClient.post(`/api/courses/${courseId}/chapters`, newChapters),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(["courses"]);
-        setShowAddChapterModal(false);
-      },
-    }
-  );
-
   // Mutation: Delete chapter
   const deleteChapterMutation = useMutation(
-    ({ courseId, chapterId }) =>
-      httpClient.delete(`/api/courses/${courseId}/chapters/${chapterId}`),
+    ({ courseId, chapterId }: { courseId: number; chapterId: number }) =>
+      DefaultService.deleteChapterApiCoursesCourseIdChaptersChapterIdDelete(courseId, chapterId),
     {
       onSuccess: () => queryClient.invalidateQueries(["courses"]),
     }
@@ -116,11 +87,13 @@ const Courses = () => {
 
   // Mutation: Toggle enabled state
   const toggleEnabledMutation = useMutation(
-    ({ courseId, chapterId, enabled }) => {
-      const url = chapterId
-        ? `/api/courses/${courseId}/chapters/${chapterId}`
-        : `/api/courses/${courseId}`;
-      return httpClient.patch(url, { enabled });
+    ({ courseId, chapterId, enabled }: { courseId: number; chapterId?: number; enabled: boolean }) => {
+      if (chapterId) {
+        return DefaultService.updateChapterEnabledApiCoursesCourseIdChaptersChapterIdPatch(
+          courseId, chapterId, { enabled }
+        );
+      }
+      return DefaultService.updateCourseEnabledApiCoursesCourseIdPatch(courseId, { enabled });
     },
     {
       onSuccess: () => queryClient.invalidateQueries(["courses"]),
@@ -376,20 +349,20 @@ const Courses = () => {
       <AddCourseModal
         open={showAddCourseModal}
         onClose={() => setShowAddCourseModal(false)}
-        onAddCourse={(newCourse) =>
-          addCourseMutation.mutate(newCourse)
-        }
+        onAddCourse={() => {
+          queryClient.invalidateQueries(["courses"]);
+          setShowAddCourseModal(false);
+        }}
       />
 
       <AddChapterModal
         open={showAddChapterModal}
         onClose={() => setShowAddChapterModal(false)}
-        onAddChapter={(newChapters) =>
-          addChapterMutation.mutate({
-            courseId: selectedCourse?.id,
-            newChapters,
-          })
-        }
+        onAddChapter={() => {
+          queryClient.invalidateQueries(["courses"]);
+          setShowAddChapterModal(false);
+        }}
+        selectedCourse={selectedCourse}
       />
 
       <AddResourceCourseModal
@@ -402,12 +375,10 @@ const Courses = () => {
         open={showImportStudyModal}
         onClose={() => setShowImportStudyModal(false)}
         courseId={selectedCourse?.id}
-        onAddChapter={(newChapters) =>
-          addChapterMutation.mutate({
-            courseId: selectedCourse?.id,
-            newChapters,
-          })
-        }
+        onAddChapter={() => {
+          queryClient.invalidateQueries(["courses"]);
+          setShowImportStudyModal(false);
+        }}
       />
     </Box>
   );

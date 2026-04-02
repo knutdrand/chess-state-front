@@ -2,20 +2,12 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Login from './Login';
 import { useAuthStore } from '../stores/authStore';
-import httpClient from '../httpClient';
+import { DefaultService } from '../api';
 
-// Mock the http client
-jest.mock('../httpClient', () => ({
-  __esModule: true,
-  default: {
-    post: jest.fn(),
-    get: jest.fn(),
-    patch: jest.fn(),
-    delete: jest.fn(),
-    interceptors: {
-      request: { use: jest.fn() },
-      response: { use: jest.fn() },
-    },
+// Mock the generated API service
+jest.mock('../api', () => ({
+  DefaultService: {
+    loginForAccessTokenApiTokenPost: jest.fn(),
   },
 }));
 
@@ -73,7 +65,9 @@ describe('Login Component', () => {
   });
 
   test('submits form and sets token via store', async () => {
-    httpClient.post.mockResolvedValue({ data: { access_token: 'mock-access-token' } });
+    DefaultService.loginForAccessTokenApiTokenPost.mockResolvedValue({
+      access_token: 'mock-access-token',
+    });
 
     render(<Login {...defaultProps} />);
 
@@ -86,11 +80,10 @@ describe('Login Component', () => {
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(httpClient.post).toHaveBeenCalledWith(
-        '/api/token',
-        expect.any(URLSearchParams),
-        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-      );
+      expect(DefaultService.loginForAccessTokenApiTokenPost).toHaveBeenCalledWith({
+        username: 'testuser',
+        password: 'testpass',
+      });
     });
 
     await waitFor(() => {
@@ -99,7 +92,9 @@ describe('Login Component', () => {
   });
 
   test('shows error on login failure', async () => {
-    httpClient.post.mockRejectedValue(new Error('Invalid credentials'));
+    DefaultService.loginForAccessTokenApiTokenPost.mockRejectedValue(
+      new Error('Invalid credentials')
+    );
 
     render(<Login {...defaultProps} />);
 
@@ -133,7 +128,6 @@ describe('Login Component', () => {
     render(<Login {...defaultProps} />);
 
     const submitButton = screen.getByRole('button', { name: 'Submit' });
-    // MUI fullWidth button uses inline style
     expect(submitButton).toBeInTheDocument();
   });
 });

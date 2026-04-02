@@ -9,7 +9,7 @@ import {
   Paper,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import httpClient from "../httpClient";
+import { DefaultService } from "../api";
 import { CourseTree, TreeNode } from "../types/courseTree";
 
 interface TreeExplorerProps {
@@ -152,15 +152,14 @@ const TreeExplorer: React.FC<TreeExplorerProps> = ({
   useEffect(() => {
     const fetchTree = async () => {
       try {
-        const response = await httpClient.get<CourseTree>(
-          `/api/courses/${courseId}/tree`
-        );
-        setTreeData(response.data);
-        setPlayerColor(response.data.player_color || "white");
+        const data = await DefaultService.getCourseTreeApiCoursesCourseIdTreeGet(courseId);
+        const tree = data as unknown as CourseTree;
+        setTreeData(tree);
+        setPlayerColor(tree.player_color || "white");
         // Select the first root's fen by default
-        if (response.data.roots.length > 0) {
-          setSelectedFen(response.data.roots[0].fen);
-          setSelectedComment(response.data.roots[0].comment);
+        if (tree.roots.length > 0) {
+          setSelectedFen(tree.roots[0].fen);
+          setSelectedComment(tree.roots[0].comment);
         }
       } catch (err) {
         setError("Failed to load course tree");

@@ -11,5 +11,6 @@ export type CourseModel = {
     color: string;
     description: (string | null);
     chapters: Array<ChapterModel>;
+    enabled: boolean;
 };
 

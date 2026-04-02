@@ -15,10 +15,12 @@ export type { Body_register_user_api_register_post } from './models/Body_registe
 export type { ChapterModel } from './models/ChapterModel';
 export type { CourseInfo } from './models/CourseInfo';
 export type { CourseModel } from './models/CourseModel';
+export type { CourseTreeResponse } from './models/CourseTreeResponse';
 export type { ExplanationResponse } from './models/ExplanationResponse';
 export type { HTTPValidationError } from './models/HTTPValidationError';
 export type { Move } from './models/Move';
 export type { MoveResponse } from './models/MoveResponse';
+export type { OpponentResponse } from './models/OpponentResponse';
 export type { Player } from './models/Player';
 export type { PlayerConfig } from './models/PlayerConfig';
 export type { PositionExplanation } from './models/PositionExplanation';
@@ -26,6 +28,7 @@ export type { ShowInfo } from './models/ShowInfo';
 export type { State } from './models/State';
 export type { StudyData } from './models/StudyData';
 export type { Token } from './models/Token';
+export type { TreeNode } from './models/TreeNode';
 export type { UpdateChapterStatus } from './models/UpdateChapterStatus';
 export type { ValidationError } from './models/ValidationError';
 

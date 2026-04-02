@@ -12,7 +12,7 @@ import {
   Typography,
   CircularProgress,
 } from '@mui/material';
-import httpClient from '../httpClient';
+import { DefaultService } from '../api';
 import { useQuery } from '@tanstack/react-query';
 
 function AddResourceCourseModal({ open, onClose, onCourseAdded }) {
@@ -21,10 +21,7 @@ function AddResourceCourseModal({ open, onClose, onCourseAdded }) {
 
   const { data: availableCourses = [], isLoading } = useQuery(
     ['available-courses'],
-    async () => {
-      const response = await httpClient.get('/api/available-courses');
-      return response.data;
-    },
+    () => DefaultService.availableCoursesApiAvailableCoursesGet(),
     { enabled: open }
   );
 
@@ -32,11 +29,10 @@ function AddResourceCourseModal({ open, onClose, onCourseAdded }) {
     if (!selectedCourse) return;
     setAdding(true);
     try {
-      const response = await httpClient.post(
-        '/api/add-resource-course',
-        { folder_name: selectedCourse.folder_name }
-      );
-      onCourseAdded(response.data);
+      const response = await DefaultService.addResourceCourseApiAddResourceCoursePost({
+        folder_name: selectedCourse.folder_name,
+      });
+      onCourseAdded(response);
       onClose();
       setSelectedCourse(null);
     } catch (error) {

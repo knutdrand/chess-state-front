@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import httpClient from '../httpClient';
+import { DefaultService } from '../api';
 
 const Config = () => {
   const [rating, setRating] = useState('');
@@ -25,10 +25,10 @@ const Config = () => {
 
     setLoading(true);
     try {
-      await httpClient.patch(
-        '/api/player-config',
-        { rating: ratingNum, allowed_mistakes: allowedMistakes }
-      );
+      await DefaultService.ratingApiPlayerConfigPatch({
+        rating: ratingNum,
+        allowed_mistakes: allowedMistakes,
+      });
 
       setMessage('Settings updated successfully');
       setMessageType('success');

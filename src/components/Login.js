@@ -9,7 +9,7 @@ import {
   Alert,
   Box,
 } from '@mui/material';
-import httpClient from '../httpClient';
+import { DefaultService } from '../api';
 import { useAuthStore } from '../stores/authStore';
 
 export default function Login({ setIsRegistering }) {
@@ -25,13 +25,11 @@ export default function Login({ setIsRegistering }) {
     setLoading(true);
 
     try {
-      const formData = new URLSearchParams();
-      formData.append('username', username);
-      formData.append('password', password);
-      const response = await httpClient.post('/api/token', formData, {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      const response = await DefaultService.loginForAccessTokenApiTokenPost({
+        username,
+        password,
       });
-      setToken(response.data.access_token);
+      setToken(response.access_token);
     } catch (error) {
       setError('Invalid username or password');
       console.error(error);

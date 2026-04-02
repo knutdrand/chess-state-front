@@ -10,6 +10,7 @@ import type { Body_register_user_api_register_post } from '../models/Body_regist
 import type { ChapterModel } from '../models/ChapterModel';
 import type { CourseInfo } from '../models/CourseInfo';
 import type { CourseModel } from '../models/CourseModel';
+import type { CourseTreeResponse } from '../models/CourseTreeResponse';
 import type { ExplanationResponse } from '../models/ExplanationResponse';
 import type { Move } from '../models/Move';
 import type { MoveResponse } from '../models/MoveResponse';
@@ -26,6 +27,46 @@ import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 
 export class DefaultService {
+
+    /**
+     * Login For Access Token
+     * @param formData
+     * @returns Token Successful Response
+     * @throws ApiError
+     */
+    public static loginForAccessTokenApiTokenPost(
+        formData: Body_login_for_access_token_api_token_post,
+    ): CancelablePromise<Token> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/token',
+            formData: formData,
+            mediaType: 'application/x-www-form-urlencoded',
+            errors: {
+                422: `Validation Error`,
+            },
+        });
+    }
+
+    /**
+     * Register User
+     * @param formData
+     * @returns Token Successful Response
+     * @throws ApiError
+     */
+    public static registerUserApiRegisterPost(
+        formData: Body_register_user_api_register_post,
+    ): CancelablePromise<Token> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/register',
+            formData: formData,
+            mediaType: 'application/x-www-form-urlencoded',
+            errors: {
+                422: `Validation Error`,
+            },
+        });
+    }
 
     /**
      * New Game
@@ -53,27 +94,6 @@ export class DefaultService {
             url: '/api/player-config',
             body: requestBody,
             mediaType: 'application/json',
-            errors: {
-                422: `Validation Error`,
-            },
-        });
-    }
-
-    /**
-     * Explanation
-     * @param fen
-     * @returns ExplanationResponse Successful Response
-     * @throws ApiError
-     */
-    public static explanationApiExplanationFenGet(
-        fen: string,
-    ): CancelablePromise<ExplanationResponse> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/api/explanation/{fen}',
-            path: {
-                'fen': fen,
-            },
             errors: {
                 422: `Validation Error`,
             },
@@ -147,46 +167,6 @@ export class DefaultService {
             path: {
                 'username': username,
             },
-            errors: {
-                422: `Validation Error`,
-            },
-        });
-    }
-
-    /**
-     * Login For Access Token
-     * @param formData
-     * @returns Token Successful Response
-     * @throws ApiError
-     */
-    public static loginForAccessTokenApiTokenPost(
-        formData: Body_login_for_access_token_api_token_post,
-    ): CancelablePromise<Token> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/api/token',
-            formData: formData,
-            mediaType: 'application/x-www-form-urlencoded',
-            errors: {
-                422: `Validation Error`,
-            },
-        });
-    }
-
-    /**
-     * Register User
-     * @param formData
-     * @returns Token Successful Response
-     * @throws ApiError
-     */
-    public static registerUserApiRegisterPost(
-        formData: Body_register_user_api_register_post,
-    ): CancelablePromise<Token> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/api/register',
-            formData: formData,
-            mediaType: 'application/x-www-form-urlencoded',
             errors: {
                 422: `Validation Error`,
             },
@@ -406,6 +386,27 @@ export class DefaultService {
     }
 
     /**
+     * Explanation
+     * @param fen
+     * @returns ExplanationResponse Successful Response
+     * @throws ApiError
+     */
+    public static explanationApiExplanationFenGet(
+        fen: string,
+    ): CancelablePromise<ExplanationResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/explanation/{fen}',
+            path: {
+                'fen': fen,
+            },
+            errors: {
+                422: `Validation Error`,
+            },
+        });
+    }
+
+    /**
      * Export Attempts
      * Export all attempts for ML service training. Returns JSON array ordered by timestamp.
      * @returns any Successful Response
@@ -415,6 +416,35 @@ export class DefaultService {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/attempts/export',
+        });
+    }
+
+    /**
+     * Get Course Tree
+     * @param courseId
+     * @param chapterId
+     * @param maxDepth
+     * @returns CourseTreeResponse Successful Response
+     * @throws ApiError
+     */
+    public static getCourseTreeApiCoursesCourseIdTreeGet(
+        courseId: number,
+        chapterId?: (number | null),
+        maxDepth: number = 3,
+    ): CancelablePromise<CourseTreeResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/courses/{course_id}/tree',
+            path: {
+                'course_id': courseId,
+            },
+            query: {
+                'chapter_id': chapterId,
+                'max_depth': maxDepth,
+            },
+            errors: {
+                422: `Validation Error`,
+            },
         });
     }
 

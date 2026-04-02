@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Chessboard } from "react-chessboard";
-import httpClient from '../httpClient';
+import { DefaultService } from '../api';
 import { Pagination, PaginationItem } from "@mui/material";
 
 
@@ -148,9 +148,9 @@ const ApiExploration: React.FC<ApiExplorationProps> = ({ fen, onExit }) => {
     const fetchExplorations = async () => {
         const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
       try {
-        const response = await httpClient.get(`/api/explanation/${urlifiedFen}`);
-        console.log(response.data);
-        setExplorations(response.data); // Save the data
+        const response = await DefaultService.explanationApiExplanationFenGet(urlifiedFen);
+        console.log(response);
+        setExplorations(response as unknown as ExplanationResult); // Save the data
       } catch (err) {
         setError("Failed to fetch exploration data");
       } finally {

@@ -9,10 +9,8 @@ import {
   TextField,
   CircularProgress,
 } from "@mui/material";
-import httpClient from "../httpClient";
+import { DefaultService } from "../api";
 import { useMutation } from "@tanstack/react-query"
-
-
 
 function AddChapterModal({ open, onClose, onAddChapter, selectedCourse }) {
   const [file, setFile] = useState(null);
@@ -21,24 +19,19 @@ function AddChapterModal({ open, onClose, onAddChapter, selectedCourse }) {
   const uploadChapterMutation = useMutation(
     async () => {
       if (!file || !selectedCourse) throw new Error("No file or course selected");
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await httpClient.post(
-        `/api/courses/${selectedCourse.id}/chapters`,
-        formData
+      return DefaultService.addChaptersApiCoursesCourseIdChaptersPost(
+        selectedCourse.id,
+        { file }
       );
-
-      return response.data;
     },
     {
-      onSuccess: (data) => {
-        onAddChapter(data); // Update the parent component's state
-        onClose(); // Close the modal
+      onSuccess: () => {
+        onAddChapter();
+        onClose();
       },
       onError: (error) => {
         console.error("Error uploading chapter:", error);
-        alert("Error adding chapter. Please try again."); // Display an error message
+        alert("Error adding chapter. Please try again.");
       },
     }
   );

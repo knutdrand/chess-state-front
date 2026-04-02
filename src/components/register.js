@@ -10,7 +10,7 @@ import {
   Box,
   FormHelperText,
 } from '@mui/material';
-import httpClient from '../httpClient';
+import { DefaultService } from '../api';
 import { useAuthStore } from '../stores/authStore';
 
 export default function Register({ setIsRegistering }) {
@@ -33,17 +33,14 @@ export default function Register({ setIsRegistering }) {
     }
 
     try {
-      const formData = new URLSearchParams();
-      formData.append('username', username);
-      formData.append('password', password);
-      formData.append('invitation_code', invitationCode);
-      formData.append('grant_type', 'password');
-
-      const response = await httpClient.post('/api/register', formData, {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      const response = await DefaultService.registerUserApiRegisterPost({
+        username,
+        password,
+        invitation_code: invitationCode,
+        grant_type: 'password',
       });
       setSuccess('User registered successfully. You can now log in.');
-      setToken(response.data.access_token);
+      setToken(response.access_token);
       setIsRegistering(false);
     } catch (error) {
       console.error('Error:', error);
