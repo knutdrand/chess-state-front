@@ -27,7 +27,8 @@
     "react-dom": "",
     "react-router-dom": "",
     "react-scripts": "",
-    "web-vitals": ""
+    "web-vitals": "",
+    "zustand": "^5.0.12"
   },
   "scripts": {
     "generate-api": "npx openapi-typescript-codegen --input ./openapi.json --output ./src/api --client axios",

@@ -2,33 +2,35 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { apiUrl } from '../config';
+import { useAuthStore } from '../stores/authStore';
 
-const Config = ({ token }) => {
+const Config = () => {
+  const token = useAuthStore((s) => s.token);
   const [rating, setRating] = useState('');
   const [allowedMistakes, setAllowedMistakes] = useState(3);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [, setMessageType] = useState('info');
-  
-  const headers = { 
-    'accept': 'application/json', 
-    'Authorization': `Bearer ${token}` 
+
+  const headers = {
+    'accept': 'application/json',
+    'Authorization': `Bearer ${token}`
   };
-  
+
   const handleSubmit = async () => {
     if (rating === '') {
       setMessage('Rating cannot be empty');
       setMessageType('error');
       return;
     }
-    
+
     const ratingNum = parseInt(rating);
     if (isNaN(ratingNum) || ratingNum < 0 || ratingNum > 3000) {
       setMessage('Please enter a valid rating between 0 and 3000');
       setMessageType('error');
       return;
     }
-    
+
     setLoading(true);
     try {
       await axios.patch(
@@ -36,7 +38,7 @@ const Config = ({ token }) => {
         { rating: ratingNum, allowed_mistakes: allowedMistakes },
         { headers }
       );
-      
+
       setMessage('Settings updated successfully');
       setMessageType('success');
     } catch (error) {
@@ -95,30 +97,3 @@ const Config = ({ token }) => {
 };
 
 export default Config;
-/* 
-
-
-export default function Config({ apiUrl, token }) {
-    const headers = { 'accept': 'application/json', 'Authorization': `Bearer ${token}` };
-    const  handleSetConfig = (username, rating) => {
-        const data = {rating: rating};
-        axios.patch(`${apiUrl}/config`, data, 
-        {headers: headers}).then(response => {
-            console.log(response.data);
-        }).catch(error => {
-            console.error('Error setting config:', error);
-        });
-
-    // Set rating range
-    return (
-        <div>
-            <h1>Settings</h1>
-            <h2>Rating Range</h2>
-            <p>Set the rating range for the app</p>
-            <input type="number" placeholder="Minimum Rating" />
- 
-            <button onClick={handleSetConfig} 
-                Set Minimum Rating</button>
-        </div>
-    )
-} */

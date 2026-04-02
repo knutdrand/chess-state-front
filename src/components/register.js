@@ -1,9 +1,10 @@
 import { Container, Form, Button, Alert, Card, Image } from 'react-bootstrap';
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { api } from '../api/apiClient';
+import { useAuthStore } from '../stores/authStore';
 
-export default function Register({ setToken, setIsRegistering}) {
+export default function Register({ setIsRegistering}) {
+  const setToken = useAuthStore((s) => s.setToken);
   const [username, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -127,5 +128,4 @@ export default function Register({ setToken, setIsRegistering}) {
 }
 
 Register.propTypes = {
-  setToken: PropTypes.func.isRequired,
 };

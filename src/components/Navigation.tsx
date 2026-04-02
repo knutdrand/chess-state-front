@@ -10,15 +10,16 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
+import { useAuthStore } from '../stores/authStore';
+import { useUiStore } from '../stores/uiStore';
 
-interface NavigationProps {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-  handleLogout: () => void;
-  userName: string;
-}
+export function Navigation() {
+  const activeTab = useUiStore((s) => s.activeTab);
+  const setActiveTab = useUiStore((s) => s.setActiveTab);
+  const logout = useAuthStore((s) => s.logout);
+  const getDecodedToken = useAuthStore((s) => s.getDecodedToken);
+  const userName = getDecodedToken()?.sub ?? '';
 
-export function Navigation({ activeTab, setActiveTab, handleLogout, userName }: NavigationProps) {
   return (
     <AppBar position="static" color="default">
       <Toolbar sx={{ justifyContent: 'space-between' }}>
@@ -32,20 +33,20 @@ export function Navigation({ activeTab, setActiveTab, handleLogout, userName }: 
 
         {/* Center Section (Tabs) */}
         <Box sx={{ display: 'flex', gap: 2 }}>
-          <IconButton 
-            color={activeTab === 'play' ? 'primary' : 'default'} 
+          <IconButton
+            color={activeTab === 'play' ? 'primary' : 'default'}
             onClick={() => setActiveTab('play')}
           >
             <HomeIcon />
           </IconButton>
-          <IconButton 
-            color={activeTab === 'courses' ? 'primary' : 'default'} 
+          <IconButton
+            color={activeTab === 'courses' ? 'primary' : 'default'}
             onClick={() => setActiveTab('courses')}
           >
             <MenuIcon />
           </IconButton>
-          <IconButton 
-            color={activeTab === 'settings' ? 'primary' : 'default'} 
+          <IconButton
+            color={activeTab === 'settings' ? 'primary' : 'default'}
             onClick={() => setActiveTab('settings')}
           >
             <SettingsIcon />
@@ -53,10 +54,10 @@ export function Navigation({ activeTab, setActiveTab, handleLogout, userName }: 
         </Box>
 
         {/* Right Section */}
-        <Button 
-          variant="outlined" 
-          startIcon={<LogoutIcon />} 
-          onClick={handleLogout}
+        <Button
+          variant="outlined"
+          startIcon={<LogoutIcon />}
+          onClick={logout}
         >
         </Button>
       </Toolbar>

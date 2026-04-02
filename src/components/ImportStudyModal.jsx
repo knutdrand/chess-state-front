@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { DefaultService } from '../api';
 
-function ImportStudyModal({ open, onClose, courseId, token, onAddChapter }) {
+function ImportStudyModal({ open, onClose, courseId, onAddChapter }) {
   const [studyId, setStudyId] = useState('');
   const [loading, setLoading] = useState(false);
 

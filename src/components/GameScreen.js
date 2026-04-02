@@ -6,18 +6,27 @@ import { DefaultService, OpenAPI } from "../api";
 import { Info } from "./Info";
 import { ApiExploration } from "./ExplorationModern";
 import { baseUrl } from '../config';
+import { useAuthStore } from '../stores/authStore';
+import { useUiStore } from '../stores/uiStore';
+import { useGameStore } from '../stores/gameStore';
 
-export function GameScreen({position, setPosition, token, setToken, boardWidth, screenOrientation, gameState, setGameState }) {
-  // Board state
-  //const [orientation, setOrientation] = useState('white');
-  //const [gameState, setGameState] = useState(null);
+export function GameScreen() {
+  const token = useAuthStore((s) => s.token);
+  const logout = useAuthStore((s) => s.logout);
+  const boardWidth = useUiStore((s) => s.boardWidth);
+  const screenOrientation = useUiStore((s) => s.screenOrientation);
+  const position = useGameStore((s) => s.position);
+  const setPosition = useGameStore((s) => s.setPosition);
+  const gameState = useGameStore((s) => s.gameState);
+  const setGameState = useGameStore((s) => s.setGameState);
+
   // UI state
   const [loading, setLoading] = useState(false);
   const [recieveTimeStamp, setRecieveTimeStamp] = useState(null);
   const [explanation, setExplanation] = useState(null);
   const [infoAnimationKey, setInfoAnimationKey] = useState(0);
   const [showExploration, setShowExploration] = useState(false);
-  
+
   // Square highlighting state
   const [squareStyles, setSquareStyles] = useState({
     moveSquares: {},
@@ -51,15 +60,6 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
     return game.turn() === 'w' ? 'white' : 'black';
   }
 
-  // Update board when game changes
-  /* useEffect(() => {
-    if (!gameState) return;
-    const game = new Chess(gameState.fen);
-    if (orientation !== (game.turn() === 'w' ? 'white' : 'black')) {
-      setOrientation(game.turn() === 'w' ? 'white' : 'black');
-    }
-  }, [gameState]); */
-
   const initGame = async () => {
     setLoading(true);
     try {
@@ -71,7 +71,7 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
     } catch (error) {
       console.error("Error initializing game:", error);
       if (error.response && error.response.status === 401) {
-        setToken(null);
+        logout();
       }
     } finally {
       setLoading(false);
@@ -79,29 +79,31 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
   };
 
   const makeMove = useCallback(async (move) => {
-    
-    if (!position) {
+    const currentPosition = useGameStore.getState().position;
+    const currentGameState = useGameStore.getState().gameState;
+
+    if (!currentPosition) {
       console.log('no game');
       return;
     }
-    
+
     try {
-      const gameCopy = new Chess(position);
+      const gameCopy = new Chess(currentPosition);
       const result = gameCopy.move(move);
 
       if (result) {
         setPosition(gameCopy.fen());
-        const elapsedTime=recieveTimeStamp ? Date.now()-recieveTimeStamp : -1;
+        const elapsedTime=recieveTimeStamp ? (Date.now()-recieveTimeStamp) / 1000 : -1;
         const response = await DefaultService.moveApiMovePost({
-          state: gameState,
+          state: currentGameState,
           from_square: move.from,
           to_square: move.to,
           elapsed_time: elapsedTime,
           piece: move.promotion || undefined
         });
-        
-        const newGameCopy = new Chess(gameState.fen);
-        
+
+        const newGameCopy = new Chess(currentGameState.fen);
+
         if (response.state.mode === 'show') {
           let move = newGameCopy.move(response.correct_move);
           setShowSquares([move.from, move.to]);
@@ -109,14 +111,13 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
         } else {
           setShowSquares([]);
         }
-        
-        //setOrientation(newGameCopy.turn() === 'w' ? 'white' : 'black');
+
         setGameState(response.state);
         setPosition(response.state.fen);
         setRecieveTimeStamp(Date.now())
         setExplanation(response.message);
         setInfoAnimationKey(prev => prev + 1);
-        
+
         // Clear any square highlights
         setSquareStyles({
           moveSquares: {},
@@ -127,10 +128,10 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
     } catch (error) {
       console.error("Error making move:", error);
       if (error.response && error.response.status === 401) {
-        setToken(null);
+        logout();
       }
     }
-  }, [position, gameState, setToken, recieveTimeStamp, setGameState, setPosition]);
+  }, [recieveTimeStamp, setGameState, setPosition, logout]);
 
   const onDrop = useCallback((sourceSquare, targetSquare) => {
     makeMove({
@@ -149,22 +150,23 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
         to: square,
         promotion: "q"
       };
-      
+
       // Clear the selected square
       setSquareStyles(prev => ({
         ...prev,
         moveSquares: {},
         optionSquares: {}
       }));
-      
+
       // Make the move
       makeMove(move);
       return;
     }
-    
+
     // Otherwise, select the piece and show possible moves
-    if (!position) return;
-    const game = new Chess(position);
+    const currentPosition = useGameStore.getState().position;
+    if (!currentPosition) return;
+    const game = new Chess(currentPosition);
     const piece = game.get(square);
     if (piece && piece.color === (game.turn() === 'w' ? 'w' : 'b')) {
       // Highlight the selected square
@@ -173,7 +175,7 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
           background: "rgba(100, 100, 255, 0.3)"
         }
       };
-      
+
       // Show possible moves
       const moves = game.moves({ square, verbose: true });
       const optionSquares = {};
@@ -184,14 +186,14 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
           boxShadow: "inset 0 0 0 8px rgba(0, 128, 0, 0.1)"
         };
       });
-      
+
       setSquareStyles(prev => ({
         ...prev,
         moveSquares,
         optionSquares
       }));
     }
-  }, [makeMove, squareStyles.moveSquares, position]);
+  }, [makeMove, squareStyles.moveSquares]);
 
   const onSquareRightClick = useCallback((square) => {
     // Implementation for right-click handling
@@ -244,8 +246,8 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
 
   return (
     <Box sx={{ display: 'flex', flexDirection: screenOrientation, height: '100%' }}>
-      <Box sx={{ 
-        width: boardWidth, 
+      <Box sx={{
+        width: boardWidth,
         height: boardWidth,
         margin: 'auto'
       }}>
@@ -263,17 +265,17 @@ export function GameScreen({position, setPosition, token, setToken, boardWidth, 
           }}
         /> : <div>Loading...</div>
       </Box>
-      
-      <Box sx={{ 
-        flex: 1, 
-        display: 'flex', 
+
+      <Box sx={{
+        flex: 1,
+        display: 'flex',
         flexDirection: 'column',
         p: 2,
         minWidth: 300
       }}>
-        <Info 
-          link={explanation} 
-          mode={gameState?.mode || 'play'} 
+        <Info
+          link={explanation}
+          mode={gameState?.mode || 'play'}
           animationKey={infoAnimationKey}
           onExplanation={handleExploration}
           width="100%"

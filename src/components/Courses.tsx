@@ -30,6 +30,7 @@ import AddChapterModal from "./AddChapterModal";
 import AddResourceCourseModal from "./AddResourceCourseModal";
 import ImportStudyModal from "./ImportStudyModal";
 import axios from "axios";
+import { useAuthStore } from "../stores/authStore";
 
 const fetchCourses = async (token) => {
   const response = await axios.get(`${apiUrl}/list-courses`, {
@@ -51,11 +52,8 @@ interface Chapter {
   enabled: boolean;
 }
 
-interface CoursesProps {
-  token: string;
-}
-
-const Courses = ({ token }: CoursesProps) => {
+const Courses = () => {
+  const token = useAuthStore((s) => s.token);
   const queryClient = useQueryClient();
 
   // Modals state
@@ -394,7 +392,6 @@ const Courses = ({ token }: CoursesProps) => {
       <AddResourceCourseModal
         open={showAddResourceCourseModal}
         onClose={() => setShowAddResourceCourseModal(false)}
-        token={token}
         onCourseAdded={() => queryClient.invalidateQueries(["courses", token])}
       />
 
@@ -402,7 +399,6 @@ const Courses = ({ token }: CoursesProps) => {
         open={showImportStudyModal}
         onClose={() => setShowImportStudyModal(false)}
         courseId={selectedCourse?.id}
-        token={token}
         onAddChapter={(newChapters) =>
           addChapterMutation.mutate({
             courseId: selectedCourse?.id,

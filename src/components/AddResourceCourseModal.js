@@ -15,8 +15,10 @@ import {
 import axios from 'axios';
 import { apiUrl } from '../config';
 import { useQuery } from '@tanstack/react-query';
+import { useAuthStore } from '../stores/authStore';
 
-function AddResourceCourseModal({ open, onClose, token, onCourseAdded }) {
+function AddResourceCourseModal({ open, onClose, onCourseAdded }) {
+  const token = useAuthStore((s) => s.token);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [adding, setAdding] = useState(false);
 

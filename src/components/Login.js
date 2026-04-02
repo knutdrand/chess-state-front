@@ -1,22 +1,22 @@
 import { Container, Form, Button, Alert, Card, Image} from 'react-bootstrap';
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import './Login.css';
 import { api } from '../api/apiClient';
+import { useAuthStore } from '../stores/authStore';
 
-export default function Login({ setToken, setIsRegistering}) {
-  console.log(setIsRegistering);
+export default function Login({ setIsRegistering}) {
+  const setToken = useAuthStore((s) => s.setToken);
   const [username, setUserName] = useState();
   const [password, setPassword] = useState();
   const [error, setError] = useState();
   // eslint-disable-next-line no-unused-vars
   const [loading, setLoading] = useState(false);
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    
+
     try {
       const response = await api.login(username, password);
       setToken(response.access_token);
@@ -84,6 +84,5 @@ export default function Login({ setToken, setIsRegistering}) {
   );
 }
 Login.propTypes = {
-  setToken: PropTypes.func.isRequired
 };
 //</p>Dont' have an account? <Button onClick={() => setIsRegistering(true)} >Register</Button>
