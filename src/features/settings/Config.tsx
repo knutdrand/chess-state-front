@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Box, TextField, Button, Alert, Typography } from '@mui/material';
-import { DefaultService } from '../api';
+import { DefaultService } from '../../api';
 
 const Config = () => {
   const [rating, setRating] = useState<number | ''>('');

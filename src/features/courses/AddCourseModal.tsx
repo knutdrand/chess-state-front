@@ -11,7 +11,7 @@ import {
   Select, 
   MenuItem 
 } from '@mui/material';
-import { DefaultService, CourseModel } from '../api';
+import { DefaultService, CourseModel } from '../../api';
 import type { SelectChangeEvent } from '@mui/material';
 
 interface AddCourseModalProps {

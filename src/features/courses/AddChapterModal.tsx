@@ -8,8 +8,9 @@ import {
   TextField,
   CircularProgress,
 } from "@mui/material";
-import { DefaultService } from "../api";
-import { useMutation } from "@tanstack/react-query"
+import { DefaultService } from "../../api";
+import { useMutation } from "@tanstack/react-query";
+import { useNotification } from "../../hooks/useNotification";
 
 interface AddChapterModalProps {
   open: boolean;
@@ -19,6 +20,7 @@ interface AddChapterModalProps {
 }
 
 function AddChapterModal({ open, onClose, onAddChapter, selectedCourse }: AddChapterModalProps) {
+  const { notifyError } = useNotification();
   const [file, setFile] = useState<File | null>(null);
 
   // Mutation for uploading a chapter
@@ -37,7 +39,7 @@ function AddChapterModal({ open, onClose, onAddChapter, selectedCourse }: AddCha
       },
       onError: (error) => {
         console.error("Error uploading chapter:", error);
-        alert("Error adding chapter. Please try again.");
+        notifyError("Error adding chapter. Please try again.");
       },
     }
   );

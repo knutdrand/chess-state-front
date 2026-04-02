@@ -9,8 +9,8 @@ import {
   Paper,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { DefaultService } from "../api";
-import { CourseTree, TreeNode } from "../types/courseTree";
+import { DefaultService } from "../../api";
+import { CourseTree, TreeNode } from "../../types/courseTree";
 
 interface TreeExplorerProps {
   courseId: number;

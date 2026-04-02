@@ -9,7 +9,8 @@ import {
   CircularProgress,
   Box
 } from '@mui/material';
-import { DefaultService } from '../api';
+import { DefaultService } from '../../api';
+import { useNotification } from '../../hooks/useNotification';
 
 interface ImportStudyModalProps {
   open: boolean;
@@ -19,6 +20,7 @@ interface ImportStudyModalProps {
 }
 
 function ImportStudyModal({ open, onClose, courseId, onAddChapter }: ImportStudyModalProps) {
+  const { notifyError } = useNotification();
   const [studyId, setStudyId] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -42,7 +44,7 @@ function ImportStudyModal({ open, onClose, courseId, onAddChapter }: ImportStudy
         const errorMessage = err.status === 401
           ? 'Authentication failed. Please log in again.'
           : `Error adding chapter: ${err.body?.detail || err.message}. Please try again.`;
-        alert(errorMessage);
+        notifyError(errorMessage);
       } finally {
         setLoading(false);
       }

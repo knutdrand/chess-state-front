@@ -12,7 +12,7 @@ import {
   Typography,
   CircularProgress,
 } from '@mui/material';
-import { DefaultService, CourseModel, AvailableCourse } from '../api';
+import { DefaultService, CourseModel, AvailableCourse } from '../../api';
 import { useQuery } from '@tanstack/react-query';
 
 interface AddResourceCourseModalProps {

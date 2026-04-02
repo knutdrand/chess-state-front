@@ -9,8 +9,8 @@ import {
   Alert,
   Box,
 } from '@mui/material';
-import { DefaultService } from '../api';
-import { useAuthStore } from '../stores/authStore';
+import { DefaultService } from '../../api';
+import { useAuthStore } from '../../stores/authStore';
 
 interface LoginProps {
   setIsRegistering: (value: boolean) => void;

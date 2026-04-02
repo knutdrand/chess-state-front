@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   Box,
   Button,
@@ -27,7 +27,8 @@ import AddChapterModal from "./AddChapterModal";
 import AddResourceCourseModal from "./AddResourceCourseModal";
 import ImportStudyModal from "./ImportStudyModal";
 import TreeExplorer from "./TreeExplorer";
-import { DefaultService } from "../api";
+import { DefaultService } from "../../api";
+import { useCourseMutations } from "../../hooks/useCourseMutations";
 
 interface Course {
   id: number;
@@ -43,7 +44,12 @@ interface Chapter {
 }
 
 const Courses = () => {
-  const queryClient = useQueryClient();
+  const {
+    deleteCourseMutation,
+    deleteChapterMutation,
+    toggleEnabledMutation,
+    invalidateCourses,
+  } = useCourseMutations();
 
   // Modals state
   const [showAddCourseModal, setShowAddCourseModal] = useState<boolean>(false);
@@ -62,39 +68,6 @@ const Courses = () => {
       retry: 1,
       retryDelay: 1000,
       networkMode: 'online',
-    }
-  );
-
-  // Mutation: Delete course
-  const deleteCourseMutation = useMutation(
-    (courseId: number) =>
-      DefaultService.deleteCourseApiCoursesCourseIdDelete(courseId),
-    {
-      onSuccess: () => queryClient.invalidateQueries(["courses"]),
-    }
-  );
-
-  // Mutation: Delete chapter
-  const deleteChapterMutation = useMutation(
-    ({ courseId, chapterId }: { courseId: number; chapterId: number }) =>
-      DefaultService.deleteChapterApiCoursesCourseIdChaptersChapterIdDelete(courseId, chapterId),
-    {
-      onSuccess: () => queryClient.invalidateQueries(["courses"]),
-    }
-  );
-
-  // Mutation: Toggle enabled state
-  const toggleEnabledMutation = useMutation(
-    ({ courseId, chapterId, enabled }: { courseId: number; chapterId?: number; enabled: boolean }) => {
-      if (chapterId) {
-        return DefaultService.updateChapterEnabledApiCoursesCourseIdChaptersChapterIdPatch(
-          courseId, chapterId, { enabled }
-        );
-      }
-      return DefaultService.updateCourseEnabledApiCoursesCourseIdPatch(courseId, { enabled });
-    },
-    {
-      onSuccess: () => queryClient.invalidateQueries(["courses"]),
     }
   );
 
@@ -348,7 +321,7 @@ const Courses = () => {
         open={showAddCourseModal}
         onClose={() => setShowAddCourseModal(false)}
         onAddCourse={() => {
-          queryClient.invalidateQueries(["courses"]);
+          invalidateCourses();
           setShowAddCourseModal(false);
         }}
       />
@@ -357,7 +330,7 @@ const Courses = () => {
         open={showAddChapterModal}
         onClose={() => setShowAddChapterModal(false)}
         onAddChapter={() => {
-          queryClient.invalidateQueries(["courses"]);
+          invalidateCourses();
           setShowAddChapterModal(false);
         }}
         selectedCourse={selectedCourse}
@@ -366,7 +339,7 @@ const Courses = () => {
       <AddResourceCourseModal
         open={showAddResourceCourseModal}
         onClose={() => setShowAddResourceCourseModal(false)}
-        onCourseAdded={() => queryClient.invalidateQueries(["courses"])}
+        onCourseAdded={() => invalidateCourses()}
       />
 
       <ImportStudyModal
@@ -374,7 +347,7 @@ const Courses = () => {
         onClose={() => setShowImportStudyModal(false)}
         courseId={selectedCourse?.id}
         onAddChapter={() => {
-          queryClient.invalidateQueries(["courses"]);
+          invalidateCourses();
           setShowImportStudyModal(false);
         }}
       />

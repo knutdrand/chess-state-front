@@ -13,7 +13,7 @@ jest.mock('./components/MainScreen', () => ({
 }));
 
 // Mock the Login component
-jest.mock('./components/Login', () => ({
+jest.mock('./features/auth/Login', () => ({
   __esModule: true,
   default: ({ setIsRegistering }) => (
     <div data-testid="login-screen">
@@ -23,7 +23,7 @@ jest.mock('./components/Login', () => ({
 }));
 
 // Mock the Register component
-jest.mock('./components/register', () => ({
+jest.mock('./features/auth/Register', () => ({
   __esModule: true,
   default: ({ setIsRegistering }) => (
     <div data-testid="register-screen">
@@ -33,7 +33,7 @@ jest.mock('./components/register', () => ({
 }));
 
 // Mock the Exploration components
-jest.mock('./components/Exploration2', () => ({
+jest.mock('./features/exploration/Exploration2', () => ({
   ExampleExploration: () => <div data-testid="example-exploration">Example Exploration</div>,
 }));
 

@@ -1,11 +1,12 @@
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
-import Login from './components/Login';
+import Login from './features/auth/Login';
 import React, {useState} from 'react';
 import {MainScreen} from "./components/MainScreen";
-import Register from './components/Register';
-import {ExampleExploration} from './components/Exploration2';
+import Register from './features/auth/Register';
+import {ExampleExploration} from './features/exploration/Exploration2';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
+import { NotificationProvider } from './hooks/useNotification';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -26,13 +27,15 @@ const UserNameToGameScreen = () => {
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
-        <Routes>
-          <Route path='/' element={<UserNameToGameScreen />} />
-          <Route path='/register' element={<Register />} />
-          <Route path='/exploration' element={<ExampleExploration/>} />
-        </Routes>
-      </Router>
+      <NotificationProvider>
+        <Router>
+          <Routes>
+            <Route path='/' element={<UserNameToGameScreen />} />
+            <Route path='/register' element={<Register />} />
+            <Route path='/exploration' element={<ExampleExploration/>} />
+          </Routes>
+        </Router>
+      </NotificationProvider>
     </QueryClientProvider>
   );
 };

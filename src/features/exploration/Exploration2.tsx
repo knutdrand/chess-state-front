@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Chessboard } from "react-chessboard";
-import { DefaultService } from '../api';
+import { DefaultService } from '../../api';
 import { Box, Pagination, PaginationItem } from "@mui/material";
 
 

@@ -10,8 +10,8 @@ import {
   Box,
   FormHelperText,
 } from '@mui/material';
-import { DefaultService } from '../api';
-import { useAuthStore } from '../stores/authStore';
+import { DefaultService } from '../../api';
+import { useAuthStore } from '../../stores/authStore';
 
 interface RegisterProps {
   setIsRegistering?: (value: boolean) => void;

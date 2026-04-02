@@ -1,11 +1,11 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Login from './Login';
-import { useAuthStore } from '../stores/authStore';
-import { DefaultService } from '../api';
+import { useAuthStore } from '../../stores/authStore';
+import { DefaultService } from '../../api';
 
 // Mock the generated API service
-jest.mock('../api', () => ({
+jest.mock('../../api', () => ({
   DefaultService: {
     loginForAccessTokenApiTokenPost: jest.fn(),
   },
