@@ -50,12 +50,24 @@ export function useCourseMutations() {
     }
   );
 
+  const focusChapterMutation = useMutation(
+    ({ courseId, chapterId }: { courseId: number; chapterId: number }) =>
+      DefaultService.focusChapterApiCoursesCourseIdFocusChapterChapterIdPost(
+        courseId,
+        chapterId
+      ),
+    {
+      onSuccess: () => queryClient.invalidateQueries(["courses"]),
+    }
+  );
+
   const invalidateCourses = () => queryClient.invalidateQueries(["courses"]);
 
   return {
     deleteCourseMutation,
     deleteChapterMutation,
     toggleEnabledMutation,
+    focusChapterMutation,
     invalidateCourses,
   };
 }

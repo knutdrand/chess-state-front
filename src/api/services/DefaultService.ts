@@ -386,6 +386,31 @@ export class DefaultService {
     }
 
     /**
+     * Focus Chapter
+     * Enable only the specified chapter, disable all others in the course.
+     * @param courseId
+     * @param chapterId
+     * @returns ChapterModel Successful Response
+     * @throws ApiError
+     */
+    public static focusChapterApiCoursesCourseIdFocusChapterChapterIdPost(
+        courseId: number,
+        chapterId: number,
+    ): CancelablePromise<Array<ChapterModel>> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/courses/{course_id}/focus-chapter/{chapter_id}',
+            path: {
+                'course_id': courseId,
+                'chapter_id': chapterId,
+            },
+            errors: {
+                422: `Validation Error`,
+            },
+        });
+    }
+
+    /**
      * Explanation
      * @param fen
      * @returns ExplanationResponse Successful Response

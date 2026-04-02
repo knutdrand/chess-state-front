@@ -760,6 +760,64 @@
         }
       }
     },
+    "/api/courses/{course_id}/focus-chapter/{chapter_id}": {
+      "post": {
+        "summary": "Focus Chapter",
+        "description": "Enable only the specified chapter, disable all others in the course.",
+        "operationId": "focus_chapter_api_courses__course_id__focus_chapter__chapter_id__post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Course Id"
+            }
+          },
+          {
+            "name": "chapter_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Chapter Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChapterModel"
+                  },
+                  "title": "Response Focus Chapter Api Courses  Course Id  Focus Chapter  Chapter Id  Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/explanation/{fen}": {
       "get": {
         "summary": "Explanation",

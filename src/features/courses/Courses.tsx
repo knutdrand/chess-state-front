@@ -48,6 +48,7 @@ const Courses = () => {
     deleteCourseMutation,
     deleteChapterMutation,
     toggleEnabledMutation,
+    focusChapterMutation,
     invalidateCourses,
   } = useCourseMutations();
 
@@ -287,17 +288,30 @@ const Courses = () => {
                                       </Button>
                                     </TableCell>
                                     <TableCell>
-                                      <Button
-                                        variant="outlined"
-                                        color="error"
-                                        size="small"
-                                        onClick={() => deleteChapterMutation.mutate({
-                                          courseId: row.original.id,
-                                          chapterId: chapter.id,
-                                        })}
-                                      >
-                                        Delete
-                                      </Button>
+                                      <Box sx={{ display: 'flex', gap: 1 }}>
+                                        <Button
+                                          variant={chapter.enabled && row.original.chapters.filter(c => c.enabled).length === 1 ? "contained" : "outlined"}
+                                          color="primary"
+                                          size="small"
+                                          onClick={() => focusChapterMutation.mutate({
+                                            courseId: row.original.id,
+                                            chapterId: chapter.id,
+                                          })}
+                                        >
+                                          Focus
+                                        </Button>
+                                        <Button
+                                          variant="outlined"
+                                          color="error"
+                                          size="small"
+                                          onClick={() => deleteChapterMutation.mutate({
+                                            courseId: row.original.id,
+                                            chapterId: chapter.id,
+                                          })}
+                                        >
+                                          Delete
+                                        </Button>
+                                      </Box>
                                     </TableCell>
                                   </TableRow>
                                 ))}
