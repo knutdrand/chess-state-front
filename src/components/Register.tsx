@@ -6,7 +6,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import Image from 'react-bootstrap/Image';
-import { api } from '../api/apiClient';
+import httpClient from '../httpClient';
 
 interface RegisterProps {
   setToken: (token: string) => void;
@@ -33,9 +33,16 @@ const Register: React.FC<RegisterProps> = ({ setToken, setIsRegistering }) => {
     }
 
     try {
-      const response = await api.register(username, password, invitationCode);
+      const formData = new URLSearchParams();
+      formData.append('username', username);
+      formData.append('password', password);
+      formData.append('invitation_code', invitationCode);
+      formData.append('grant_type', 'password');
+      const response = await httpClient.post('/api/register', formData, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      });
       setSuccess('User registered successfully. You can now log in.');
-      setToken(response.access_token);
+      setToken(response.data.access_token);
       setIsRegistering(false);
     } catch (error: any) {
       console.error('Error:', error);

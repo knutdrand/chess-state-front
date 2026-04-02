@@ -11,24 +11,17 @@ import {
   Select, 
   MenuItem 
 } from '@mui/material';
-import axios from 'axios';
-import { apiUrl } from '../config';
+import httpClient from '../httpClient';
 
-function AddCourseModal({ open, onClose, onAddCourse, token }) {
+function AddCourseModal({ open, onClose, onAddCourse }) {
   const [newCourseName, setNewCourseName] = useState('');
   const [newCourseColor, setNewCourseColor] = useState('White');
 
   const handleSaveCourse = async () => {
     try {
-      const headers = { 
-        'accept': 'application/json', 
-        'Authorization': `Bearer ${token}` 
-      };
-      
-      const response = await axios.post(
-        `${apiUrl}/add-course`,
-        { course_name: newCourseName, color: newCourseColor },
-        { headers }
+      const response = await httpClient.post(
+        '/api/add-course',
+        { course_name: newCourseName, color: newCourseColor }
       );
       
       onAddCourse(response.data);

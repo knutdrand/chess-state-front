@@ -6,7 +6,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import Image from 'react-bootstrap/Image';
-import { api } from '../api/apiClient';
+import httpClient from '../httpClient';
 import './Login.css';
 
 interface LoginProps {
@@ -26,9 +26,13 @@ const Login: React.FC<LoginProps> = ({ setToken, setIsRegistering }) => {
     setLoading(true);
     
     try {
-      const response = await api.login(username, password);
-      setToken(response.access_token);
-      api.setAuthToken(response.access_token);
+      const formData = new URLSearchParams();
+      formData.append('username', username);
+      formData.append('password', password);
+      const response = await httpClient.post('/api/token', formData, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      });
+      setToken(response.data.access_token);
     } catch (error: any) {
       setError('Invalid username or password');
       console.error(error);

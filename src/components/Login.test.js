@@ -2,16 +2,22 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Login from './Login';
 import { useAuthStore } from '../stores/authStore';
+import httpClient from '../httpClient';
 
-// Mock the api client
-jest.mock('../api/apiClient', () => ({
-  api: {
-    login: jest.fn(),
-    setAuthToken: jest.fn(),
+// Mock the http client
+jest.mock('../httpClient', () => ({
+  __esModule: true,
+  default: {
+    post: jest.fn(),
+    get: jest.fn(),
+    patch: jest.fn(),
+    delete: jest.fn(),
+    interceptors: {
+      request: { use: jest.fn() },
+      response: { use: jest.fn() },
+    },
   },
 }));
-
-const { api } = require('../api/apiClient');
 
 describe('Login Component', () => {
   const defaultProps = {
@@ -67,7 +73,7 @@ describe('Login Component', () => {
   });
 
   test('submits form and sets token via store', async () => {
-    api.login.mockResolvedValue({ access_token: 'mock-access-token' });
+    httpClient.post.mockResolvedValue({ data: { access_token: 'mock-access-token' } });
 
     render(<Login {...defaultProps} />);
 
@@ -80,7 +86,11 @@ describe('Login Component', () => {
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(api.login).toHaveBeenCalledWith('testuser', 'testpass');
+      expect(httpClient.post).toHaveBeenCalledWith(
+        '/api/token',
+        expect.any(URLSearchParams),
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      );
     });
 
     await waitFor(() => {
@@ -89,7 +99,7 @@ describe('Login Component', () => {
   });
 
   test('shows error on login failure', async () => {
-    api.login.mockRejectedValue(new Error('Invalid credentials'));
+    httpClient.post.mockRejectedValue(new Error('Invalid credentials'));
 
     render(<Login {...defaultProps} />);
 

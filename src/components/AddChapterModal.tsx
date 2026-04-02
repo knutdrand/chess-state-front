@@ -9,12 +9,12 @@ import {
   TextField,
   CircularProgress,
 } from "@mui/material";
-import axios from "axios";
+import httpClient from "../httpClient";
 import { useMutation } from "@tanstack/react-query"
 
 
 
-function AddChapterModal({ open, onClose, onAddChapter, selectedCourse, token }) {
+function AddChapterModal({ open, onClose, onAddChapter, selectedCourse }) {
   const [file, setFile] = useState(null);
 
   // Mutation for uploading a chapter
@@ -24,14 +24,9 @@ function AddChapterModal({ open, onClose, onAddChapter, selectedCourse, token })
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await axios.post(
-        `${apiUrl}/courses/${selectedCourse.id}/chapters`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await httpClient.post(
+        `/api/courses/${selectedCourse.id}/chapters`,
+        formData
       );
 
       return response.data;

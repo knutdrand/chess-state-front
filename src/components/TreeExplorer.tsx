@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import axios from "axios";
 import Tree, { RawNodeDatum } from "react-d3-tree";
 import { Chessboard } from "react-chessboard";
 import {
@@ -10,12 +9,11 @@ import {
   Paper,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { apiUrl } from "../config";
+import httpClient from "../httpClient";
 import { CourseTree, TreeNode } from "../types/courseTree";
 
 interface TreeExplorerProps {
   courseId: number;
-  token: string;
   onExit: () => void;
 }
 
@@ -114,7 +112,6 @@ const renderCustomNode = ({
 
 const TreeExplorer: React.FC<TreeExplorerProps> = ({
   courseId,
-  token,
   onExit,
 }) => {
   const [treeData, setTreeData] = useState<CourseTree | null>(null);
@@ -127,11 +124,8 @@ const TreeExplorer: React.FC<TreeExplorerProps> = ({
   useEffect(() => {
     const fetchTree = async () => {
       try {
-        const response = await axios.get<CourseTree>(
-          `${apiUrl}/courses/${courseId}/tree`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+        const response = await httpClient.get<CourseTree>(
+          `/api/courses/${courseId}/tree`
         );
         setTreeData(response.data);
         setPlayerColor(response.data.player_color || "white");
@@ -149,7 +143,7 @@ const TreeExplorer: React.FC<TreeExplorerProps> = ({
     };
 
     fetchTree();
-  }, [courseId, token]);
+  }, [courseId]);
 
   const handleNodeClick = useCallback((node: D3TreeNode) => {
     const fen = node.attributes?.fen;

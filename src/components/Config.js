@@ -1,21 +1,13 @@
 
 import React, { useState } from 'react';
-import axios from 'axios';
-import { apiUrl } from '../config';
-import { useAuthStore } from '../stores/authStore';
+import httpClient from '../httpClient';
 
 const Config = () => {
-  const token = useAuthStore((s) => s.token);
   const [rating, setRating] = useState('');
   const [allowedMistakes, setAllowedMistakes] = useState(3);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [, setMessageType] = useState('info');
-
-  const headers = {
-    'accept': 'application/json',
-    'Authorization': `Bearer ${token}`
-  };
 
   const handleSubmit = async () => {
     if (rating === '') {
@@ -33,10 +25,9 @@ const Config = () => {
 
     setLoading(true);
     try {
-      await axios.patch(
-        `${apiUrl}/player-config`,
-        { rating: ratingNum, allowed_mistakes: allowedMistakes },
-        { headers }
+      await httpClient.patch(
+        '/api/player-config',
+        { rating: ratingNum, allowed_mistakes: allowedMistakes }
       );
 
       setMessage('Settings updated successfully');

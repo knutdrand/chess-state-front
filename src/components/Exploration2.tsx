@@ -1,7 +1,6 @@
-import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { Chessboard } from "react-chessboard";
-import {apiUrl} from '../config';
+import httpClient from '../httpClient';
 import { Pagination, PaginationItem } from "@mui/material";
 
 
@@ -131,17 +130,8 @@ const Exploration2: React.FC<ExplorationProps> = ({ explanations, cur_index, onE
 };
 
 interface ApiExplorationProps {
-    fen: string;
-    token: string;
-}
-
-
-
-
-interface ApiExplorationProps {
   fen: string;
-  token: string;
-    onExit: () => void; 
+  onExit: () => void;
 }
 
 interface ExplanationResult {
@@ -149,7 +139,7 @@ interface ExplanationResult {
     cur_index: number;
     }
 
-const ApiExploration: React.FC<ApiExplorationProps> = ({ fen, token, onExit }) => {
+const ApiExploration: React.FC<ApiExplorationProps> = ({ fen, onExit }) => {
   const [explorations, setExplorations] = useState<ExplanationResult | null>(null); // State to store fetched data
   const [loading, setLoading] = useState(true); // State to handle loading
   const [error, setError] = useState<string | null>(null); // State for error handling
@@ -157,15 +147,8 @@ const ApiExploration: React.FC<ApiExplorationProps> = ({ fen, token, onExit }) =
   useEffect(() => {
     const fetchExplorations = async () => {
         const urlifiedFen = fen.replace(/ /g, "_").replace(/\//g, '+');
-        const url = apiUrl + "/explanation/" + urlifiedFen;
-        console.log(url);
       try {
-        const response = await axios.get(url, {
-          headers: {
-            accept: "application/json",
-            Authorization: "Bearer " + token,
-          },
-        });
+        const response = await httpClient.get(`/api/explanation/${urlifiedFen}`);
         console.log(response.data);
         setExplorations(response.data); // Save the data
       } catch (err) {
@@ -176,7 +159,7 @@ const ApiExploration: React.FC<ApiExplorationProps> = ({ fen, token, onExit }) =
     };
 
     fetchExplorations();
-  }, [fen, token]); // Dependencies ensure this effect runs when `fen` or `token` changes
+  }, [fen]); // Dependencies ensure this effect runs when `fen` or `token` changes
 
   if (loading) {
     return <div>Loading...</div>; // Loading indicator

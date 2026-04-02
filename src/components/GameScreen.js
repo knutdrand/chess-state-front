@@ -2,16 +2,14 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Chess } from 'chess.js';
 import { Chessboard } from "react-chessboard";
 import { Box, CircularProgress } from "@mui/material";
-import { DefaultService, OpenAPI } from "../api";
+import { DefaultService } from "../api";
 import { Info } from "./Info";
 import { ApiExploration } from "./ExplorationModern";
-import { baseUrl } from '../config';
 import { useAuthStore } from '../stores/authStore';
 import { useUiStore } from '../stores/uiStore';
 import { useGameStore } from '../stores/gameStore';
 
 export function GameScreen() {
-  const token = useAuthStore((s) => s.token);
   const logout = useAuthStore((s) => s.logout);
   const boardWidth = useUiStore((s) => s.boardWidth);
   const screenOrientation = useUiStore((s) => s.screenOrientation);
@@ -35,16 +33,8 @@ export function GameScreen() {
   });
   const [showSquares, setShowSquares] = useState([]);
   console.log('reload', position);
-  // Configure the API with the token
-  useEffect(() => {
-    OpenAPI.BASE = baseUrl;
-    OpenAPI.TOKEN = token;
-    OpenAPI.HEADERS = {
-      'Authorization': `Bearer ${token}`
-    };
-  }, [token]);
 
-  // itialize game if not already initialized
+  // Initialize game if not already initialized
   useEffect(() => {
     if (position){
       console.log('already have a game', position);
@@ -237,7 +227,6 @@ export function GameScreen() {
     return (
       <ApiExploration
         fen={position}
-        token={token}
         onExit={handleExplorationExit}
         boardOrientation={getOrientation(gameState?.fen)}
       />

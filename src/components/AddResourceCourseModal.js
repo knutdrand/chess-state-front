@@ -12,35 +12,29 @@ import {
   Typography,
   CircularProgress,
 } from '@mui/material';
-import axios from 'axios';
-import { apiUrl } from '../config';
+import httpClient from '../httpClient';
 import { useQuery } from '@tanstack/react-query';
-import { useAuthStore } from '../stores/authStore';
 
 function AddResourceCourseModal({ open, onClose, onCourseAdded }) {
-  const token = useAuthStore((s) => s.token);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [adding, setAdding] = useState(false);
 
   const { data: availableCourses = [], isLoading } = useQuery(
     ['available-courses'],
     async () => {
-      const response = await axios.get(`${apiUrl}/available-courses`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await httpClient.get('/api/available-courses');
       return response.data;
     },
-    { enabled: open && !!token }
+    { enabled: open }
   );
 
   const handleAdd = async () => {
     if (!selectedCourse) return;
     setAdding(true);
     try {
-      const response = await axios.post(
-        `${apiUrl}/add-resource-course`,
-        { folder_name: selectedCourse.folder_name },
-        { headers: { Authorization: `Bearer ${token}` } }
+      const response = await httpClient.post(
+        '/api/add-resource-course',
+        { folder_name: selectedCourse.folder_name }
       );
       onCourseAdded(response.data);
       onClose();

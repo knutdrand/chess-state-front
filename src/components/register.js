@@ -1,6 +1,6 @@
 import { Container, Form, Button, Alert, Card, Image } from 'react-bootstrap';
 import React, { useState } from 'react';
-import { api } from '../api/apiClient';
+import httpClient from '../httpClient';
 import { useAuthStore } from '../stores/authStore';
 
 export default function Register({ setIsRegistering}) {
@@ -29,11 +29,12 @@ export default function Register({ setIsRegistering}) {
       formData.append('password', password);
       formData.append('invitation_code', invitationCode);
       formData.append('grant_type', 'password');
-      
-      // Update to use the api object instead of apiClient
-      const response = await api.register(username, password, invitationCode);
+
+      const response = await httpClient.post('/api/register', formData, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      });
       setSuccess('User registered successfully. You can now log in.');
-      setToken(response.access_token);
+      setToken(response.data.access_token);
       setIsRegistering(false);
     } catch (error) {
       console.error('Error:', error);

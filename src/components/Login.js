@@ -1,7 +1,7 @@
 import { Container, Form, Button, Alert, Card, Image} from 'react-bootstrap';
 import React, { useState } from 'react';
 import './Login.css';
-import { api } from '../api/apiClient';
+import httpClient from '../httpClient';
 import { useAuthStore } from '../stores/authStore';
 
 export default function Login({ setIsRegistering}) {
@@ -18,9 +18,13 @@ export default function Login({ setIsRegistering}) {
     setLoading(true);
 
     try {
-      const response = await api.login(username, password);
-      setToken(response.access_token);
-      api.setAuthToken(response.access_token);
+      const formData = new URLSearchParams();
+      formData.append('username', username);
+      formData.append('password', password);
+      const response = await httpClient.post('/api/token', formData, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      });
+      setToken(response.data.access_token);
     } catch (error) {
       setError('Invalid username or password');
       console.error(error);

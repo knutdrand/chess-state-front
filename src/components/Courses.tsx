@@ -1,7 +1,6 @@
 
 // @ts-nocheck
 import React, { useState, useMemo } from "react";
-import { apiUrl } from "../config";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Box,
@@ -30,13 +29,10 @@ import AddChapterModal from "./AddChapterModal";
 import AddResourceCourseModal from "./AddResourceCourseModal";
 import ImportStudyModal from "./ImportStudyModal";
 import TreeExplorer from "./TreeExplorer";
-import axios from "axios";
-import { useAuthStore } from "../stores/authStore";
+import httpClient from "../httpClient";
 
-const fetchCourses = async (token) => {
-  const response = await axios.get(`${apiUrl}/list-courses`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+const fetchCourses = async () => {
+  const response = await httpClient.get('/api/list-courses');
   return response.data;
 };
 
@@ -54,7 +50,6 @@ interface Chapter {
 }
 
 const Courses = () => {
-  const token = useAuthStore((s) => s.token);
   const queryClient = useQueryClient();
 
   // Modals state
@@ -68,10 +63,9 @@ const Courses = () => {
 
   // Query: Fetch courses
   const { data: courses = [], isLoading, error } = useQuery(
-    ["courses", token],
-    () => fetchCourses(token),
+    ["courses"],
+    () => fetchCourses(),
     {
-      enabled: !!token,
       retry: 1,
       retryDelay: 1000,
       networkMode: 'online',
@@ -81,12 +75,10 @@ const Courses = () => {
   // Mutation: Add course
   const addCourseMutation = useMutation(
     (newCourse) =>
-      axios.post(`${apiUrl}/courses`, newCourse, {
-        headers: { Authorization: `Bearer ${token}` },
-      }),
+      httpClient.post('/api/courses', newCourse),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(["courses", token]);
+        queryClient.invalidateQueries(["courses"]);
         setShowAddCourseModal(false);
       },
     }
@@ -95,23 +87,19 @@ const Courses = () => {
   // Mutation: Delete course
   const deleteCourseMutation = useMutation(
     (courseId) =>
-      axios.delete(`${apiUrl}/courses/${courseId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      }),
+      httpClient.delete(`/api/courses/${courseId}`),
     {
-      onSuccess: () => queryClient.invalidateQueries(["courses", token]),
+      onSuccess: () => queryClient.invalidateQueries(["courses"]),
     }
   );
 
   // Mutation: Add chapter
   const addChapterMutation = useMutation(
     ({ courseId, newChapters }) =>
-      axios.post(`${apiUrl}/courses/${courseId}/chapters`, newChapters, {
-        headers: { Authorization: `Bearer ${token}` },
-      }),
+      httpClient.post(`/api/courses/${courseId}/chapters`, newChapters),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(["courses", token]);
+        queryClient.invalidateQueries(["courses"]);
         setShowAddChapterModal(false);
       },
     }
@@ -120,11 +108,9 @@ const Courses = () => {
   // Mutation: Delete chapter
   const deleteChapterMutation = useMutation(
     ({ courseId, chapterId }) =>
-      axios.delete(`${apiUrl}/courses/${courseId}/chapters/${chapterId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      }),
+      httpClient.delete(`/api/courses/${courseId}/chapters/${chapterId}`),
     {
-      onSuccess: () => queryClient.invalidateQueries(["courses", token]),
+      onSuccess: () => queryClient.invalidateQueries(["courses"]),
     }
   );
 
@@ -132,16 +118,12 @@ const Courses = () => {
   const toggleEnabledMutation = useMutation(
     ({ courseId, chapterId, enabled }) => {
       const url = chapterId
-        ? `${apiUrl}/courses/${courseId}/chapters/${chapterId}`
-        : `${apiUrl}/courses/${courseId}`;
-      return axios.patch(
-        url,
-        { enabled },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        ? `/api/courses/${courseId}/chapters/${chapterId}`
+        : `/api/courses/${courseId}`;
+      return httpClient.patch(url, { enabled });
     },
     {
-      onSuccess: () => queryClient.invalidateQueries(["courses", token]),
+      onSuccess: () => queryClient.invalidateQueries(["courses"]),
     }
   );
 
@@ -233,12 +215,11 @@ const Courses = () => {
   });
 
   // Show tree explorer when a course is selected
-  if (treeExploreCourseId !== null && token) {
+  if (treeExploreCourseId !== null) {
     return (
       <Box sx={{ height: '100%' }}>
         <TreeExplorer
           courseId={treeExploreCourseId}
-          token={token}
           onExit={() => setTreeExploreCourseId(null)}
         />
       </Box>
@@ -414,7 +395,7 @@ const Courses = () => {
       <AddResourceCourseModal
         open={showAddResourceCourseModal}
         onClose={() => setShowAddResourceCourseModal(false)}
-        onCourseAdded={() => queryClient.invalidateQueries(["courses", token])}
+        onCourseAdded={() => queryClient.invalidateQueries(["courses"])}
       />
 
       <ImportStudyModal
