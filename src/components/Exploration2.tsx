@@ -16,7 +16,7 @@ interface ExplorationProps {
     cur_index: number;
 }
 
-const ExampleExploration: React.FC<ExplorationProps> = () => {
+const ExampleExploration: React.FC = () => {
     const example_positions: ExplainedPosition[] = [
         {
             fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",

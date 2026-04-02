@@ -8,33 +8,49 @@ import {
   Button,
   Alert,
   Box,
+  FormHelperText,
 } from '@mui/material';
 import { DefaultService } from '../api';
 import { useAuthStore } from '../stores/authStore';
 
-export default function Login({ setIsRegistering }) {
+interface RegisterProps {
+  setIsRegistering?: (value: boolean) => void;
+}
+
+export default function Register({ setIsRegistering }: RegisterProps) {
   const setToken = useAuthStore((s) => s.setToken);
   const [username, setUserName] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState('');
+  const [invitationCode, setInvitationCode] = useState('');
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
+    setSuccess('');
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
 
     try {
-      const response = await DefaultService.loginForAccessTokenApiTokenPost({
+      const response = await DefaultService.registerUserApiRegisterPost({
         username,
         password,
+        invitation_code: invitationCode,
+        grant_type: 'password',
       });
+      setSuccess('User registered successfully. You can now log in.');
       setToken(response.access_token);
-    } catch (error) {
-      setError('Invalid username or password');
-      console.error(error);
-    } finally {
-      setLoading(false);
+      setIsRegistering?.(false);
+    } catch (err: any) {
+      console.error('Error:', err);
+      setError(
+        err.response?.data?.detail || 'An error occurred during registration.'
+      );
     }
   };
 
@@ -59,7 +75,7 @@ export default function Login({ setIsRegistering }) {
             />
           </Box>
           <Typography variant="h5" align="center" gutterBottom>
-            Chess-State
+            Register
           </Typography>
           <form onSubmit={handleSubmit}>
             <TextField
@@ -80,14 +96,44 @@ export default function Login({ setIsRegistering }) {
               fullWidth
               margin="normal"
             />
+            <TextField
+              label="Confirm Password"
+              type="password"
+              placeholder="Repeat password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              fullWidth
+              margin="normal"
+              helperText={
+                <FormHelperText
+                  component="span"
+                  sx={{
+                    color: password === confirmPassword ? 'success.main' : 'error.main',
+                    m: 0,
+                  }}
+                >
+                  {password === confirmPassword
+                    ? 'Passwords match'
+                    : 'Passwords do not match'}
+                </FormHelperText>
+              }
+            />
+            <TextField
+              label="Invitation Code"
+              type="text"
+              placeholder="Enter invitation code"
+              value={invitationCode}
+              onChange={(e) => setInvitationCode(e.target.value)}
+              fullWidth
+              margin="normal"
+            />
             <Button
               variant="contained"
               type="submit"
               fullWidth
-              disabled={loading}
               sx={{ mt: 1 }}
             >
-              Submit
+              Register
             </Button>
           </form>
           {error && (
@@ -95,15 +141,20 @@ export default function Login({ setIsRegistering }) {
               {error}
             </Alert>
           )}
+          {success && (
+            <Alert severity="success" sx={{ mt: 2 }}>
+              {success}
+            </Alert>
+          )}
         </CardContent>
         <Box sx={{ textAlign: 'center', mt: 2, mb: 1 }}>
-          Don't have an account?{' '}
+          Already have an account?{' '}
           <Button
             variant="text"
-            onClick={() => setIsRegistering(true)}
+            onClick={() => setIsRegistering?.(false)}
             sx={{ textTransform: 'none', p: 0, minWidth: 'auto' }}
           >
-            Register here
+            Login here
           </Button>
         </Box>
       </Card>

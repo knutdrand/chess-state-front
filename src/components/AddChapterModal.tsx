@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from "react";
 import {
   Dialog,
@@ -12,8 +11,15 @@ import {
 import { DefaultService } from "../api";
 import { useMutation } from "@tanstack/react-query"
 
-function AddChapterModal({ open, onClose, onAddChapter, selectedCourse }) {
-  const [file, setFile] = useState(null);
+interface AddChapterModalProps {
+  open: boolean;
+  onClose: () => void;
+  onAddChapter: () => void;
+  selectedCourse: { id: number; name: string } | null;
+}
+
+function AddChapterModal({ open, onClose, onAddChapter, selectedCourse }: AddChapterModalProps) {
+  const [file, setFile] = useState<File | null>(null);
 
   // Mutation for uploading a chapter
   const uploadChapterMutation = useMutation(
@@ -36,8 +42,8 @@ function AddChapterModal({ open, onClose, onAddChapter, selectedCourse }) {
     }
   );
 
-  const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFile(event.target.files?.[0] ?? null);
   };
 
   const handleUploadChapter = () => {

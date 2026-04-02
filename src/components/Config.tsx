@@ -4,11 +4,11 @@ import { Box, TextField, Button, Alert, Typography } from '@mui/material';
 import { DefaultService } from '../api';
 
 const Config = () => {
-  const [rating, setRating] = useState('');
+  const [rating, setRating] = useState<number | ''>('');
   const [allowedMistakes, setAllowedMistakes] = useState(3);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(null);
-  const [messageType, setMessageType] = useState('info');
+  const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<'info' | 'success' | 'error'>('info');
 
   const handleSubmit = async () => {
     if (rating === '') {
@@ -17,7 +17,7 @@ const Config = () => {
       return;
     }
 
-    const ratingNum = parseInt(rating);
+    const ratingNum = typeof rating === 'number' ? rating : parseInt(rating);
     if (isNaN(ratingNum) || ratingNum < 0 || ratingNum > 3000) {
       setMessage('Please enter a valid rating between 0 and 3000');
       setMessageType('error');

@@ -1,5 +1,3 @@
-
-// @ts-nocheck
 import React, { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -31,15 +29,15 @@ import ImportStudyModal from "./ImportStudyModal";
 import TreeExplorer from "./TreeExplorer";
 import { DefaultService } from "../api";
 
-interface Course{
-  id: string;
+interface Course {
+  id: number;
   name: string;
   chapters: Chapter[];
   enabled: boolean;
 }
 
 interface Chapter {
-  id: string;
+  id: number;
   name: string;
   enabled: boolean;
 }
@@ -100,7 +98,7 @@ const Courses = () => {
     }
   );
 
-  const toggleRowExpanded = (courseId: string) => {
+  const toggleRowExpanded = (courseId: number) => {
     setExpandedRows(prev => ({
       ...prev,
       [courseId]: !prev[courseId]
@@ -210,7 +208,7 @@ const Courses = () => {
           Connection Error
         </Typography>
         <Typography color="text.secondary">
-          Failed to connect to backend: {error.message}
+          Failed to connect to backend: {(error as Error).message}
         </Typography>
         <Typography variant="body2" sx={{ mt: 1 }}>
           Make sure your backend service is running on localhost.

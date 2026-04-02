@@ -2,7 +2,19 @@ import React from 'react';
 import { Box, Typography, LinearProgress, Chip, Stack, Avatar } from '@mui/material';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 
-export function PlayerStatus({ playerStatus }) {
+interface PlayerStatusData {
+  name?: string;
+  rating?: number;
+  progress?: number;
+  level?: number;
+  achievements?: string[];
+}
+
+interface PlayerStatusProps {
+  playerStatus: PlayerStatusData | null;
+}
+
+export function PlayerStatus({ playerStatus }: PlayerStatusProps) {
   if (!playerStatus) return null;
 
   const { name, rating, progress, level, achievements } = playerStatus;

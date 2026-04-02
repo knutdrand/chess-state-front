@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Chess } from 'chess.js';
+import { Chess, Square } from 'chess.js';
 import { Chessboard } from "react-chessboard";
 import { Box, CircularProgress } from "@mui/material";
 import { DefaultService } from "../api";
@@ -9,10 +9,17 @@ import { useAuthStore } from '../stores/authStore';
 import { useUiStore } from '../stores/uiStore';
 import { useGameStore } from '../stores/gameStore';
 
+type SquareStyles = Record<string, Record<string, string>>;
+
+interface ChessMove {
+  from: string;
+  to: string;
+  promotion?: string;
+}
+
 export function GameScreen() {
   const logout = useAuthStore((s) => s.logout);
   const boardWidth = useUiStore((s) => s.boardWidth);
-  const screenOrientation = useUiStore((s) => s.screenOrientation);
   const position = useGameStore((s) => s.position);
   const setPosition = useGameStore((s) => s.setPosition);
   const gameState = useGameStore((s) => s.gameState);
@@ -20,18 +27,22 @@ export function GameScreen() {
 
   // UI state
   const [loading, setLoading] = useState(false);
-  const [recieveTimeStamp, setRecieveTimeStamp] = useState(null);
-  const [explanation, setExplanation] = useState(null);
+  const [recieveTimeStamp, setRecieveTimeStamp] = useState<number | null>(null);
+  const [explanation, setExplanation] = useState<string | null>(null);
   const [infoAnimationKey, setInfoAnimationKey] = useState(0);
   const [showExploration, setShowExploration] = useState(false);
 
   // Square highlighting state
-  const [squareStyles, setSquareStyles] = useState({
+  const [squareStyles, setSquareStyles] = useState<{
+    moveSquares: SquareStyles;
+    optionSquares: SquareStyles;
+    rightClickedSquares: SquareStyles;
+  }>({
     moveSquares: {},
     optionSquares: {},
     rightClickedSquares: {}
   });
-  const [showSquares, setShowSquares] = useState([]);
+  const [showSquares, setShowSquares] = useState<string[]>([]);
   console.log('reload', position);
 
   // Initialize game if not already initialized
@@ -45,7 +56,8 @@ export function GameScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getOrientation= (fen) => {
+  const getOrientation = (fen: string | undefined): 'white' | 'black' => {
+    if (!fen) return 'white';
     const game = new Chess(fen);
     return game.turn() === 'w' ? 'white' : 'black';
   }
@@ -58,9 +70,9 @@ export function GameScreen() {
       setPosition(response.fen);
       setRecieveTimeStamp(Date.now())
       setGameState(response);
-    } catch (error) {
-      console.error("Error initializing game:", error);
-      if (error.response && error.response.status === 401) {
+    } catch (err: any) {
+      console.error("Error initializing game:", err);
+      if (err.response && err.response.status === 401) {
         logout();
       }
     } finally {
@@ -68,7 +80,7 @@ export function GameScreen() {
     }
   };
 
-  const makeMove = useCallback(async (move) => {
+  const makeMove = useCallback(async (move: ChessMove) => {
     const currentPosition = useGameStore.getState().position;
     const currentGameState = useGameStore.getState().gameState;
 
@@ -95,8 +107,8 @@ export function GameScreen() {
         const newGameCopy = new Chess(currentGameState.fen);
 
         if (response.state.mode === 'show') {
-          let move = newGameCopy.move(response.correct_move);
-          setShowSquares([move.from, move.to]);
+          let showMove = newGameCopy.move(response.correct_move);
+          setShowSquares([showMove.from, showMove.to]);
           newGameCopy.undo();
         } else {
           setShowSquares([]);
@@ -115,15 +127,15 @@ export function GameScreen() {
           rightClickedSquares: {}
         });
       }
-    } catch (error) {
-      console.error("Error making move:", error);
-      if (error.response && error.response.status === 401) {
+    } catch (err: any) {
+      console.error("Error making move:", err);
+      if (err.response && err.response.status === 401) {
         logout();
       }
     }
   }, [recieveTimeStamp, setGameState, setPosition, logout]);
 
-  const onDrop = useCallback((sourceSquare, targetSquare) => {
+  const onDrop = useCallback((sourceSquare: Square, targetSquare: Square) => {
     makeMove({
       from: sourceSquare,
       to: targetSquare,
@@ -132,7 +144,7 @@ export function GameScreen() {
     return true;
   }, [makeMove]);
 
-  const onSquareClick = useCallback((square) => {
+  const onSquareClick = useCallback((square: Square) => {
     // If we already have a piece selected
     if (Object.keys(squareStyles.moveSquares).length > 0) {
       const move = {
@@ -160,7 +172,7 @@ export function GameScreen() {
     const piece = game.get(square);
     if (piece && piece.color === (game.turn() === 'w' ? 'w' : 'b')) {
       // Highlight the selected square
-      const moveSquares = {
+      const moveSquares: SquareStyles = {
         [square]: {
           background: "rgba(100, 100, 255, 0.3)"
         }
@@ -168,7 +180,7 @@ export function GameScreen() {
 
       // Show possible moves
       const moves = game.moves({ square, verbose: true });
-      const optionSquares = {};
+      const optionSquares: SquareStyles = {};
       moves.forEach(move => {
         optionSquares[move.to] = {
           background: "rgba(0, 128, 0, 0.2)",
@@ -185,9 +197,8 @@ export function GameScreen() {
     }
   }, [makeMove, squareStyles.moveSquares]);
 
-  const onSquareRightClick = useCallback((square) => {
+  const onSquareRightClick = useCallback((_square: Square) => {
     // Implementation for right-click handling
-    // ...
   }, []);
 
   const handleExploration = useCallback(() => {
@@ -241,12 +252,12 @@ export function GameScreen() {
         margin: '0 auto',
       }}>
         <Chessboard
-          position={position}
+          position={position ?? undefined}
           onPieceDrop={onDrop}
           onSquareClick={onSquareClick}
           onSquareRightClick={onSquareRightClick}
           boardOrientation={getOrientation(gameState?.fen)}
-          customArrows={showSquares.length ? [showSquares] : []}
+          customArrows={showSquares.length >= 2 ? [[showSquares[0] as Square, showSquares[1] as Square]] : []}
           customSquareStyles={{
             ...squareStyles.moveSquares,
             ...squareStyles.optionSquares,

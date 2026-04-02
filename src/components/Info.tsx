@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 
 interface InfoProps {
   mode: string;
-  feedback: string;
+  feedback?: string;
   width: string;
   link: string | null;
   onExplanation: () => void;

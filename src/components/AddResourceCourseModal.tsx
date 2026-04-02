@@ -12,11 +12,17 @@ import {
   Typography,
   CircularProgress,
 } from '@mui/material';
-import { DefaultService } from '../api';
+import { DefaultService, CourseModel, AvailableCourse } from '../api';
 import { useQuery } from '@tanstack/react-query';
 
-function AddResourceCourseModal({ open, onClose, onCourseAdded }) {
-  const [selectedCourse, setSelectedCourse] = useState(null);
+interface AddResourceCourseModalProps {
+  open: boolean;
+  onClose: () => void;
+  onCourseAdded: (course: CourseModel) => void;
+}
+
+function AddResourceCourseModal({ open, onClose, onCourseAdded }: AddResourceCourseModalProps) {
+  const [selectedCourse, setSelectedCourse] = useState<AvailableCourse | null>(null);
   const [adding, setAdding] = useState(false);
 
   const { data: availableCourses = [], isLoading } = useQuery(

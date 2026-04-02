@@ -2,7 +2,7 @@ import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import Login from './components/Login';
 import React, {useState} from 'react';
 import {MainScreen} from "./components/MainScreen";
-import Register from './components/register';
+import Register from './components/Register';
 import {ExampleExploration} from './components/Exploration2';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';

@@ -11,7 +11,14 @@ import {
 } from '@mui/material';
 import { DefaultService } from '../api';
 
-function ImportStudyModal({ open, onClose, courseId, onAddChapter }) {
+interface ImportStudyModalProps {
+  open: boolean;
+  onClose: () => void;
+  courseId: number | undefined;
+  onAddChapter: () => void;
+}
+
+function ImportStudyModal({ open, onClose, courseId, onAddChapter }: ImportStudyModalProps) {
   const [studyId, setStudyId] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -20,22 +27,21 @@ function ImportStudyModal({ open, onClose, courseId, onAddChapter }) {
       setLoading(true);
       
       try {
-        const response = await DefaultService.addStudyApiCoursesCourseIdStudyPost(
+        await DefaultService.addStudyApiCoursesCourseIdStudyPost(
           courseId,
           { study_id: studyId }
         );
-        
-        onAddChapter(response);
+
+        onAddChapter();
         onClose();
         setStudyId('');
-      } catch (error) {
-        console.error('Error adding chapter:', error);
-        console.error('Error details:', error.body);
-        console.error('Error status:', error.status);
-        // Display an error message to the user
-        const errorMessage = error.status === 401 
+      } catch (err: any) {
+        console.error('Error adding chapter:', err);
+        console.error('Error details:', err.body);
+        console.error('Error status:', err.status);
+        const errorMessage = err.status === 401
           ? 'Authentication failed. Please log in again.'
-          : `Error adding chapter: ${error.body?.detail || error.message}. Please try again.`;
+          : `Error adding chapter: ${err.body?.detail || err.message}. Please try again.`;
         alert(errorMessage);
       } finally {
         setLoading(false);

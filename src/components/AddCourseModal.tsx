@@ -11,9 +11,16 @@ import {
   Select, 
   MenuItem 
 } from '@mui/material';
-import { DefaultService } from '../api';
+import { DefaultService, CourseModel } from '../api';
+import type { SelectChangeEvent } from '@mui/material';
 
-function AddCourseModal({ open, onClose, onAddCourse }) {
+interface AddCourseModalProps {
+  open: boolean;
+  onClose: () => void;
+  onAddCourse: (course: CourseModel) => void;
+}
+
+function AddCourseModal({ open, onClose, onAddCourse }: AddCourseModalProps) {
   const [newCourseName, setNewCourseName] = useState('');
   const [newCourseColor, setNewCourseColor] = useState('White');
 
@@ -57,7 +64,7 @@ function AddCourseModal({ open, onClose, onAddCourse }) {
             labelId="color-select-label"
             id="color-select"
             value={newCourseColor}
-            onChange={(e) => setNewCourseColor(e.target.value)}
+            onChange={(e: SelectChangeEvent) => setNewCourseColor(e.target.value)}
             label="Color"
           >
             <MenuItem value="White">White</MenuItem>
