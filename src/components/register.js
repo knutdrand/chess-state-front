@@ -1,23 +1,32 @@
-import { Container, Form, Button, Alert, Card, Image } from 'react-bootstrap';
 import React, { useState } from 'react';
+import {
+  Container,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  Box,
+  FormHelperText,
+} from '@mui/material';
 import httpClient from '../httpClient';
 import { useAuthStore } from '../stores/authStore';
 
-export default function Register({ setIsRegistering}) {
+export default function Register({ setIsRegistering }) {
   const setToken = useAuthStore((s) => s.setToken);
   const [username, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [invitationCode, setInvitationCode] = useState('');   
+  const [invitationCode, setInvitationCode] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
 
-    // Validate passwords match
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -45,88 +54,109 @@ export default function Register({ setIsRegistering}) {
   };
 
   return (
-    <Container className="d-flex justify-content-center align-items-center vh-100">
-      <Card style={{ width: '24rem' }} className="p-4">
-        <Card.Body>
-          <div className="text-center mb-4">
-            <Image src="/logo192.png" alt="Chess-State Logo" width={64} height={64} />
-          </div>
-          <Card.Title className="text-center">Register</Card.Title>
-          <Form onSubmit={handleSubmit}>
-            <Form.Group controlId="formBasicUsername" className="mb-3">
-              <Form.Label>Username</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter username"
-                value={username}
-                onChange={(e) => setUserName(e.target.value)}
-              />
-            </Form.Group>
-
-            <Form.Group controlId="formBasicPassword" className="mb-3">
-              <Form.Label>Password</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </Form.Group>
-
-            <Form.Group controlId="formBasicConfirmPassword" className="mb-3">
-              <Form.Label>Confirm Password</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Repeat password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-                          <Form.Text className={password === confirmPassword ? 'text-success' : 'text-danger'}>
-  {password === confirmPassword ? 'Passwords match' : 'Passwords do not match'}
-</Form.Text>
-
-            </Form.Group>
-            <Form.Group controlId="formBasicInvitationCode" className="mb-3">
-              <Form.Label>Invitation Code</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter invitation code"
-                value={invitationCode}
-                onChange={(e) => setInvitationCode(e.target.value)}
-              />
-            </Form.Group>
-            <Button variant="primary" type="submit" className="w-100">
+    <Container
+      maxWidth={false}
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+      }}
+    >
+      <Card sx={{ width: '24rem', p: 2 }}>
+        <CardContent>
+          <Box sx={{ textAlign: 'center', mb: 2 }}>
+            <img
+              src="/logo192.png"
+              alt="Chess-State Logo"
+              width={64}
+              height={64}
+            />
+          </Box>
+          <Typography variant="h5" align="center" gutterBottom>
+            Register
+          </Typography>
+          <form onSubmit={handleSubmit}>
+            <TextField
+              label="Username"
+              type="text"
+              placeholder="Enter username"
+              value={username}
+              onChange={(e) => setUserName(e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Password"
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Confirm Password"
+              type="password"
+              placeholder="Repeat password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              fullWidth
+              margin="normal"
+              helperText={
+                <FormHelperText
+                  component="span"
+                  sx={{
+                    color: password === confirmPassword ? 'success.main' : 'error.main',
+                    m: 0,
+                  }}
+                >
+                  {password === confirmPassword
+                    ? 'Passwords match'
+                    : 'Passwords do not match'}
+                </FormHelperText>
+              }
+            />
+            <TextField
+              label="Invitation Code"
+              type="text"
+              placeholder="Enter invitation code"
+              value={invitationCode}
+              onChange={(e) => setInvitationCode(e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+            <Button
+              variant="contained"
+              type="submit"
+              fullWidth
+              sx={{ mt: 1 }}
+            >
               Register
             </Button>
-          </Form>
+          </form>
           {error && (
-            <Alert variant="danger" className="mt-3">
+            <Alert severity="error" sx={{ mt: 2 }}>
               {error}
             </Alert>
           )}
           {success && (
-            <Alert variant="success" className="mt-3">
+            <Alert severity="success" sx={{ mt: 2 }}>
               {success}
             </Alert>
           )}
-        </Card.Body>
-        <div   className="text-center mt-3">
-        Already have an account?{' '}
-        <button
-          type="button"
-          onClick={() => {
-            setIsRegistering(false);
-          }}
-          style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline', background: 'none', border: 'none', padding: 0, font: 'inherit' }}
-        >
+        </CardContent>
+        <Box sx={{ textAlign: 'center', mt: 2, mb: 1 }}>
+          Already have an account?{' '}
+          <Button
+            variant="text"
+            onClick={() => setIsRegistering(false)}
+            sx={{ textTransform: 'none', p: 0, minWidth: 'auto' }}
+          >
             Login here
-        </button>
-        </div>
-
+          </Button>
+        </Box>
       </Card>
     </Container>
   );
 }
-
-Register.propTypes = {
-};

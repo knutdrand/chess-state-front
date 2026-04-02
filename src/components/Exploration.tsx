@@ -1,6 +1,5 @@
 import React, {useState} from "react";
 import {Chessboard} from "react-chessboard" // @types/react-chessboard is not available
-import "bootstrap/dist/css/bootstrap.min.css";
 
 
 

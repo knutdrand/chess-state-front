@@ -23,7 +23,8 @@ interface D3TreeNode extends RawNodeDatum {
   children?: D3TreeNode[];
 }
 
-function getNodeColor(prob: number): string {
+function getNodeColor(prob: number | null): string {
+  if (prob === null) return "#bbb";
   const hue = prob * 120; // 0 = red, 120 = green
   return `hsl(${hue}, 70%, 45%)`;
 }
@@ -46,7 +47,9 @@ function transformNode(node: TreeNode): D3TreeNode {
   return {
     name: node.correct_move,
     attributes: {
-      probability: Math.round(node.success_probability * 100) / 100,
+      probability: node.success_probability !== null
+        ? Math.round(node.success_probability * 100) / 100
+        : -1,
       fen: node.fen,
       ...(node.comment ? { comment: node.comment } : {}),
     },
@@ -75,37 +78,62 @@ const renderCustomNode = ({
   nodeDatum: D3TreeNode;
   onNodeClick: (node: D3TreeNode) => void;
 }) => {
-  const prob = Number(nodeDatum.attributes?.probability ?? 0.5);
+  const rawProb = Number(nodeDatum.attributes?.probability ?? -1);
+  const isUnvisited = rawProb < 0;
+  const prob = isUnvisited ? null : rawProb;
   const color = getNodeColor(prob);
+  const textColor = isUnvisited ? "#555" : "white";
+
   // Extract just the player move (strip opponent move prefix if present)
   const parts = nodeDatum.name.split(" > ");
   const playerMove = parts[parts.length - 1];
   const opponentMove = parts.length > 1 ? parts[0] : null;
+  const weight = Number(nodeDatum.attributes?.weight ?? 0);
+
+  // Scale opponent move label by weight: bolder/larger = more common
+  const oppFontSize = opponentMove ? Math.max(9, Math.min(14, 9 + weight * 12)) : 11;
+  const oppFontWeight = weight > 0.3 ? "bold" : weight > 0.1 ? "500" : "normal";
+
+  const nodeW = 56;
+  const nodeH = 34;
 
   return (
     <g onClick={() => onNodeClick(nodeDatum)} style={{ cursor: "pointer" }}>
       {/* Opponent move label above the node */}
       {opponentMove && (
         <text
-          fill="#888"
-          fontSize="11"
+          fill="#555"
+          fontSize={oppFontSize}
           textAnchor="middle"
-          dy="-22"
+          dy="-12"
           fontStyle="italic"
+          fontWeight={oppFontWeight}
         >
           {opponentMove}
         </text>
       )}
-      {/* Node circle */}
-      <circle r={15} fill={color} stroke="#333" strokeWidth={1.5} />
+      {/* Node rectangle with rounded corners */}
+      <rect
+        x={-nodeW / 2}
+        y={-nodeH / 2}
+        width={nodeW}
+        height={nodeH}
+        rx={6}
+        ry={6}
+        fill={color}
+        stroke="#333"
+        strokeWidth={1.5}
+      />
       {/* Player move label */}
-      <text fill="white" fontSize="10" textAnchor="middle" dy="4" fontWeight="bold">
+      <text fill={textColor} fontSize="13" textAnchor="middle" dy={isUnvisited ? "5" : "-1"} fontWeight="bold">
         {playerMove}
       </text>
-      {/* Probability below */}
-      <text fill="#555" fontSize="9" textAnchor="middle" dy="30">
-        {Math.round(prob * 100)}%
-      </text>
+      {/* Probability below move text (only for visited nodes) */}
+      {!isUnvisited && (
+        <text fill="rgba(255,255,255,0.85)" fontSize="10" textAnchor="middle" dy="12">
+          {Math.round(prob! * 100)}%
+        </text>
+      )}
     </g>
   );
 };
@@ -216,7 +244,7 @@ const TreeExplorer: React.FC<TreeExplorerProps> = ({
           orientation="vertical"
           pathFunc="step"
           translate={{ x: 200, y: 50 }}
-          nodeSize={{ x: 100, y: 80 }}
+          nodeSize={{ x: 110, y: 90 }}
           separation={{ siblings: 1.2, nonSiblings: 1.5 }}
           renderCustomNodeElement={(rd3tProps) =>
             renderCustomNode({

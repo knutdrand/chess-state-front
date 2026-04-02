@@ -234,11 +234,11 @@ export function GameScreen() {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: screenOrientation, height: '100%' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       <Box sx={{
         width: boardWidth,
         height: boardWidth,
-        margin: 'auto'
+        margin: '0 auto',
       }}>
         <Chessboard
           position={position}
@@ -252,15 +252,16 @@ export function GameScreen() {
             ...squareStyles.optionSquares,
             ...squareStyles.rightClickedSquares
           }}
-        /> : <div>Loading...</div>
+        />
       </Box>
 
       <Box sx={{
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
-        p: 2,
-        minWidth: 300
+        overflow: 'hidden',
+        minHeight: 0,
+        px: 1,
       }}>
         <Info
           link={explanation}

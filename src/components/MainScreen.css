@@ -6,7 +6,7 @@ html, body {
   }
 
   .main-screen {
-    height: 100vh;
+    height: 100%;
     flex-direction: column;
     display: flex;
   }

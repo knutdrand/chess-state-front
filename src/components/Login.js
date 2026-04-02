@@ -1,15 +1,22 @@
-import { Container, Form, Button, Alert, Card, Image} from 'react-bootstrap';
 import React, { useState } from 'react';
-import './Login.css';
+import {
+  Container,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  Box,
+} from '@mui/material';
 import httpClient from '../httpClient';
 import { useAuthStore } from '../stores/authStore';
 
-export default function Login({ setIsRegistering}) {
+export default function Login({ setIsRegistering }) {
   const setToken = useAuthStore((s) => s.setToken);
-  const [username, setUserName] = useState();
-  const [password, setPassword] = useState();
-  const [error, setError] = useState();
-  // eslint-disable-next-line no-unused-vars
+  const [username, setUserName] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -34,59 +41,74 @@ export default function Login({ setIsRegistering}) {
   };
 
   return (
-    <Container className="d-flex justify-content-center align-items-center vh-100">
-      <Card style={{ width: '24rem' }} className="p-4">
-        <Card.Body>
-          <div className="text-center mb-4">
-            <Image src="/logo192.png" alt="Chess-State Logo" width={64} height={64} />
-          </div>
-          <Card.Title className="text-center">Chess-State</Card.Title>
-          <Form onSubmit={handleSubmit}>
-            <Form.Group controlId="formBasicUsername" className="mb-3">
-              <Form.Label>Username</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter username"
-                onChange={(e) => setUserName(e.target.value)}
-              />
-            </Form.Group>
-
-            <Form.Group controlId="formBasicPassword" className="mb-3">
-              <Form.Label>Password</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Password"
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </Form.Group>
-
-            <Button variant="primary" type="submit" className="w-100">
+    <Container
+      maxWidth={false}
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+      }}
+    >
+      <Card sx={{ width: '24rem', p: 2 }}>
+        <CardContent>
+          <Box sx={{ textAlign: 'center', mb: 2 }}>
+            <img
+              src="/logo192.png"
+              alt="Chess-State Logo"
+              width={64}
+              height={64}
+            />
+          </Box>
+          <Typography variant="h5" align="center" gutterBottom>
+            Chess-State
+          </Typography>
+          <form onSubmit={handleSubmit}>
+            <TextField
+              label="Username"
+              type="text"
+              placeholder="Enter username"
+              value={username}
+              onChange={(e) => setUserName(e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Password"
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+            <Button
+              variant="contained"
+              type="submit"
+              fullWidth
+              disabled={loading}
+              sx={{ mt: 1 }}
+            >
               Submit
             </Button>
-          </Form>
+          </form>
           {error && (
-            <Alert variant="danger" className="mt-3">
+            <Alert severity="error" sx={{ mt: 2 }}>
               {error}
             </Alert>
           )}
-        </Card.Body>
-      <div className="text-center mt-3">
-      Don't have an account?{' '}
-      <button
-        type="button"
-        onClick={() => {
-          setIsRegistering(true);
-        }}
-        style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline', background: 'none', border: 'none', padding: 0, font: 'inherit' }}
-      >
-        Register here
-      </button>
-    </div>
+        </CardContent>
+        <Box sx={{ textAlign: 'center', mt: 2, mb: 1 }}>
+          Don't have an account?{' '}
+          <Button
+            variant="text"
+            onClick={() => setIsRegistering(true)}
+            sx={{ textTransform: 'none', p: 0, minWidth: 'auto' }}
+          >
+            Register here
+          </Button>
+        </Box>
       </Card>
-
     </Container>
   );
 }
-Login.propTypes = {
-};
-//</p>Dont' have an account? <Button onClick={() => setIsRegistering(true)} >Register</Button>

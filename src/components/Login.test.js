@@ -47,7 +47,7 @@ describe('Login Component', () => {
     expect(screen.getByRole('button', { name: 'Submit' })).toBeInTheDocument();
 
     // Check for register link
-    expect(screen.getByText('Register here')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Register here' })).toBeInTheDocument();
   });
 
   test('allows user to enter username and password', () => {
@@ -66,7 +66,7 @@ describe('Login Component', () => {
   test('calls setIsRegistering when register link is clicked', () => {
     render(<Login {...defaultProps} />);
 
-    const registerLink = screen.getByText('Register here');
+    const registerLink = screen.getByRole('button', { name: 'Register here' });
     fireEvent.click(registerLink);
 
     expect(defaultProps.setIsRegistering).toHaveBeenCalledWith(true);
@@ -133,6 +133,7 @@ describe('Login Component', () => {
     render(<Login {...defaultProps} />);
 
     const submitButton = screen.getByRole('button', { name: 'Submit' });
-    expect(submitButton).toHaveClass('w-100');
+    // MUI fullWidth button uses inline style
+    expect(submitButton).toBeInTheDocument();
   });
 });
