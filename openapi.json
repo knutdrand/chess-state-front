@@ -1569,7 +1569,14 @@
             "title": "Correct Move"
           },
           "success_probability": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Success Probability"
           },
           "comment": {
@@ -1595,7 +1602,6 @@
         "required": [
           "fen",
           "correct_move",
-          "success_probability",
           "opponent_responses"
         ],
         "title": "TreeNode"
