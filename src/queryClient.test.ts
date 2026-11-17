@@ -2,7 +2,7 @@ import { queryClient } from './queryClient';
 import { useAuthStore } from './stores/authStore';
 import { useGameStore } from './stores/gameStore';
 
-jest.mock('jwt-decode', () => ({ jwtDecode: jest.fn(() => ({ sub: 'alice' })) }));
+vi.mock('jwt-decode', () => ({ jwtDecode: vi.fn(() => ({ sub: 'alice' })) }));
 
 test('logging out clears cached server data and the current game', () => {
   useAuthStore.setState({ token: 'alice-token' });

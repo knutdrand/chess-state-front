@@ -42,19 +42,13 @@ The test suite is organized into several categories:
 npm test
 
 # Run all tests once
-npm run test:ci
+npm run test:run
 
 # Run tests with coverage report
-npm run test:coverage
-
-# Run only unit tests
-npm run test:unit
+npm test -- --run --coverage
 
 # Run only integration tests
-npm run test:integration
-
-# Run tests in watch mode (all files)
-npm run test:watch
+npm test -- src/integration
 ```
 
 ### Coverage Reports
@@ -99,7 +93,7 @@ test('hook returns expected values', () => {
 ### API Mocking
 ```javascript
 import axios from 'axios';
-jest.mock('axios');
+vi.mock('axios');
 const mockedAxios = axios;
 
 test('handles API calls', async () => {
@@ -111,14 +105,15 @@ test('handles API calls', async () => {
 ### Chess.js Mocking
 ```javascript
 import { Chess } from 'chess.js';
-jest.mock('chess.js');
+vi.mock('chess.js');
 
 const mockChess = {
-  fen: jest.fn(() => 'starting-position'),
-  move: jest.fn(),
-  turn: jest.fn(() => 'w'),
+  fen: vi.fn(() => 'starting-position'),
+  move: vi.fn(),
+  turn: vi.fn(() => 'w'),
 };
-Chess.mockImplementation(() => mockChess);
+// Vitest calls the implementation with `new`, so use a function, not an arrow
+Chess.mockImplementation(function () { return mockChess; });
 ```
 
 ## Common Test Utilities
@@ -139,22 +134,22 @@ Chess.mockImplementation(() => mockChess);
 ### Running Specific Tests
 ```bash
 # Run tests matching a pattern
-npm test -- --testNamePattern="Login"
+npm test -- -t "Login"
 
 # Run tests in a specific file
 npm test -- Login.test.js
 
 # Run tests with verbose output
-npm test -- --verbose
+npm test -- --reporter=verbose
 ```
 
 ### Debug Mode
 ```bash
-# Run tests in debug mode
-npm test -- --debug
+# Debug in Chrome DevTools (single worker)
+npx vitest --inspect-brk --no-file-parallelism
 
 # Run with additional logging
-npm test -- --verbose --no-cache
+npm test -- --reporter=verbose --no-cache
 ```
 
 ## Continuous Integration
@@ -217,7 +212,7 @@ When adding new features:
 
 Tests run in a jsdom environment with:
 - React Testing Library
-- Jest
+- Vitest (globals enabled, so `vi`, `describe`, `test`, `expect` need no import)
 - Mock implementations of browser APIs
 - Mocked external dependencies
 

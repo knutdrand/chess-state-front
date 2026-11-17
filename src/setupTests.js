@@ -1,8 +1,6 @@
-// jest-dom adds custom jest matchers for asserting on DOM nodes.
-// allows you to do things like:
+// jest-dom adds custom matchers for asserting on DOM nodes, e.g.
 // expect(element).toHaveTextContent(/react/i)
-// learn more: https://github.com/testing-library/jest-dom
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 // Global test setup
 import { setupCommonMocks } from './utils/testUtils';
@@ -10,7 +8,7 @@ import { setupCommonMocks } from './utils/testUtils';
 // Setup common mocks for all tests
 beforeEach(() => {
   // Reset all mocks before each test
-  jest.clearAllMocks();
+  vi.clearAllMocks();
 
   // Setup common mocks
   setupCommonMocks();
@@ -20,9 +18,9 @@ beforeEach(() => {
 afterEach(() => {
   // Clean up any remaining timers only if fake timers are active
   try {
-    if (jest.isMockFunction(setTimeout)) {
-      jest.runOnlyPendingTimers();
-      jest.useRealTimers();
+    if (vi.isFakeTimers()) {
+      vi.runOnlyPendingTimers();
+      vi.useRealTimers();
     }
   } catch (e) {
     // Ignore timer cleanup errors
@@ -46,15 +44,15 @@ global.ResizeObserver = class ResizeObserver {
 // Mock matchMedia for responsive components
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: jest.fn(), // deprecated
-    removeListener: jest.fn(), // deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(), // deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
   })),
 });
 

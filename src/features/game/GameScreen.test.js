@@ -7,15 +7,16 @@ import { useUiStore } from '../../stores/uiStore';
 import { useGameStore } from '../../stores/gameStore';
 import { NotificationProvider } from '../../hooks/useNotification';
 import { ApiError } from '../../api/core/ApiError';
+import { DefaultService } from '../../api';
 
 // Mock dependencies
-jest.mock('chess.js');
-jest.mock('jwt-decode', () => ({
-  jwtDecode: jest.fn(() => ({ sub: 'testuser' })),
+vi.mock('chess.js');
+vi.mock('jwt-decode', () => ({
+  jwtDecode: vi.fn(() => ({ sub: 'testuser' })),
 }));
 
 // Mock the Chessboard component
-jest.mock('react-chessboard', () => ({
+vi.mock('react-chessboard', () => ({
   Chessboard: ({ position, onPieceDrop, onSquareClick, boardOrientation }) => (
     <div data-testid="chessboard">
       <div data-testid="position">{position}</div>
@@ -37,7 +38,7 @@ jest.mock('react-chessboard', () => ({
 }));
 
 // Mock Info component
-jest.mock('./Info', () => ({
+vi.mock('./Info', () => ({
   Info: ({ mode, feedback, link, onExplanation }) => (
     <div data-testid="info">
       <span data-testid="mode">{mode}</span>
@@ -51,7 +52,7 @@ jest.mock('./Info', () => ({
 }));
 
 // Mock ApiExploration component
-jest.mock('../exploration/ExplorationModern', () => ({
+vi.mock('../exploration/ExplorationModern', () => ({
   ApiExploration: ({ fen, onExit }) => (
     <div data-testid="api-exploration">
       <span data-testid="exploration-fen">{fen}</span>
@@ -63,16 +64,16 @@ jest.mock('../exploration/ExplorationModern', () => ({
 }));
 
 // Mock config
-jest.mock('../../config', () => ({
+vi.mock('../../config', () => ({
   baseUrl: 'http://localhost:8000',
   apiUrl: 'http://localhost:8000/api',
 }));
 
 // Mock the generated API service
-jest.mock('../../api', () => ({
+vi.mock('../../api', () => ({
   DefaultService: {
-    initApiInitGet: jest.fn(),
-    moveApiMovePost: jest.fn(),
+    initApiInitGet: vi.fn(),
+    moveApiMovePost: vi.fn(),
   },
   OpenAPI: {
     BASE: '',
@@ -81,22 +82,21 @@ jest.mock('../../api', () => ({
   },
 }));
 
-const { DefaultService } = require('../../api');
 const MockedChess = Chess;
 
 describe('GameScreen Component', () => {
   const mockChessInstance = {
-    fen: jest.fn(() => 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'),
-    turn: jest.fn(() => 'w'),
-    move: jest.fn(),
-    undo: jest.fn(),
-    get: jest.fn(),
-    moves: jest.fn(() => []),
+    fen: vi.fn(() => 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'),
+    turn: vi.fn(() => 'w'),
+    move: vi.fn(),
+    undo: vi.fn(),
+    get: vi.fn(),
+    moves: vi.fn(() => []),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    MockedChess.mockImplementation(() => mockChessInstance);
+    vi.clearAllMocks();
+    MockedChess.mockImplementation(function () { return mockChessInstance; });
 
     // Reset stores to default state
     useAuthStore.setState({ token: 'mock-token' });
@@ -189,7 +189,7 @@ describe('GameScreen Component', () => {
 
     mockChessInstance.move.mockReturnValue({ from: 'e2', to: 'e4' });
 
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
     DefaultService.moveApiMovePost.mockRejectedValue(new Error('Network Error'));
 
     render(

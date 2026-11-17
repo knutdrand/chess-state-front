@@ -3,7 +3,7 @@ import App from './App';
 import { useAuthStore } from './stores/authStore';
 
 // Mock the MainScreen component
-jest.mock('./components/MainScreen', () => ({
+vi.mock('./components/MainScreen', () => ({
   MainScreen: () => (
     <div data-testid="main-screen">
       Main Screen
@@ -12,7 +12,7 @@ jest.mock('./components/MainScreen', () => ({
 }));
 
 // Mock the Login component
-jest.mock('./features/auth/Login', () => ({
+vi.mock('./features/auth/Login', () => ({
   __esModule: true,
   default: ({ setIsRegistering }) => (
     <div data-testid="login-screen">
@@ -22,7 +22,7 @@ jest.mock('./features/auth/Login', () => ({
 }));
 
 // Mock the Register component
-jest.mock('./features/auth/Register', () => ({
+vi.mock('./features/auth/Register', () => ({
   __esModule: true,
   default: ({ setIsRegistering }) => (
     <div data-testid="register-screen">
@@ -32,13 +32,13 @@ jest.mock('./features/auth/Register', () => ({
 }));
 
 // Mock the Exploration components
-jest.mock('./features/exploration/Exploration2', () => ({
+vi.mock('./features/exploration/Exploration2', () => ({
   ExampleExploration: () => <div data-testid="example-exploration">Example Exploration</div>,
 }));
 
 describe('App Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     useAuthStore.setState({ token: null });
   });
 

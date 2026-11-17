@@ -9,52 +9,58 @@ import {
   setupCommonMocks,
   cleanupMocks
 } from '../utils/testUtils';
+import { jwtDecode } from 'jwt-decode';
+import { Chess } from 'chess.js';
+import axios from 'axios';
+import { DefaultService } from '../api';
+// '../api' is mocked, so load httpClient explicitly to register its interceptors.
+import '../httpClient';
 
 // Mock axios
-jest.mock('axios', () => {
+vi.mock('axios', () => {
   const mockAxiosInstance = {
-    post: jest.fn(),
-    get: jest.fn(),
-    put: jest.fn(),
-    delete: jest.fn(),
+    post: vi.fn(),
+    get: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
     interceptors: {
-      request: { use: jest.fn() },
-      response: { use: jest.fn() },
+      request: { use: vi.fn() },
+      response: { use: vi.fn() },
     },
   };
   return {
     __esModule: true,
     default: {
       ...mockAxiosInstance,
-      create: jest.fn(() => mockAxiosInstance),
+      create: vi.fn(() => mockAxiosInstance),
       isAxiosError: (e) => Boolean(e && e.isAxiosError),
     },
     isAxiosError: (e) => Boolean(e && e.isAxiosError),
-    post: jest.fn(),
-    get: jest.fn(),
-    put: jest.fn(),
-    delete: jest.fn(),
+    post: vi.fn(),
+    get: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
   };
 });
 
 // react-d3-tree pulls in ESM-only d3 packages that Jest cannot parse
-jest.mock('react-d3-tree', () => ({
+vi.mock('react-d3-tree', () => ({
   __esModule: true,
   default: () => <div data-testid="tree" />,
 }));
 
 // Mock jwt-decode
-jest.mock('jwt-decode', () => ({
-  jwtDecode: jest.fn(),
+vi.mock('jwt-decode', () => ({
+  jwtDecode: vi.fn(),
 }));
 
 // Mock chess.js
-jest.mock('chess.js', () => ({
-  Chess: jest.fn(),
+vi.mock('chess.js', () => ({
+  Chess: vi.fn(),
 }));
 
 // Mock react-chessboard
-jest.mock('react-chessboard', () => ({
+vi.mock('react-chessboard', () => ({
   Chessboard: ({ onPieceDrop }) => (
     <div data-testid="chessboard">
       <button
@@ -68,16 +74,16 @@ jest.mock('react-chessboard', () => ({
 }));
 
 // Mock config
-jest.mock('../config', () => ({
+vi.mock('../config', () => ({
   apiUrl: 'http://localhost:8000/api',
   baseUrl: 'http://localhost:8000',
 }));
 
 // Mock the generated API service
-jest.mock('../api', () => ({
+vi.mock('../api', () => ({
   DefaultService: {
-    initApiInitGet: jest.fn(),
-    moveApiMovePost: jest.fn(),
+    initApiInitGet: vi.fn(),
+    moveApiMovePost: vi.fn(),
   },
   OpenAPI: {
     BASE: '',
@@ -86,12 +92,6 @@ jest.mock('../api', () => ({
   },
 }));
 
-const { jwtDecode } = require('jwt-decode');
-const { Chess } = require('chess.js');
-const { DefaultService } = require('../api');
-const axios = require('axios').default;
-// '../api' is mocked, so load httpClient explicitly to register its interceptors.
-require('../httpClient');
 
 // The 401 handler httpClient registers on its axios instance at import time.
 // Captured here, before any beforeEach/afterEach clears mock call records.
@@ -112,14 +112,14 @@ describe('User Flow Integration Tests', () => {
 
     // Setup Chess mock
     mockChessInstance = {
-      fen: jest.fn(() => 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'),
-      turn: jest.fn(() => 'w'),
-      move: jest.fn(() => ({ from: 'e2', to: 'e4' })),
-      undo: jest.fn(),
-      get: jest.fn(),
-      moves: jest.fn(() => []),
+      fen: vi.fn(() => 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'),
+      turn: vi.fn(() => 'w'),
+      move: vi.fn(() => ({ from: 'e2', to: 'e4' })),
+      undo: vi.fn(),
+      get: vi.fn(),
+      moves: vi.fn(() => []),
     };
-    Chess.mockImplementation(() => mockChessInstance);
+    Chess.mockImplementation(function () { return mockChessInstance; });
 
     // Setup jwt-decode mock
     jwtDecode.mockImplementation(() => ({

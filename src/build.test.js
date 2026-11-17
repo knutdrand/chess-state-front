@@ -1,14 +1,14 @@
-const { execSync } = require('child_process');
-const path = require('path');
+import { execSync } from 'child_process';
+import path from 'path';
 
-const frontendDir = path.resolve(__dirname, '..');
+const frontendDir = path.resolve(import.meta.dirname, '..');
 
 describe('Frontend build', () => {
   test('compiles successfully after API codegen', () => {
     // Run codegen + build to verify all imports resolve
     // This catches issues like httpClient.ts being deleted by codegen
     expect(() => {
-      execSync('npm run generate-api && npx react-scripts build', {
+      execSync('npm run generate-api && npx tsc --noEmit && npx vite build', {
         cwd: frontendDir,
         env: { ...process.env, CI: 'true' },
         stdio: 'pipe',

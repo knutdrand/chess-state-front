@@ -8,11 +8,11 @@ describe('Info Component', () => {
     feedback: 'Nf3',
     width: '400px',
     link: 'https://example.com/chess-lesson',
-    onExplanation: jest.fn(),
+    onExplanation: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('renders the explanation button', () => {

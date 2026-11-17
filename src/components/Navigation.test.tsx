@@ -1,15 +1,16 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { jwtDecode } from 'jwt-decode';
 import { Navigation } from './Navigation';
 import { useAuthStore } from '../stores/authStore';
 import { useUiStore } from '../stores/uiStore';
 
 // Mock jwt-decode
-jest.mock('jwt-decode', () => ({
-  jwtDecode: jest.fn(() => ({ sub: 'TestUser', exp: 9999999999 })),
+vi.mock('jwt-decode', () => ({
+  jwtDecode: vi.fn(() => ({ sub: 'TestUser', exp: 9999999999 })),
 }));
 
-const { jwtDecode: mockedJwtDecode } = require('jwt-decode');
+const mockedJwtDecode = vi.mocked(jwtDecode);
 
 describe('Navigation Component', () => {
   beforeEach(() => {

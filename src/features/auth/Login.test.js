@@ -5,19 +5,19 @@ import { useAuthStore } from '../../stores/authStore';
 import { DefaultService } from '../../api';
 
 // Mock the generated API service
-jest.mock('../../api', () => ({
+vi.mock('../../api', () => ({
   DefaultService: {
-    loginForAccessTokenApiTokenPost: jest.fn(),
+    loginForAccessTokenApiTokenPost: vi.fn(),
   },
 }));
 
 describe('Login Component', () => {
   const defaultProps = {
-    setIsRegistering: jest.fn(),
+    setIsRegistering: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     useAuthStore.setState({ token: null });
   });
 

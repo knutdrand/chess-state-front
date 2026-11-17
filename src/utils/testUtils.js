@@ -1,4 +1,6 @@
 // Test utilities for chess application
+import { render } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 
 /**
  * Creates a mock JWT token for testing
@@ -24,18 +26,18 @@ export const createMockJWTToken = (payload = {}, expirationOffset = 3600) => {
  * @returns {Object} Mock chess game instance
  */
 export const createMockChessGame = (fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1') => ({
-  fen: jest.fn(() => fen),
-  turn: jest.fn(() => fen.split(' ')[1]),
-  move: jest.fn(),
-  undo: jest.fn(),
-  isGameOver: jest.fn(() => false),
-  isCheck: jest.fn(() => false),
-  isCheckmate: jest.fn(() => false),
-  isDraw: jest.fn(() => false),
-  moves: jest.fn(() => []),
-  history: jest.fn(() => []),
-  pgn: jest.fn(() => ''),
-  ascii: jest.fn(() => ''),
+  fen: vi.fn(() => fen),
+  turn: vi.fn(() => fen.split(' ')[1]),
+  move: vi.fn(),
+  undo: vi.fn(),
+  isGameOver: vi.fn(() => false),
+  isCheck: vi.fn(() => false),
+  isCheckmate: vi.fn(() => false),
+  isDraw: vi.fn(() => false),
+  moves: vi.fn(() => []),
+  history: vi.fn(() => []),
+  pgn: vi.fn(() => ''),
+  ascii: vi.fn(() => ''),
 });
 
 /**
@@ -139,10 +141,10 @@ export const createMockExplorationResponse = (overrides = {}) => ({
  * Mock localStorage for testing
  */
 export const mockLocalStorage = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
 };
 
 /**
@@ -156,9 +158,9 @@ export const setupCommonMocks = () => {
   });
 
   // Mock console methods to reduce noise in tests
-  jest.spyOn(console, 'log').mockImplementation(() => {});
-  jest.spyOn(console, 'warn').mockImplementation(() => {});
-  jest.spyOn(console, 'error').mockImplementation(() => {});
+  vi.spyOn(console, 'log').mockImplementation(() => {});
+  vi.spyOn(console, 'warn').mockImplementation(() => {});
+  vi.spyOn(console, 'error').mockImplementation(() => {});
 
   // Mock window.innerWidth and window.innerHeight
   Object.defineProperty(window, 'innerWidth', {
@@ -178,8 +180,8 @@ export const setupCommonMocks = () => {
  * Cleans up mocks after tests
  */
 export const cleanupMocks = () => {
-  jest.clearAllMocks();
-  jest.restoreAllMocks();
+  vi.clearAllMocks();
+  vi.restoreAllMocks();
 };
 
 /**
@@ -189,8 +191,6 @@ export const cleanupMocks = () => {
  * @returns {Object} Render result
  */
 export const renderWithProviders = (ui, options = {}) => {
-  const { render } = require('@testing-library/react');
-  const { MemoryRouter } = require('react-router-dom');
   
   const Wrapper = ({ children }) => (
     <MemoryRouter initialEntries={options.initialEntries || ['/']}>
@@ -214,8 +214,8 @@ export const waitFor = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms
  * @returns {Object} Mock event object
  */
 export const createMockEvent = (overrides = {}) => ({
-  preventDefault: jest.fn(),
-  stopPropagation: jest.fn(),
+  preventDefault: vi.fn(),
+  stopPropagation: vi.fn(),
   target: {
     value: '',
     name: '',

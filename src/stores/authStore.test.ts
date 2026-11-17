@@ -1,13 +1,14 @@
+import type { Mock } from 'vitest';
 import { jwtDecode } from 'jwt-decode';
 import { useAuthStore } from './authStore';
 
 // Mock jwt-decode
-jest.mock('jwt-decode');
-const mockedJwtDecode = jwtDecode as jest.Mock;
+vi.mock('jwt-decode');
+const mockedJwtDecode = jwtDecode as Mock;
 
 describe('authStore', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     localStorage.clear();
     useAuthStore.setState({ token: null });
   });
@@ -67,7 +68,7 @@ describe('authStore', () => {
   });
 
   test('logs out automatically when the token expires', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     try {
       const nowSec = Math.floor(Date.now() / 1000);
       mockedJwtDecode.mockReturnValue({ sub: 'testuser', exp: nowSec + 60 });
@@ -75,16 +76,16 @@ describe('authStore', () => {
       useAuthStore.getState().setToken('expiring-token');
       expect(useAuthStore.getState().token).toBe('expiring-token');
 
-      jest.advanceTimersByTime(61 * 1000);
+      vi.advanceTimersByTime(61 * 1000);
 
       expect(useAuthStore.getState().token).toBeNull();
     } finally {
-      jest.useRealTimers();
+      vi.useRealTimers();
     }
   });
 
   test('manual logout cancels the expiry timer', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     try {
       const nowSec = Math.floor(Date.now() / 1000);
       mockedJwtDecode.mockReturnValue({ sub: 'testuser', exp: nowSec + 60 });
@@ -93,11 +94,11 @@ describe('authStore', () => {
       useAuthStore.getState().logout();
       useAuthStore.setState({ token: 'other-token' });
 
-      jest.advanceTimersByTime(61 * 1000);
+      vi.advanceTimersByTime(61 * 1000);
 
       expect(useAuthStore.getState().token).toBe('other-token');
     } finally {
-      jest.useRealTimers();
+      vi.useRealTimers();
     }
   });
 });
