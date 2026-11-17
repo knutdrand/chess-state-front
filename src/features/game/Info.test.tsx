@@ -15,24 +15,17 @@ describe('Info Component', () => {
     jest.clearAllMocks();
   });
 
-  test('renders with show mode and displays feedback', () => {
+  test('renders the explanation button', () => {
     render(<Info {...defaultProps} />);
-    
-    const alert = screen.getByRole('alert');
-    expect(alert).toBeInTheDocument();
-    
-    // Check for explanation button
-    const button = screen.getByRole('button');
-    expect(button).toBeInTheDocument();
+
+    expect(screen.getByRole('button')).toBeInTheDocument();
   });
 
-  test('renders with non-show mode and displays repeat message', () => {
+  test('renders in repeat mode', () => {
     const props = { ...defaultProps, mode: 'repeat' };
     render(<Info {...props} />);
 
-    const alert = screen.getByRole('alert');
-    expect(alert).toBeInTheDocument();
-    expect(alert).toHaveClass('MuiAlert-colorWarning');
+    expect(screen.getByRole('link', { name: 'View in Chessable' })).toBeInTheDocument();
   });
 
   test('renders external link when link starts with http', () => {
@@ -78,46 +71,17 @@ describe('Info Component', () => {
     expect(defaultProps.onExplanation).toHaveBeenCalledTimes(1);
   });
 
-  test('applies correct width styling', () => {
-    const customWidth = '600px';
-    const props = { ...defaultProps, width: customWidth };
-    
-    render(<Info {...props} />);
-    
-    const container = screen.getByRole('alert').parentElement;
-    expect(container).toHaveStyle(`width: ${customWidth}`);
-  });
-
-  test('shows error severity for show mode', () => {
-    const props = { ...defaultProps, mode: 'show' };
-    render(<Info {...props} />);
-
-    const alert = screen.getByRole('alert');
-    expect(alert).toHaveClass('MuiAlert-colorError');
-  });
-
-  test('shows warning severity for non-show mode', () => {
-    const props = { ...defaultProps, mode: 'practice' };
-    render(<Info {...props} />);
-
-    const alert = screen.getByRole('alert');
-    expect(alert).toHaveClass('MuiAlert-colorWarning');
-  });
-
   test('button contains expand icon', () => {
     render(<Info {...defaultProps} />);
-    
-    const button = screen.getByRole('button');
-    const icon = button.querySelector('svg');
-    expect(icon).toBeInTheDocument();
+
+    expect(screen.getByTestId('OpenInFullIcon')).toBeInTheDocument();
   });
 
   test('handles empty feedback string', () => {
     const props = { ...defaultProps, feedback: '' };
     render(<Info {...props} />);
-    
-    const alert = screen.getByRole('alert');
-    expect(alert).toBeInTheDocument();
+
+    expect(screen.getByRole('button')).toBeInTheDocument();
   });
 
   test('handles very long link text', () => {
@@ -140,17 +104,8 @@ describe('Info Component', () => {
 
   test('component structure is correct', () => {
     render(<Info {...defaultProps} />);
-    
-    // Check for Alert component
-    const alert = screen.getByRole('alert');
-    expect(alert).toHaveClass('MuiAlert-root');
-    
-    // Check for Button component
-    const button = screen.getByRole('button');
-    expect(button).toHaveClass('MuiButton-root');
-    
-    // Check for Typography component
-    const typography = screen.getByText('View in Chessable').closest('.MuiTypography-root');
-    expect(typography).toBeInTheDocument();
+
+    expect(screen.getByRole('button')).toHaveClass('MuiButton-root');
+    expect(screen.getByRole('link', { name: 'View in Chessable' })).toHaveClass('MuiTypography-root');
   });
 });

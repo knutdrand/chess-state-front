@@ -2,9 +2,10 @@ import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { Chess } from 'chess.js';
 import { GameScreen } from './GameScreen';
-import { useAuthStore } from '../stores/authStore';
-import { useUiStore } from '../stores/uiStore';
-import { useGameStore } from '../stores/gameStore';
+import { useAuthStore } from '../../stores/authStore';
+import { useUiStore } from '../../stores/uiStore';
+import { useGameStore } from '../../stores/gameStore';
+import { NotificationProvider } from '../../hooks/useNotification';
 
 // Mock dependencies
 jest.mock('chess.js');
@@ -34,18 +35,6 @@ jest.mock('react-chessboard', () => ({
   ),
 }));
 
-// Mock PlayerStatus component
-jest.mock('./PlayerStatus', () => ({
-  PlayerStatus: ({ score, onSolution }) => (
-    <div data-testid="player-status">
-      <span data-testid="score">{score}</span>
-      <button data-testid="solution-button" onClick={onSolution}>
-        Solution
-      </button>
-    </div>
-  ),
-}));
-
 // Mock Info component
 jest.mock('./Info', () => ({
   Info: ({ mode, feedback, link, onExplanation }) => (
@@ -61,7 +50,7 @@ jest.mock('./Info', () => ({
 }));
 
 // Mock ApiExploration component
-jest.mock('./ExplorationModern', () => ({
+jest.mock('../exploration/ExplorationModern', () => ({
   ApiExploration: ({ fen, onExit }) => (
     <div data-testid="api-exploration">
       <span data-testid="exploration-fen">{fen}</span>
@@ -73,13 +62,13 @@ jest.mock('./ExplorationModern', () => ({
 }));
 
 // Mock config
-jest.mock('../config', () => ({
+jest.mock('../../config', () => ({
   baseUrl: 'http://localhost:8000',
   apiUrl: 'http://localhost:8000/api',
 }));
 
 // Mock the generated API service
-jest.mock('../api', () => ({
+jest.mock('../../api', () => ({
   DefaultService: {
     initApiInitGet: jest.fn(),
     moveApiMovePost: jest.fn(),
@@ -91,7 +80,7 @@ jest.mock('../api', () => ({
   },
 }));
 
-const { DefaultService } = require('../api');
+const { DefaultService } = require('../../api');
 const MockedChess = Chess;
 
 describe('GameScreen Component', () => {
@@ -138,8 +127,8 @@ describe('GameScreen Component', () => {
 
     await waitFor(() => {
       expect(useGameStore.getState().position).toBe(mockResponse.fen);
-      expect(useGameStore.getState().gameState).toEqual(mockResponse);
     });
+    expect(useGameStore.getState().gameState).toEqual(mockResponse);
   });
 
   test('renders chessboard when position exists', async () => {
@@ -188,7 +177,9 @@ describe('GameScreen Component', () => {
     });
   });
 
-  test('handles authentication error by logging out', async () => {
+  // 401s are now handled globally by the httpClient interceptor (see
+  // httpClient.test.ts); GameScreen only reports other failures.
+  test('shows an error notification when a move fails', async () => {
     const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
     useGameStore.setState({
       position: fen,
@@ -197,17 +188,22 @@ describe('GameScreen Component', () => {
 
     mockChessInstance.move.mockReturnValue({ from: 'e2', to: 'e4' });
 
-    const authError = { response: { status: 401 } };
-    DefaultService.moveApiMovePost.mockRejectedValue(authError);
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    DefaultService.moveApiMovePost.mockRejectedValue(new Error('Network Error'));
 
-    render(<GameScreen />);
+    render(
+      <NotificationProvider>
+        <GameScreen />
+      </NotificationProvider>
+    );
 
     const pieceDropButton = screen.getByTestId('mock-piece-drop');
     fireEvent.click(pieceDropButton);
 
-    await waitFor(() => {
-      expect(useAuthStore.getState().token).toBeNull();
-    });
+    expect(
+      await screen.findByText('Could not submit your move. Please try again.')
+    ).toBeInTheDocument();
+    console.error.mockRestore();
   });
 
   test('enters exploration mode when explanation button is clicked', () => {
