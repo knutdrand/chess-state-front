@@ -69,6 +69,8 @@ const Courses = () => {
       retry: 1,
       retryDelay: 1000,
       networkMode: 'online',
+      // Errors are rendered inline below rather than as a toast.
+      meta: { errorToast: false },
     }
   );
 

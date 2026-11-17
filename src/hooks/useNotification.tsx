@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { Snackbar, Alert, AlertColor } from "@mui/material";
 
 interface Notification {
@@ -18,6 +18,18 @@ const NotificationContext = createContext<NotificationContextType>({
   notifySuccess: () => {},
 });
 
+// Module-level handle so non-React code (axios interceptors, the QueryClient)
+// can raise notifications through the mounted NotificationProvider.
+let globalNotify: ((message: string, severity?: AlertColor) => void) | null = null;
+
+export function notifyGlobal(message: string, severity: AlertColor = "info") {
+  if (globalNotify) {
+    globalNotify(message, severity);
+  } else {
+    console.warn(`[notification] ${message}`);
+  }
+}
+
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
   const [notification, setNotification] = useState<Notification | null>(null);
 
@@ -32,6 +44,13 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const notifySuccess = useCallback((message: string) => {
     setNotification({ message, severity: "success" });
   }, []);
+
+  useEffect(() => {
+    globalNotify = notify;
+    return () => {
+      if (globalNotify === notify) globalNotify = null;
+    };
+  }, [notify]);
 
   const handleClose = () => setNotification(null);
 

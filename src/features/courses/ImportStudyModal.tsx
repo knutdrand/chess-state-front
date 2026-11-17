@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { DefaultService } from '../../api';
 import { useNotification } from '../../hooks/useNotification';
+import { getErrorMessage, isUnauthorized } from '../../utils/errors';
 
 interface ImportStudyModalProps {
   open: boolean;
@@ -37,14 +38,13 @@ function ImportStudyModal({ open, onClose, courseId, onAddChapter }: ImportStudy
         onAddChapter();
         onClose();
         setStudyId('');
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error adding chapter:', err);
-        console.error('Error details:', err.body);
-        console.error('Error status:', err.status);
-        const errorMessage = err.status === 401
-          ? 'Authentication failed. Please log in again.'
-          : `Error adding chapter: ${err.body?.detail || err.message}. Please try again.`;
-        notifyError(errorMessage);
+        // 401s are handled globally by the httpClient interceptor.
+        if (!isUnauthorized(err)) {
+          const detail = getErrorMessage(err, 'unknown error');
+          notifyError(`Error adding chapter: ${detail}. Please try again.`);
+        }
       } finally {
         setLoading(false);
       }

@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { DefaultService } from '../../api';
 import { useAuthStore } from '../../stores/authStore';
+import { getErrorMessage } from '../../utils/errors';
 
 interface RegisterProps {
   setIsRegistering?: (value: boolean) => void;
@@ -46,11 +47,9 @@ export default function Register({ setIsRegistering }: RegisterProps) {
       setSuccess('User registered successfully. You can now log in.');
       setToken(response.access_token);
       setIsRegistering?.(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error:', err);
-      setError(
-        err.response?.data?.detail || 'An error occurred during registration.'
-      );
+      setError(getErrorMessage(err, 'An error occurred during registration.'));
     }
   };
 

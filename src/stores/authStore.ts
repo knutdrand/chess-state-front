@@ -39,15 +39,44 @@ function getStoredToken(): string | null {
   }
 }
 
+// setTimeout delays above 2^31-1 ms overflow and fire immediately.
+const MAX_TIMEOUT_MS = 2 ** 31 - 1;
+let expiryTimer: ReturnType<typeof setTimeout> | null = null;
+
+function clearExpiryTimer() {
+  if (expiryTimer !== null) {
+    clearTimeout(expiryTimer);
+    expiryTimer = null;
+  }
+}
+
+/** Log out automatically when the token's `exp` claim is reached. */
+function scheduleExpiry(token: string | null, onExpire: () => void) {
+  clearExpiryTimer();
+  if (!token) return;
+  let exp: unknown;
+  try {
+    exp = jwtDecode<DecodedToken>(token)?.exp;
+  } catch {
+    return;
+  }
+  if (typeof exp !== 'number') return;
+  const delay = exp * 1000 - Date.now();
+  if (delay > MAX_TIMEOUT_MS) return;
+  expiryTimer = setTimeout(onExpire, Math.max(delay, 0));
+}
+
 export const useAuthStore = create<AuthState>((set, get) => ({
   token: getStoredToken(),
 
   setToken: (token: string | null) => {
     localStorage.setItem('token', JSON.stringify(token));
     set({ token });
+    scheduleExpiry(token, () => get().logout());
   },
 
   logout: () => {
+    clearExpiryTimer();
     localStorage.setItem('token', JSON.stringify(null));
     set({ token: null });
   },
@@ -62,3 +91,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 }));
+
+const initialToken = useAuthStore.getState().token;
+scheduleExpiry(initialToken, () => useAuthStore.getState().logout());

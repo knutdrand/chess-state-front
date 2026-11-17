@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { Chess, Square } from "chess.js";
 import { DefaultService } from "../api";
-import { useAuthStore } from "../stores/authStore";
+import { useNotification } from "./useNotification";
+import { isUnauthorized } from "../utils/errors";
 import { useGameStore } from "../stores/gameStore";
 
 type SquareStyles = Record<string, Record<string, string>>;
@@ -13,7 +14,7 @@ interface ChessMove {
 }
 
 export function useGameLogic() {
-  const logout = useAuthStore((s) => s.logout);
+  const { notifyError } = useNotification();
   const position = useGameStore((s) => s.position);
   const setPosition = useGameStore((s) => s.setPosition);
   const gameState = useGameStore((s) => s.gameState);
@@ -49,10 +50,11 @@ export function useGameLogic() {
       setPosition(response.fen);
       setRecieveTimeStamp(Date.now());
       setGameState(response);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error initializing game:", err);
-      if (err.response && err.response.status === 401) {
-        logout();
+      // 401s are handled globally by the httpClient interceptor.
+      if (!isUnauthorized(err)) {
+        notifyError("Could not load a position. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -112,14 +114,14 @@ export function useGameLogic() {
             rightClickedSquares: {},
           });
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Error making move:", err);
-        if (err.response && err.response.status === 401) {
-          logout();
+        if (!isUnauthorized(err)) {
+          notifyError("Could not submit your move. Please try again.");
         }
       }
     },
-    [recieveTimeStamp, setGameState, setPosition, logout]
+    [recieveTimeStamp, setGameState, setPosition, notifyError]
   );
 
   const onDrop = useCallback(
