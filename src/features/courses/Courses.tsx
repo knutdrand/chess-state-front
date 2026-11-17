@@ -179,13 +179,10 @@ const Courses = () => {
     return (
       <Box sx={{ p: 2 }}>
         <Typography color="error" variant="h6" gutterBottom>
-          Connection Error
+          Could not load courses
         </Typography>
         <Typography color="text.secondary">
-          Failed to connect to backend: {(error as Error).message}
-        </Typography>
-        <Typography variant="body2" sx={{ mt: 1 }}>
-          Make sure your backend service is running on localhost.
+          Something went wrong while contacting the server. Please try again later.
         </Typography>
       </Box>
     );
