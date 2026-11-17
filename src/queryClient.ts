@@ -1,6 +1,7 @@
 import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
 import { notifyGlobal } from './hooks/useNotification';
 import { useAuthStore } from './stores/authStore';
+import { useGameStore } from './stores/gameStore';
 import { getErrorMessage, isUnauthorized } from './utils/errors';
 
 /**
@@ -25,10 +26,12 @@ export const queryClient = new QueryClient({
   }),
 });
 
-// Drop all cached server state whenever the user is logged out
+// Drop all cached server and game state whenever the user is logged out
 // (manual logout, 401 from the API, or token expiry).
 useAuthStore.subscribe((state, prev) => {
   if (prev.token && !state.token) {
     queryClient.clear();
+    // Don't let the next user on this browser start on our position.
+    useGameStore.getState().resetGame();
   }
 });

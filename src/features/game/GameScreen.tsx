@@ -1,7 +1,8 @@
 import React, { useCallback } from "react";
 import { Square } from "chess.js";
 import { Chessboard } from "react-chessboard";
-import { Box, CircularProgress } from "@mui/material";
+import { Box, Button, CircularProgress, Typography } from "@mui/material";
+import SchoolIcon from "@mui/icons-material/School";
 import { Info } from "./Info";
 import { ApiExploration } from "../exploration/ExplorationModern";
 import { useUiStore } from "../../stores/uiStore";
@@ -9,6 +10,7 @@ import { useGameLogic } from "../../hooks/useGameLogic";
 
 export function GameScreen() {
   const boardWidth = useUiStore((s) => s.boardWidth);
+  const setActiveTab = useUiStore((s) => s.setActiveTab);
 
   const {
     position,
@@ -43,11 +45,21 @@ export function GameScreen() {
   }
 
   if (!position && !loading) {
+    // New account, or every chapter disabled: nothing to train on yet.
     return (
       <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", p: 4 }}>
-        <Box sx={{ textAlign: "center" }}>
-          <h2>No courses available</h2>
-          <p>Please contact an administrator to set up courses for your account.</p>
+        <Box sx={{ textAlign: "center", maxWidth: 420 }}>
+          <SchoolIcon color="primary" sx={{ fontSize: 56, mb: 1 }} />
+          <Typography variant="h5" gutterBottom>
+            Add a course to start training
+          </Typography>
+          <Typography color="text.secondary" sx={{ mb: 3 }}>
+            Training uses the openings in your enabled courses. Pick a built-in
+            repertoire, upload your own PGN, or import a Lichess study.
+          </Typography>
+          <Button variant="contained" size="large" onClick={() => setActiveTab("courses")}>
+            Go to Courses
+          </Button>
         </Box>
       </Box>
     );

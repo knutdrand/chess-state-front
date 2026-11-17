@@ -6,6 +6,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { useUiStore } from '../../stores/uiStore';
 import { useGameStore } from '../../stores/gameStore';
 import { NotificationProvider } from '../../hooks/useNotification';
+import { ApiError } from '../../api/core/ApiError';
 
 // Mock dependencies
 jest.mock('chess.js');
@@ -204,6 +205,50 @@ describe('GameScreen Component', () => {
       await screen.findByText('Could not submit your move. Please try again.')
     ).toBeInTheDocument();
     console.error.mockRestore();
+  });
+
+  test('shows an add-a-course screen for accounts without courses', async () => {
+    DefaultService.initApiInitGet.mockResolvedValue({
+      fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+      mode: 'empty',
+    });
+    useUiStore.setState({ activeTab: 'play' });
+
+    render(<GameScreen />);
+
+    expect(await screen.findByText('Add a course to start training')).toBeInTheDocument();
+    expect(screen.queryByTestId('chessboard')).not.toBeInTheDocument();
+    expect(useGameStore.getState().position).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Go to Courses' }));
+    expect(useUiStore.getState().activeTab).toBe('courses');
+  });
+
+  test('loads a new position when the current one is no longer enabled (409)', async () => {
+    const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+    const nextFen = 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2';
+    useGameStore.setState({ position: fen, gameState: { fen, mode: 'play' } });
+    mockChessInstance.move.mockReturnValue({ from: 'e2', to: 'e4' });
+    DefaultService.moveApiMovePost.mockRejectedValue(
+      new ApiError(
+        { method: 'POST', url: '/api/move' },
+        { url: '/api/move', ok: false, status: 409, statusText: 'Conflict', body: { detail: 'x' } },
+        'Conflict'
+      )
+    );
+    DefaultService.initApiInitGet.mockResolvedValue({ fen: nextFen, mode: 'play' });
+
+    render(
+      <NotificationProvider>
+        <GameScreen />
+      </NotificationProvider>
+    );
+    fireEvent.click(screen.getByTestId('mock-piece-drop'));
+
+    expect(
+      await screen.findByText('That position is no longer in your enabled courses. Loading a new one.')
+    ).toBeInTheDocument();
+    await waitFor(() => expect(useGameStore.getState().position).toBe(nextFen));
   });
 
   test('enters exploration mode when explanation button is clicked', () => {

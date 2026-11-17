@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Chess, Square } from "chess.js";
 import { DefaultService } from "../api";
 import { useNotification } from "./useNotification";
-import { isUnauthorized } from "../utils/errors";
+import { getErrorStatus, isUnauthorized } from "../utils/errors";
 import { useGameStore } from "../stores/gameStore";
 
 type SquareStyles = Record<string, Record<string, string>>;
@@ -14,7 +14,7 @@ interface ChessMove {
 }
 
 export function useGameLogic() {
-  const { notifyError } = useNotification();
+  const { notify, notifyError } = useNotification();
   const position = useGameStore((s) => s.position);
   const setPosition = useGameStore((s) => s.setPosition);
   const gameState = useGameStore((s) => s.gameState);
@@ -43,13 +43,18 @@ export function useGameLogic() {
     return game.turn() === "w" ? "white" : "black";
   };
 
-  const initGame = async () => {
+  const initGame = useCallback(async () => {
     setLoading(true);
     try {
       const response = await DefaultService.initApiInitGet();
+      setGameState(response);
+      if (response.mode === "empty") {
+        // No enabled courses yet: GameScreen shows the "add a course" screen.
+        setPosition(null);
+        return;
+      }
       setPosition(response.fen);
       setRecieveTimeStamp(Date.now());
-      setGameState(response);
     } catch (err: unknown) {
       console.error("Error initializing game:", err);
       // 401s are handled globally by the httpClient interceptor.
@@ -59,7 +64,7 @@ export function useGameLogic() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setGameState, setPosition, notifyError]);
 
   useEffect(() => {
     if (!position) {
@@ -115,13 +120,20 @@ export function useGameLogic() {
           });
         }
       } catch (err: unknown) {
+        if (getErrorStatus(err) === 409) {
+          // The position is no longer in an enabled chapter (e.g. the course
+          // was disabled or deleted): fetch a fresh one.
+          notify("That position is no longer in your enabled courses. Loading a new one.", "info");
+          initGame();
+          return;
+        }
         console.error("Error making move:", err);
         if (!isUnauthorized(err)) {
           notifyError("Could not submit your move. Please try again.");
         }
       }
     },
-    [recieveTimeStamp, setGameState, setPosition, notifyError]
+    [recieveTimeStamp, setGameState, setPosition, notifyError, notify, initGame]
   );
 
   const onDrop = useCallback(
