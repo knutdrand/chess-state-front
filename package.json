@@ -10,9 +10,6 @@
     "@mui/material": "^6.3.0",
     "@tanstack/react-query": "^4.29.5",
     "@tanstack/react-table": "^8.21.3",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "13.4.0",
-    "@testing-library/user-event": "^13.5.0",
     "axios": "^1.6.8",
     "chess.js": "^1.3.1",
     "jwt-decode": "^4.0.0",
@@ -22,71 +19,44 @@
     "react-d3-tree": "^3.6.6",
     "react-dom": "18.2.0",
     "react-router-dom": "6.22.3",
-    "react-scripts": "5.0.1",
-    "web-vitals": "2.1.4",
     "zustand": "^5.0.12"
   },
   "scripts": {
     "generate-api": "npx openapi-typescript-codegen --input ./openapi.json --output ./src/api --client axios --request ./custom-request.ts",
-    "start": "npm run generate-api && react-scripts start",
-    "build": "npm run generate-api && react-scripts build",
-    "test": "react-scripts test",
+    "dev": "npm run generate-api && vite",
+    "start": "npm run dev",
+    "dev:exploration-preview": "VITE_PREVIEW=true npm run dev",
+    "build": "npm run generate-api && tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:run": "vitest run",
     "lint": "eslint --max-warnings=0 src",
-    "typecheck": "tsc --noEmit",
-    "preview": "REACT_APP_PREVIEW=true react-scripts start"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@testing-library/jest-dom": "~6.9.0",
+    "@testing-library/react": "13.4.0",
+    "@testing-library/user-event": "^13.5.0",
     "@types/lodash": "^4.17.24",
-    "openapi-typescript-codegen": "^0.25.0"
-  },
-  "jest": {
-    "collectCoverageFrom": [
-      "src/**/*.{js,jsx,ts,tsx}",
-      "!src/index.js",
-      "!src/reportWebVitals.js",
-      "!src/setupTests.js",
-      "!src/**/*.test.{js,jsx,ts,tsx}",
-      "!src/utils/testUtils.js"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 50,
-        "functions": 50,
-        "lines": 50,
-        "statements": 50
-      }
-    },
-    "coverageReporters": [
-      "text",
-      "lcov",
-      "html"
-    ],
-    "transformIgnorePatterns": [
-      "node_modules/(?!(axios)/)"
-    ],
-    "moduleNameMapper": {
-      "^axios$": "axios/dist/node/axios.cjs"
-    }
+    "@types/node": "^24.19.2",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^6.3.0",
+    "@vitest/coverage-v8": "^5.1.0",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.14.0",
+    "jsdom": "^29.1.1",
+    "openapi-typescript-codegen": "^0.25.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.73.0",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0"
   },
   "engines": {
     "node": "24.x"
-  }
+  },
+  "type": "module"
 }

@@ -100,7 +100,7 @@ export function useGameLogic() {
           const newGameCopy = new Chess(currentGameState.fen);
 
           if (response.state.mode === "show") {
-            let showMove = newGameCopy.move(response.correct_move);
+            const showMove = newGameCopy.move(response.correct_move);
             setShowSquares([showMove.from, showMove.to]);
             newGameCopy.undo();
           } else {

@@ -1,8 +1,7 @@
-import React, { lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
 import { LoadingFallback } from './components/LoadingFallback';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
@@ -11,10 +10,10 @@ import '@fontsource/roboto/700.css';
 
 const ExplorationPreview = lazy(() => import('./features/exploration/ExplorationPreview'));
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
-// Check if we're in preview mode
-const isPreviewMode = process.env.REACT_APP_PREVIEW === 'true';
+// Exploration preview mode: `npm run dev:exploration-preview`
+const isPreviewMode = import.meta.env.VITE_PREVIEW === 'true';
 
 root.render(
   //<React.StrictMode>
@@ -25,8 +24,3 @@ root.render(
     ) : <App />
   //</React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
