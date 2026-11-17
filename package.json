@@ -85,5 +85,8 @@
     "moduleNameMapper": {
       "^axios$": "axios/dist/node/axios.cjs"
     }
+  },
+  "engines": {
+    "node": "24.x"
   }
 }
