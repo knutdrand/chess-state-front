@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, lazy, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Box,
@@ -26,9 +26,12 @@ import AddCourseModal from "./AddCourseModal";
 import AddChapterModal from "./AddChapterModal";
 import AddResourceCourseModal from "./AddResourceCourseModal";
 import ImportStudyModal from "./ImportStudyModal";
-import TreeExplorer from "./TreeExplorer";
 import { DefaultService } from "../../api";
 import { useCourseMutations } from "../../hooks/useCourseMutations";
+import { LoadingFallback } from "../../components/LoadingFallback";
+
+// react-d3-tree is large; load the tree view only when it is opened.
+const TreeExplorer = lazy(() => import("./TreeExplorer"));
 
 interface Course {
   id: number;
@@ -165,10 +168,12 @@ const Courses = () => {
   if (treeExploreCourseId !== null) {
     return (
       <Box sx={{ height: '100%' }}>
-        <TreeExplorer
-          courseId={treeExploreCourseId}
-          onExit={() => setTreeExploreCourseId(null)}
-        />
+        <Suspense fallback={<LoadingFallback />}>
+          <TreeExplorer
+            courseId={treeExploreCourseId}
+            onExit={() => setTreeExploreCourseId(null)}
+          />
+        </Suspense>
       </Box>
     );
   }

@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import ExplorationPreview from './features/exploration/ExplorationPreview';
 import reportWebVitals from './reportWebVitals';
+import { LoadingFallback } from './components/LoadingFallback';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+
+const ExplorationPreview = lazy(() => import('./features/exploration/ExplorationPreview'));
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -16,7 +18,11 @@ const isPreviewMode = process.env.REACT_APP_PREVIEW === 'true';
 
 root.render(
   //<React.StrictMode>
-    isPreviewMode ? <ExplorationPreview /> : <App />
+    isPreviewMode ? (
+      <Suspense fallback={<LoadingFallback />}>
+        <ExplorationPreview />
+      </Suspense>
+    ) : <App />
   //</React.StrictMode>
 );
 

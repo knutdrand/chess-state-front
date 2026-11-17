@@ -1,11 +1,14 @@
-import React, {useEffect, useRef, useState, useCallback} from "react";
-import {debounce} from "lodash";
+import React, {useEffect, useRef, useState, useCallback, lazy, Suspense} from "react";
+import debounce from "lodash/debounce";
 import {GameScreen} from "../features/game/GameScreen";
 import Config from "../features/settings/Config";
 import {Navigation} from "./Navigation";
-import Courses from '../features/courses/Courses';
 import { Box } from "@mui/material";
 import { useUiStore } from '../stores/uiStore';
+import { LoadingFallback } from "./LoadingFallback";
+
+// Course management (tables, modals, tree explorer) is loaded on first visit.
+const Courses = lazy(() => import('../features/courses/Courses'));
 
 
 const minInfoHeight = 128;
@@ -45,7 +48,11 @@ export function MainScreen() {
         {activeTab === 'play' && (
           <GameScreen />
         )}
-        {activeTab === 'courses' && <Courses />}
+        {activeTab === 'courses' && (
+          <Suspense fallback={<LoadingFallback />}>
+            <Courses />
+          </Suspense>
+        )}
         {activeTab === 'settings' && <Config />}
       </Box>
     </Box>
