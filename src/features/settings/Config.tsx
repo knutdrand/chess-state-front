@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { Box, TextField, Button, Alert, Typography } from '@mui/material';
+import { Box, TextField, Button, Alert, Typography, Link } from '@mui/material';
+import { DeleteAccount } from './DeleteAccount';
 import { DefaultService } from '../../api';
 
 const Config = () => {
@@ -44,6 +45,7 @@ const Config = () => {
   };
 
   return (
+    <Box sx={{ height: '100%', overflowY: 'auto' }}>
     <Box sx={{ maxWidth: 400, mx: 'auto', p: 2.5 }}>
       <Typography variant="h5" sx={{ mb: 2 }}>Settings</Typography>
       <TextField
@@ -79,6 +81,11 @@ const Config = () => {
           {message}
         </Alert>
       )}
+      <DeleteAccount />
+      <Typography variant="body2" sx={{ mt: 3, textAlign: 'center' }}>
+        <Link href="/privacy">Privacy policy</Link>
+      </Typography>
+    </Box>
     </Box>
   );
 };

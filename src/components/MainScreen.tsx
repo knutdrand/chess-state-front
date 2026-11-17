@@ -3,7 +3,8 @@ import debounce from "lodash/debounce";
 import {GameScreen} from "../features/game/GameScreen";
 import Config from "../features/settings/Config";
 import {Navigation} from "./Navigation";
-import { Box } from "@mui/material";
+import { Alert, Box, Snackbar } from "@mui/material";
+import { useOnlineStatus } from "../hooks/useOnlineStatus";
 import { useUiStore } from '../stores/uiStore';
 import { LoadingFallback } from "./LoadingFallback";
 
@@ -23,12 +24,20 @@ export function MainScreen() {
   const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
   const navRef = useRef<HTMLDivElement>(null);
 
+  const rootRef = useRef<HTMLDivElement>(null);
+  const online = useOnlineStatus();
+
   const updateLayout = useCallback(() => {
     const vh = window.innerHeight;
     setViewportHeight(vh);
     const navH = navRef.current ? navRef.current.offsetHeight : 64;
-    const vw = window.innerWidth;
-    const available = vh - navH;
+    // Safe-area insets (iPhone notch / home indicator), applied as padding on the root.
+    const cs = rootRef.current ? getComputedStyle(rootRef.current) : null;
+    const px = (v: string | undefined) => (v ? parseFloat(v) || 0 : 0);
+    const insetY = cs ? px(cs.paddingTop) + px(cs.paddingBottom) : 0;
+    const insetX = cs ? px(cs.paddingLeft) + px(cs.paddingRight) : 0;
+    const vw = window.innerWidth - insetX;
+    const available = vh - insetY - navH;
     // Landscape when a board-beside-panel layout gives a bigger board.
     const columnBoard = Math.min(available - minInfoHeight, vw);
     const rowBoard = Math.min(available, vw - minInfoWidth);
@@ -45,7 +54,20 @@ export function MainScreen() {
   }, [updateLayout]);
 
   return (
-    <Box sx={{display: 'flex', flexDirection: 'column', height: viewportHeight, overflow: 'hidden'}}>
+    <Box
+      ref={rootRef}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: viewportHeight,
+        overflow: 'hidden',
+        boxSizing: 'border-box',
+        pt: 'env(safe-area-inset-top, 0px)',
+        pb: 'env(safe-area-inset-bottom, 0px)',
+        pl: 'env(safe-area-inset-left, 0px)',
+        pr: 'env(safe-area-inset-right, 0px)',
+      }}
+    >
       <Box ref={navRef}>
         <Navigation />
       </Box>
@@ -61,6 +83,12 @@ export function MainScreen() {
         )}
         {activeTab === 'settings' && <Config />}
       </Box>
+      {/* Overlay, so it never changes the layout or makes the page scroll. */}
+      <Snackbar open={!online} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+        <Alert severity="warning" variant="filled" sx={{ width: '100%' }}>
+          You're offline. Your moves will be saved again when the connection is back.
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

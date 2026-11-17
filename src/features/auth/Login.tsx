@@ -7,8 +7,7 @@ import {
   TextField,
   Button,
   Alert,
-  Box,
-} from '@mui/material';
+  Box, Link as MuiLink } from '@mui/material';
 import { DefaultService } from '../../api';
 import { useAuthStore } from '../../stores/authStore';
 
@@ -109,6 +108,11 @@ export default function Login({ setIsRegistering }: LoginProps) {
           >
             Register here
           </Button>
+        </Box>
+        <Box sx={{ textAlign: 'center', mb: 2 }}>
+          <MuiLink href="/privacy" variant="body2" color="text.secondary">
+            Privacy policy
+          </MuiLink>
         </Box>
       </Card>
     </Container>

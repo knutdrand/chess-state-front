@@ -1,8 +1,9 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "FastAPI",
-    "version": "0.1.0"
+    "title": "Chess State API",
+    "description": "API for Chess State application",
+    "version": "1.0.0"
   },
   "paths": {
     "/api/token": {
@@ -79,6 +80,43 @@
             }
           }
         }
+      }
+    },
+    "/api/account/delete": {
+      "post": {
+        "summary": "Delete My Account",
+        "description": "Permanently delete the logged-in user's account and data (asks for the password again).",
+        "operationId": "delete_my_account_api_account_delete_post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_delete_my_account_api_account_delete_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
       }
     },
     "/api/ping": {
@@ -247,56 +285,6 @@
             "OAuth2PasswordBearer": []
           }
         ]
-      }
-    },
-    "/api/update_player/{username}": {
-      "post": {
-        "summary": "Update Player",
-        "operationId": "update_player_api_update_player__username__post",
-        "parameters": [
-          {
-            "name": "username",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Username"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "prefixItems": [
-                    {
-                      "type": "number"
-                    },
-                    {
-                      "type": "number"
-                    }
-                  ],
-                  "minItems": 2,
-                  "maxItems": 2,
-                  "title": "Response Update Player Api Update Player  Username  Post"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
       }
     },
     "/api/list-courses": {
@@ -862,23 +850,6 @@
         }
       }
     },
-    "/api/attempts/export": {
-      "get": {
-        "summary": "Export Attempts",
-        "description": "Export all attempts for ML service training. Returns JSON array ordered by timestamp.",
-        "operationId": "export_attempts_api_attempts_export_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/courses/{course_id}/tree": {
       "get": {
         "summary": "Get Course Tree",
@@ -920,6 +891,8 @@
             "required": false,
             "schema": {
               "type": "integer",
+              "maximum": 8,
+              "minimum": 0,
               "default": 3,
               "title": "Max Depth"
             }
@@ -949,16 +922,21 @@
         }
       }
     },
-    "/api/sentry-debug": {
+    "/api/health": {
       "get": {
-        "summary": "Trigger Error",
-        "operationId": "trigger_error_api_sentry_debug_get",
+        "summary": "Health",
+        "description": "Liveness + DB check, for Docker healthchecks and uptime monitoring.",
+        "operationId": "health_api_health_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Health Api Health Get"
+                }
               }
             }
           }
@@ -1028,6 +1006,19 @@
           "file"
         ],
         "title": "Body_add_chapters_api_courses__course_id__chapters_post"
+      },
+      "Body_delete_my_account_api_account_delete_post": {
+        "properties": {
+          "password": {
+            "type": "string",
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "password"
+        ],
+        "title": "Body_delete_my_account_api_account_delete_post"
       },
       "Body_login_for_access_token_api_token_post": {
         "properties": {
@@ -1578,14 +1569,7 @@
             "title": "Correct Move"
           },
           "success_probability": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "number",
             "title": "Success Probability"
           },
           "comment": {
@@ -1611,6 +1595,7 @@
         "required": [
           "fen",
           "correct_move",
+          "success_probability",
           "opponent_responses"
         ],
         "title": "TreeNode"

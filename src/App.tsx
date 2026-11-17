@@ -10,6 +10,7 @@ import { useAuthStore } from './stores/authStore';
 import { NotificationProvider } from './hooks/useNotification';
 import { LoadingFallback } from './components/LoadingFallback';
 
+const PrivacyPolicy = lazy(() => import('./features/legal/PrivacyPolicy'));
 const ExampleExploration = lazy(() =>
   import('./features/exploration/Exploration2').then((m) => ({ default: m.ExampleExploration }))
 );
@@ -37,6 +38,7 @@ const App = () => {
               <Routes>
                 <Route path='/' element={<UserNameToGameScreen />} />
                 <Route path='/register' element={<Register />} />
+                <Route path='/privacy' element={<PrivacyPolicy />} />
                 <Route path='/exploration' element={<ExampleExploration/>} />
               </Routes>
             </Suspense>

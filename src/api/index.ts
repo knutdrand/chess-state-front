@@ -10,6 +10,7 @@ export type { OpenAPIConfig } from './core/OpenAPI';
 export type { AddResourceCourseRequest } from './models/AddResourceCourseRequest';
 export type { AvailableCourse } from './models/AvailableCourse';
 export type { Body_add_chapters_api_courses__course_id__chapters_post } from './models/Body_add_chapters_api_courses__course_id__chapters_post';
+export type { Body_delete_my_account_api_account_delete_post } from './models/Body_delete_my_account_api_account_delete_post';
 export type { Body_login_for_access_token_api_token_post } from './models/Body_login_for_access_token_api_token_post';
 export type { Body_register_user_api_register_post } from './models/Body_register_user_api_register_post';
 export type { ChapterModel } from './models/ChapterModel';

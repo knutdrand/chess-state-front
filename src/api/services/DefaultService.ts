@@ -5,6 +5,7 @@
 import type { AddResourceCourseRequest } from '../models/AddResourceCourseRequest';
 import type { AvailableCourse } from '../models/AvailableCourse';
 import type { Body_add_chapters_api_courses__course_id__chapters_post } from '../models/Body_add_chapters_api_courses__course_id__chapters_post';
+import type { Body_delete_my_account_api_account_delete_post } from '../models/Body_delete_my_account_api_account_delete_post';
 import type { Body_login_for_access_token_api_token_post } from '../models/Body_login_for_access_token_api_token_post';
 import type { Body_register_user_api_register_post } from '../models/Body_register_user_api_register_post';
 import type { ChapterModel } from '../models/ChapterModel';
@@ -60,6 +61,27 @@ export class DefaultService {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/register',
+            formData: formData,
+            mediaType: 'application/x-www-form-urlencoded',
+            errors: {
+                422: `Validation Error`,
+            },
+        });
+    }
+
+    /**
+     * Delete My Account
+     * Permanently delete the logged-in user's account and data (asks for the password again).
+     * @param formData
+     * @returns void
+     * @throws ApiError
+     */
+    public static deleteMyAccountApiAccountDeletePost(
+        formData: Body_delete_my_account_api_account_delete_post,
+    ): CancelablePromise<void> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/account/delete',
             formData: formData,
             mediaType: 'application/x-www-form-urlencoded',
             errors: {
@@ -146,27 +168,6 @@ export class DefaultService {
             url: '/api/move',
             body: requestBody,
             mediaType: 'application/json',
-            errors: {
-                422: `Validation Error`,
-            },
-        });
-    }
-
-    /**
-     * Update Player
-     * @param username
-     * @returns any[] Successful Response
-     * @throws ApiError
-     */
-    public static updatePlayerApiUpdatePlayerUsernamePost(
-        username: string,
-    ): CancelablePromise<any[]> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/api/update_player/{username}',
-            path: {
-                'username': username,
-            },
             errors: {
                 422: `Validation Error`,
             },
@@ -432,19 +433,6 @@ export class DefaultService {
     }
 
     /**
-     * Export Attempts
-     * Export all attempts for ML service training. Returns JSON array ordered by timestamp.
-     * @returns any Successful Response
-     * @throws ApiError
-     */
-    public static exportAttemptsApiAttemptsExportGet(): CancelablePromise<any> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/api/attempts/export',
-        });
-    }
-
-    /**
      * Get Course Tree
      * @param courseId
      * @param chapterId
@@ -474,14 +462,15 @@ export class DefaultService {
     }
 
     /**
-     * Trigger Error
+     * Health
+     * Liveness + DB check, for Docker healthchecks and uptime monitoring.
      * @returns any Successful Response
      * @throws ApiError
      */
-    public static triggerErrorApiSentryDebugGet(): CancelablePromise<any> {
+    public static healthApiHealthGet(): CancelablePromise<Record<string, any>> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/sentry-debug',
+            url: '/api/health',
         });
     }
 

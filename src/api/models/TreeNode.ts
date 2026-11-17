@@ -8,7 +8,7 @@ import type { OpponentResponse } from './OpponentResponse';
 export type TreeNode = {
     fen: string;
     correct_move: string;
-    success_probability?: (number | null);
+    success_probability: number;
     comment?: (string | null);
     opponent_responses: Array<OpponentResponse>;
 };
