@@ -30,6 +30,8 @@
     "generate-api": "npx openapi-typescript-codegen --input ./openapi.json --output ./src/api --client axios --request ./custom-request.ts",
     "start": "npm run generate-api && react-scripts start",
     "build": "npm run generate-api && react-scripts build",
+    "test": "react-scripts test",
+    "lint": "eslint --max-warnings=0 src",
     "typecheck": "tsc --noEmit",
     "preview": "REACT_APP_PREVIEW=true react-scripts start"
   },
