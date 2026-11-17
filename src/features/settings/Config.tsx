@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Box, TextField, Button, Alert, Typography, Link } from '@mui/material';
 import { DeleteAccount } from './DeleteAccount';
+import { DailyReminder } from './DailyReminder';
 import { DefaultService } from '../../api';
 
 const Config = () => {
@@ -81,6 +82,7 @@ const Config = () => {
           {message}
         </Alert>
       )}
+      <DailyReminder />
       <DeleteAccount />
       <Typography variant="body2" sx={{ mt: 3, textAlign: 'center' }}>
         <Link href="/privacy">Privacy policy</Link>

@@ -4,6 +4,7 @@ import { DefaultService } from "../api";
 import { useNotification } from "./useNotification";
 import { getErrorStatus, isUnauthorized } from "../utils/errors";
 import { useGameStore } from "../stores/gameStore";
+import { moveFeedback } from "../native/feedback";
 
 type SquareStyles = Record<string, Record<string, string>>;
 
@@ -99,6 +100,7 @@ export function useGameLogic() {
 
           const newGameCopy = new Chess(currentGameState.fen);
 
+          moveFeedback(response.state.mode !== "show");
           if (response.state.mode === "show") {
             const showMove = newGameCopy.move(response.correct_move);
             setShowSquares([showMove.from, showMove.to]);

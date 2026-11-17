@@ -7,10 +7,12 @@ import { Info } from "./Info";
 import { ApiExploration } from "../exploration/ExplorationModern";
 import { useUiStore } from "../../stores/uiStore";
 import { useGameLogic } from "../../hooks/useGameLogic";
+import { useKeepAwake } from "../../native/useKeepAwake";
 
 export function GameScreen() {
   const boardWidth = useUiStore((s) => s.boardWidth);
   const orientation = useUiStore((s) => s.screenOrientation);
+  useKeepAwake();
   const setActiveTab = useUiStore((s) => s.setActiveTab);
 
   const {

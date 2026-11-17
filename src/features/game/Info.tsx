@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { Close, ExpandMore, OpenInFull } from "@mui/icons-material";
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useBackHandler } from "../../native/useBackHandler";
 
 interface InfoProps {
   mode: string;
@@ -43,6 +44,8 @@ export function Info({ mode, link, onExplanation, animationKey = 0 }: InfoProps)
   const [expanded, setExpanded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
   const textBoxRef = useRef<HTMLDivElement>(null);
+  const closeExpanded = useCallback(() => setExpanded(false), []);
+  useBackHandler(expanded, closeExpanded);
   const theme = useTheme();
   const fullScreenDialog = useMediaQuery(theme.breakpoints.down("sm"));
 

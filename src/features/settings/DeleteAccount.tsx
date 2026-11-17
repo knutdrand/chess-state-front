@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
+import { useBackHandler } from "../../native/useBackHandler";
 import {
   Alert,
   Box,
@@ -44,12 +45,13 @@ export function DeleteAccount() {
     },
   });
 
-  const close = () => {
+  const close = useCallback(() => {
     if (mutation.isPending) return;
     setOpen(false);
     setPassword("");
     setError(null);
-  };
+  }, [mutation.isPending]);
+  useBackHandler(open, close);
 
   return (
     <Box sx={{ mt: 4, pt: 2, borderTop: 1, borderColor: "divider" }}>
