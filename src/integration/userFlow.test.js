@@ -1,14 +1,11 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
 import App from '../App';
 import { useAuthStore } from '../stores/authStore';
 import { useGameStore } from '../stores/gameStore';
 import { useUiStore } from '../stores/uiStore';
 import {
   createMockJWTToken,
-  createMockInitResponse,
-  createMockMoveResponse,
   setupCommonMocks,
   cleanupMocks
 } from '../utils/testUtils';
@@ -30,13 +27,21 @@ jest.mock('axios', () => {
     default: {
       ...mockAxiosInstance,
       create: jest.fn(() => mockAxiosInstance),
+      isAxiosError: (e) => Boolean(e && e.isAxiosError),
     },
+    isAxiosError: (e) => Boolean(e && e.isAxiosError),
     post: jest.fn(),
     get: jest.fn(),
     put: jest.fn(),
     delete: jest.fn(),
   };
 });
+
+// react-d3-tree pulls in ESM-only d3 packages that Jest cannot parse
+jest.mock('react-d3-tree', () => ({
+  __esModule: true,
+  default: () => <div data-testid="tree" />,
+}));
 
 // Mock jwt-decode
 jest.mock('jwt-decode', () => ({
@@ -84,6 +89,15 @@ jest.mock('../api', () => ({
 const { jwtDecode } = require('jwt-decode');
 const { Chess } = require('chess.js');
 const { DefaultService } = require('../api');
+const axios = require('axios').default;
+// '../api' is mocked, so load httpClient explicitly to register its interceptors.
+require('../httpClient');
+
+// The 401 handler httpClient registers on its axios instance at import time.
+// Captured here, before any beforeEach/afterEach clears mock call records.
+const httpClientInstance = axios.create.mock.results[0].value;
+const responseErrorInterceptor =
+  httpClientInstance.interceptors.response.use.mock.calls[0][1];
 
 describe('User Flow Integration Tests', () => {
   let mockChessInstance;
@@ -201,9 +215,12 @@ describe('User Flow Integration Tests', () => {
     };
     DefaultService.initApiInitGet.mockResolvedValue(initResponse);
 
-    // Mock authentication error on move
-    const authError = { response: { status: 401 } };
-    DefaultService.moveApiMovePost.mockRejectedValue(authError);
+    // Mock authentication error on move: simulate the request going through
+    // httpClient's response interceptor, as the generated client does.
+    const authError = { isAxiosError: true, response: { status: 401 } };
+    DefaultService.moveApiMovePost.mockImplementation(() =>
+      responseErrorInterceptor(authError)
+    );
 
     render(<App />);
 

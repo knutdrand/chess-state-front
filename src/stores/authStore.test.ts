@@ -65,4 +65,39 @@ describe('authStore', () => {
 
     expect(useAuthStore.getState().token).toBeNull();
   });
+
+  test('logs out automatically when the token expires', () => {
+    jest.useFakeTimers();
+    try {
+      const nowSec = Math.floor(Date.now() / 1000);
+      mockedJwtDecode.mockReturnValue({ sub: 'testuser', exp: nowSec + 60 });
+
+      useAuthStore.getState().setToken('expiring-token');
+      expect(useAuthStore.getState().token).toBe('expiring-token');
+
+      jest.advanceTimersByTime(61 * 1000);
+
+      expect(useAuthStore.getState().token).toBeNull();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  test('manual logout cancels the expiry timer', () => {
+    jest.useFakeTimers();
+    try {
+      const nowSec = Math.floor(Date.now() / 1000);
+      mockedJwtDecode.mockReturnValue({ sub: 'testuser', exp: nowSec + 60 });
+
+      useAuthStore.getState().setToken('first-token');
+      useAuthStore.getState().logout();
+      useAuthStore.setState({ token: 'other-token' });
+
+      jest.advanceTimersByTime(61 * 1000);
+
+      expect(useAuthStore.getState().token).toBe('other-token');
+    } finally {
+      jest.useRealTimers();
+    }
+  });
 });
