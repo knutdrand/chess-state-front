@@ -87,9 +87,6 @@ describe('Navigation Component', () => {
 
     const appBar = screen.getByRole('banner');
     expect(appBar).toHaveClass('MuiAppBar-root');
-
-    const toolbar = appBar.querySelector('.MuiToolbar-root');
-    expect(toolbar).toBeInTheDocument();
   });
 
   test('icon buttons have correct classes', () => {

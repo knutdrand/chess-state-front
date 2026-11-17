@@ -27,7 +27,7 @@ const example_props: ExplorationProps = {
 
 export function Exploration(props: ExplorationProps): React.ReactElement {
   props = {...example_props, ...props};
-  const [activePosition, _setActivePosition] = useState(props.activePosition);
+  const [activePosition] = useState(props.activePosition);
   return (
     <div>
     <Chessboard

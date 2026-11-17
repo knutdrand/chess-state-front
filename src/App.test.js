@@ -1,5 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { render, screen } from '@testing-library/react';
 import App from './App';
 import { useAuthStore } from './stores/authStore';
 

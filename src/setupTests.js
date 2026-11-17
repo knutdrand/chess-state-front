@@ -31,7 +31,6 @@ afterEach(() => {
 
 // Mock IntersectionObserver for components that might use it
 global.IntersectionObserver = class IntersectionObserver {
-  constructor() {}
   disconnect() {}
   observe() {}
   unobserve() {}
@@ -39,7 +38,6 @@ global.IntersectionObserver = class IntersectionObserver {
 
 // Mock ResizeObserver for components that might use it
 global.ResizeObserver = class ResizeObserver {
-  constructor() {}
   disconnect() {}
   observe() {}
   unobserve() {}
