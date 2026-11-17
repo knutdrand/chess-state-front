@@ -11,7 +11,10 @@ import { LoadingFallback } from "./LoadingFallback";
 const Courses = lazy(() => import('../features/courses/Courses'));
 
 
+// Smallest explanation panel next to the board: below it in portrait,
+// beside it in landscape. The page itself never scrolls.
 const minInfoHeight = 128;
+const minInfoWidth = 280;
 
 export function MainScreen() {
   const activeTab = useUiStore((s) => s.activeTab);
@@ -24,11 +27,14 @@ export function MainScreen() {
     const vh = window.innerHeight;
     setViewportHeight(vh);
     const navH = navRef.current ? navRef.current.offsetHeight : 64;
-    const maxBoardHeight = vh - navH - minInfoHeight;
-    const maxBoardWidth = window.innerWidth;
-    const newBoardWidth = Math.min(maxBoardHeight, maxBoardWidth);
-    setBoardWidth(newBoardWidth);
-    setScreenOrientation('column');
+    const vw = window.innerWidth;
+    const available = vh - navH;
+    // Landscape when a board-beside-panel layout gives a bigger board.
+    const columnBoard = Math.min(available - minInfoHeight, vw);
+    const rowBoard = Math.min(available, vw - minInfoWidth);
+    const landscape = rowBoard > columnBoard;
+    setBoardWidth(Math.max(0, Math.floor(landscape ? rowBoard : columnBoard)));
+    setScreenOrientation(landscape ? 'row' : 'column');
   }, [setBoardWidth, setScreenOrientation]);
 
   useEffect(() => {

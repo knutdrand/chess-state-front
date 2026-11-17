@@ -10,6 +10,7 @@ import { useGameLogic } from "../../hooks/useGameLogic";
 
 export function GameScreen() {
   const boardWidth = useUiStore((s) => s.boardWidth);
+  const orientation = useUiStore((s) => s.screenOrientation);
   const setActiveTab = useUiStore((s) => s.setActiveTab);
 
   const {
@@ -76,8 +77,16 @@ export function GameScreen() {
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
-      <Box sx={{ width: boardWidth, height: boardWidth, margin: "0 auto" }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: orientation === "row" ? "row" : "column",
+        justifyContent: orientation === "row" ? "center" : "flex-start",
+        height: "100%",
+        overflow: "hidden",
+      }}
+    >
+      <Box sx={{ width: boardWidth, height: boardWidth, flexShrink: 0, mx: orientation === "row" ? 0 : "auto" }}>
         <Chessboard
           position={position ?? undefined}
           onPieceDrop={onDrop}
@@ -97,7 +106,19 @@ export function GameScreen() {
         />
       </Box>
 
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0, px: 1 }}>
+      <Box
+        sx={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          minHeight: 0,
+          minWidth: 0,
+          maxWidth: orientation === "row" ? 560 : "none",
+          p: 1,
+          boxSizing: "border-box",
+        }}
+      >
         <Info
           link={explanation}
           mode={gameState?.mode || "play"}

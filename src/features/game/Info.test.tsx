@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Info } from './Info';
 
 describe('Info Component', () => {
@@ -107,5 +107,42 @@ describe('Info Component', () => {
 
     expect(screen.getByRole('button')).toHaveClass('MuiButton-root');
     expect(screen.getByRole('link', { name: 'View in Chessable' })).toHaveClass('MuiTypography-root');
+  });
+});
+
+describe('Info explanation overflow', () => {
+  const longText = 'A long explanation. '.repeat(300);
+  let restore: () => void;
+
+  beforeEach(() => {
+    // jsdom has no layout: pretend the text is taller than its panel.
+    const sh = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollHeight');
+    const ch = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight');
+    Object.defineProperty(HTMLElement.prototype, 'scrollHeight', { configurable: true, get: () => 2000 });
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, get: () => 200 });
+    restore = () => {
+      // jsdom defines these on Element.prototype; drop our overrides (or put back any original).
+      if (sh) Object.defineProperty(HTMLElement.prototype, 'scrollHeight', sh);
+      else delete (HTMLElement.prototype as { scrollHeight?: number }).scrollHeight;
+      if (ch) Object.defineProperty(HTMLElement.prototype, 'clientHeight', ch);
+      else delete (HTMLElement.prototype as { clientHeight?: number }).clientHeight;
+    };
+  });
+  afterEach(() => restore());
+
+  test('long text can be expanded into a dialog and closed again', async () => {
+    render(<Info mode="show" link={longText} onExplanation={vi.fn()} />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Show full explanation' }));
+    const dialog = await screen.findByRole('dialog');
+    expect(dialog).toHaveTextContent('Not quite: play the shown move');
+    expect(screen.getByRole('button', { name: 'Close explanation' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Back to the board' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+
+  test('short text has no expand control', () => {
+    restore();
+    render(<Info mode="play" link="Short." onExplanation={vi.fn()} />);
+    expect(screen.queryByRole('button', { name: 'Show full explanation' })).not.toBeInTheDocument();
   });
 });
