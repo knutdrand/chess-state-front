@@ -22,6 +22,7 @@ export function useGameLogic() {
   const setGameState = useGameStore((s) => s.setGameState);
 
   const [loading, setLoading] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [recieveTimeStamp, setRecieveTimeStamp] = useState<number | null>(null);
   const [explanation, setExplanation] = useState<string | null>(null);
   const [infoAnimationKey, setInfoAnimationKey] = useState(0);
@@ -46,6 +47,7 @@ export function useGameLogic() {
 
   const initGame = useCallback(async () => {
     setLoading(true);
+    setLoadFailed(false);
     try {
       const response = await DefaultService.initApiInitGet();
       setGameState(response);
@@ -58,14 +60,13 @@ export function useGameLogic() {
       setRecieveTimeStamp(Date.now());
     } catch (err: unknown) {
       console.error("Error initializing game:", err);
-      // 401s are handled globally by the httpClient interceptor.
-      if (!isUnauthorized(err)) {
-        notifyError("Could not load a position. Please try again.");
-      }
+      // 401s are handled globally by the httpClient interceptor (logout).
+      // Otherwise GameScreen shows a retry screen; don't claim there are no courses.
+      if (!isUnauthorized(err)) setLoadFailed(true);
     } finally {
       setLoading(false);
     }
-  }, [setGameState, setPosition, notifyError]);
+  }, [setGameState, setPosition]);
 
   useEffect(() => {
     if (!position) {
@@ -192,6 +193,8 @@ export function useGameLogic() {
     position,
     gameState,
     loading,
+    loadFailed,
+    retryInit: initGame,
     explanation,
     infoAnimationKey,
     showExploration,

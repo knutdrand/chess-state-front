@@ -210,6 +210,24 @@ describe('GameScreen Component', () => {
     console.error.mockRestore();
   });
 
+  test('a failed load offers a retry instead of claiming there are no courses', async () => {
+    const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    DefaultService.initApiInitGet
+      .mockRejectedValueOnce(new Error('Network Error'))
+      .mockResolvedValueOnce({ fen, mode: 'play' });
+
+    render(<GameScreen />);
+
+    expect(await screen.findByText("Couldn't load a position")).toBeInTheDocument();
+    expect(screen.queryByText('Add a course to start training')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(await screen.findByTestId('chessboard')).toBeInTheDocument();
+    expect(DefaultService.initApiInitGet).toHaveBeenCalledTimes(2);
+    console.error.mockRestore();
+  });
+
   test('shows an add-a-course screen for accounts without courses', async () => {
     DefaultService.initApiInitGet.mockResolvedValue({
       fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',

@@ -21,6 +21,8 @@ export function GameScreen() {
     position,
     gameState,
     loading,
+    loadFailed,
+    retryInit,
     explanation,
     infoAnimationKey,
     showExploration,
@@ -42,6 +44,33 @@ export function GameScreen() {
   }, [setShowExploration]);
 
   if (loading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!position && !loading && loadFailed) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", p: 4 }}>
+        <Box sx={{ textAlign: "center", maxWidth: 420 }}>
+          <Typography variant="h6" gutterBottom>
+            Couldn't load a position
+          </Typography>
+          <Typography color="text.secondary" sx={{ mb: 3 }}>
+            Check your connection and try again. Your courses and progress are safe.
+          </Typography>
+          <Button variant="contained" onClick={() => retryInit()}>
+            Try again
+          </Button>
+        </Box>
+      </Box>
+    );
+  }
+
+  if (!position && !loading && gameState?.mode !== "empty") {
+    // Nothing loaded yet (first render before /init starts).
     return (
       <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
         <CircularProgress />
