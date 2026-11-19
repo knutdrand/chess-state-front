@@ -5,6 +5,7 @@ import Config from "../features/settings/Config";
 import {Navigation} from "./Navigation";
 import { Alert, Box, Snackbar } from "@mui/material";
 import { useOnlineStatus } from "../hooks/useOnlineStatus";
+import { boardPadding } from "./layout";
 import { useUiStore } from '../stores/uiStore';
 import { LoadingFallback } from "./LoadingFallback";
 
@@ -36,8 +37,9 @@ export function MainScreen() {
     const px = (v: string | undefined) => (v ? parseFloat(v) || 0 : 0);
     const insetY = cs ? px(cs.paddingTop) + px(cs.paddingBottom) : 0;
     const insetX = cs ? px(cs.paddingLeft) + px(cs.paddingRight) : 0;
-    const vw = window.innerWidth - insetX;
-    const available = vh - insetY - navH;
+    const pad = 2 * boardPadding();
+    const vw = window.innerWidth - insetX - pad;
+    const available = vh - insetY - navH - pad;
     // Landscape when a board-beside-panel layout gives a bigger board.
     const columnBoard = Math.min(available - minInfoHeight, vw);
     const rowBoard = Math.min(available, vw - minInfoWidth);

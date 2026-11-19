@@ -8,6 +8,7 @@ import { ApiExploration } from "../exploration/ExplorationModern";
 import { useUiStore } from "../../stores/uiStore";
 import { useGameLogic } from "../../hooks/useGameLogic";
 import { useKeepAwake } from "../../native/useKeepAwake";
+import { boardPadding } from "../../components/layout";
 
 export function GameScreen() {
   const boardWidth = useUiStore((s) => s.boardWidth);
@@ -88,7 +89,16 @@ export function GameScreen() {
         overflow: "hidden",
       }}
     >
-      <Box sx={{ width: boardWidth, height: boardWidth, flexShrink: 0, mx: orientation === "row" ? 0 : "auto" }}>
+      <Box
+        sx={{
+          width: boardWidth,
+          height: boardWidth,
+          p: `${boardPadding()}px`,
+          boxSizing: "content-box",
+          flexShrink: 0,
+          mx: orientation === "row" ? 0 : "auto",
+        }}
+      >
         <Chessboard
           position={position ?? undefined}
           onPieceDrop={onDrop}
