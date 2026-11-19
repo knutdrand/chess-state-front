@@ -15,6 +15,7 @@ import {
   useTheme,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import { DefaultService } from "../../api";
 import type { CourseTreeResponse, TreeNode } from "../../api";
 import { playerMoveLabel, replyLabel, strengthColor, strengthLabel } from "./treeLabels";
@@ -79,6 +80,20 @@ function toTree(data: CourseTreeResponse): NodeData | null {
   };
 }
 
+/** For each node, the moves from the view root (exclusive) down to that node (inclusive). */
+function trails(root: NodeData): Map<string, Crumb[]> {
+  const out = new Map<string, Crumb[]>();
+  const walk = (node: NodeData, trail: Crumb[]) => {
+    for (const child of node.children ?? []) {
+      const t = [...trail, { fen: child.attributes.fen, label: child.attributes.move }];
+      if (!out.has(child.attributes.fen)) out.set(child.attributes.fen, t);
+      walk(child, t);
+    }
+  };
+  walk(root, []);
+  return out;
+}
+
 function shape(node: NodeData): { depth: number; leaves: number } {
   if (!node.children?.length) return { depth: 1, leaves: 1 };
   const kids = node.children.map(shape);
@@ -117,15 +132,23 @@ const TreeExplorer: React.FC<TreeExplorerProps> = ({ courseId, onExit }) => {
   });
 
   const tree = useMemo(() => (data ? toTree(data) : null), [data]);
+  const trailByFen = useMemo(() => (tree ? trails(tree) : new Map<string, Crumb[]>()), [tree]);
   const playerColor = data?.player_color === "black" ? "black" : "white";
 
   useEffect(() => {
     if (tree) setSelected({ fen: tree.attributes.fen || tree.children?.[0]?.attributes.fen || "", comment: tree.attributes.comment });
   }, [tree]);
 
-  const openLine = useCallback((node: NodeData) => {
-    setPath((p) => [...p, { fen: node.attributes.fen, label: node.attributes.move }]);
-  }, []);
+  // Record every move on the way down, so "one level up" means the parent move,
+  // not the previous view (› can jump several moves at once).
+  const openLine = useCallback(
+    (node: NodeData) => {
+      const trail = trailByFen.get(node.attributes.fen) ?? [{ fen: node.attributes.fen, label: node.attributes.move }];
+      setPath((p) => [...p, ...trail]);
+    },
+    [trailByFen],
+  );
+  const levelUp = useCallback(() => setPath((p) => (p.length > 1 ? p.slice(0, -1) : p)), []);
 
   // Fit the whole view into the panel (shrink only), root at the left, centred vertically.
   const { zoom, translate } = useMemo(() => {
@@ -219,6 +242,13 @@ const TreeExplorer: React.FC<TreeExplorerProps> = ({ courseId, onExit }) => {
           <IconButton onClick={onExit} size="small" aria-label="Back to courses">
             <ArrowBackIcon />
           </IconButton>
+        </Tooltip>
+        <Tooltip title={path.length > 1 ? "One level up" : "Already at the start of the course"}>
+          <span>
+            <IconButton onClick={levelUp} size="small" aria-label="One level up" disabled={path.length <= 1}>
+              <ArrowUpwardIcon />
+            </IconButton>
+          </span>
         </Tooltip>
         <Breadcrumbs maxItems={5} sx={{ minWidth: 0, overflow: "hidden" }} aria-label="Line">
           {path.map((crumb, i) =>
