@@ -892,10 +892,28 @@
             "schema": {
               "type": "integer",
               "maximum": 8,
-              "minimum": 0,
+              "minimum": 1,
               "default": 3,
               "title": "Max Depth"
             }
+          },
+          {
+            "name": "fen",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Start the tree at this position (to explore a sub-line)",
+              "title": "Fen"
+            },
+            "description": "Start the tree at this position (to explore a sub-line)"
           }
         ],
         "responses": {
@@ -1596,6 +1614,11 @@
             },
             "type": "array",
             "title": "Opponent Responses"
+          },
+          "has_more": {
+            "type": "boolean",
+            "title": "Has More",
+            "default": false
           }
         },
         "type": "object",

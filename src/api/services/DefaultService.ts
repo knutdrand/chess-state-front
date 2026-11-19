@@ -437,6 +437,7 @@ export class DefaultService {
      * @param courseId
      * @param chapterId
      * @param maxDepth
+     * @param fen Start the tree at this position (to explore a sub-line)
      * @returns CourseTreeResponse Successful Response
      * @throws ApiError
      */
@@ -444,6 +445,7 @@ export class DefaultService {
         courseId: number,
         chapterId?: (number | null),
         maxDepth: number = 3,
+        fen?: (string | null),
     ): CancelablePromise<CourseTreeResponse> {
         return __request(OpenAPI, {
             method: 'GET',
@@ -454,6 +456,7 @@ export class DefaultService {
             query: {
                 'chapter_id': chapterId,
                 'max_depth': maxDepth,
+                'fen': fen,
             },
             errors: {
                 422: `Validation Error`,

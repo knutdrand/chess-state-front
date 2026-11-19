@@ -11,5 +11,6 @@ export type TreeNode = {
     success_probability?: (number | null);
     comment?: (string | null);
     opponent_responses: Array<OpponentResponse>;
+    has_more?: boolean;
 };
 
