@@ -9,5 +9,6 @@ export type Player = {
     rating_range?: (number | null);
     do_puzzles?: boolean;
     allowed_mistakes?: number;
+    focus_fen?: (string | null);
 };
 

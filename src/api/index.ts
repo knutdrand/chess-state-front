@@ -18,6 +18,8 @@ export type { CourseInfo } from './models/CourseInfo';
 export type { CourseModel } from './models/CourseModel';
 export type { CourseTreeResponse } from './models/CourseTreeResponse';
 export type { ExplanationResponse } from './models/ExplanationResponse';
+export type { FocusRequest } from './models/FocusRequest';
+export type { FocusResponse } from './models/FocusResponse';
 export type { HTTPValidationError } from './models/HTTPValidationError';
 export type { Move } from './models/Move';
 export type { MoveResponse } from './models/MoveResponse';

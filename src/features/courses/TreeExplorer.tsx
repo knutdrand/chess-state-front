@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Box,
   Breadcrumbs,
+  Chip,
   CircularProgress,
   IconButton,
   Link,
@@ -17,6 +18,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { DefaultService } from "../../api";
 import type { CourseTreeResponse, TreeNode } from "../../api";
 import { playerMoveLabel, replyLabel, strengthColor, strengthLabel } from "./treeLabels";
+import { useFocus } from "../../hooks/useFocus";
 
 interface TreeExplorerProps {
   courseId: number;
@@ -28,8 +30,8 @@ interface TreeExplorerProps {
  * Two on phones, so the tree fits at a readable size instead of shrinking.
  */
 const viewDepth = () => (typeof window !== "undefined" && window.innerWidth < 600 ? 2 : 3);
-const NODE_W = 150;
-const NODE_H = 46;
+const NODE_W = 156;
+const NODE_H = 62;
 const GAP_X = 70; // horizontal room for the connector lines
 const GAP_Y = 18;
 
@@ -106,6 +108,7 @@ const TreeExplorer: React.FC<TreeExplorerProps> = ({ courseId, onExit }) => {
   const [selected, setSelected] = useState<{ fen: string; comment: string } | null>(null);
   const [treeBox, treeSize] = useElementSize<HTMLDivElement>();
   const [sideBox, sideSize] = useElementSize<HTMLDivElement>();
+  const { focus, label: focusLabel, setFocus, clearFocus, busy: focusBusy } = useFocus();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["courseTree", courseId, viewFen, depth],
@@ -140,6 +143,7 @@ const TreeExplorer: React.FC<TreeExplorerProps> = ({ courseId, onExit }) => {
     muted: theme.palette.text.secondary,
     border: theme.palette.divider,
     selected: theme.palette.primary.main,
+    focus: theme.palette.secondary.main,
   };
 
   const renderNode = ({ nodeDatum }: { nodeDatum: RawNodeDatum }) => {
@@ -147,43 +151,55 @@ const TreeExplorer: React.FC<TreeExplorerProps> = ({ courseId, onExit }) => {
     const a = node.attributes;
     const prob = a.probability < 0 ? null : a.probability;
     const isSelected = selected?.fen === a.fen && a.fen !== "";
+    const isFocused = focus?.fen === a.fen && a.fen !== "";
     const select = () => a.fen && setSelected({ fen: a.fen, comment: a.comment });
+    const left = -NODE_W / 2 + 14;
+    const top = -NODE_H / 2;
     return (
       <g>
         <g onClick={select} style={{ cursor: a.fen ? "pointer" : "default" }}>
           <title>{a.comment ? `${a.move}: ${a.comment.slice(0, 200)}` : a.move}</title>
           <rect
             x={-NODE_W / 2}
-            y={-NODE_H / 2}
+            y={top}
             width={NODE_W}
             height={NODE_H}
             rx={8}
             fill={c.card}
-            stroke={isSelected ? c.selected : c.border}
-            strokeWidth={isSelected ? 2.5 : 1}
+            stroke={isFocused ? c.focus : isSelected ? c.selected : c.border}
+            strokeWidth={isFocused || isSelected ? 2.5 : 1}
           />
           {/* strength bar */}
-          <rect x={-NODE_W / 2} y={-NODE_H / 2} width={6} height={NODE_H} rx={3} fill={strengthColor(prob)} stroke="none" />
-          {a.reply ? (
-            <>
-              <text x={-NODE_W / 2 + 14} y={-4} fill={c.muted} stroke="none" fontSize={12}>
-                {a.reply}
-              </text>
-              <text x={-NODE_W / 2 + 14} y={14} fill={c.text} stroke="none" fontSize={15} fontWeight={700}>
-                {a.move}
-              </text>
-            </>
-          ) : (
-            <text x={-NODE_W / 2 + 14} y={5} fill={c.text} stroke="none" fontSize={15} fontWeight={700}>
-              {a.move}
+          <rect x={-NODE_W / 2} y={top} width={6} height={NODE_H} rx={3} fill={strengthColor(prob)} stroke="none" />
+          {a.reply && (
+            <text x={left} y={top + 17} fill={c.muted} stroke="none" fontSize={12}>
+              {a.reply}
             </text>
           )}
-          <text x={NODE_W / 2 - (a.canOpen ? 30 : 10)} y={5} textAnchor="end" fill={strengthColor(prob)} stroke="none" fontSize={12} fontWeight={600}>
+          <text x={left} y={a.reply ? top + 35 : top + 28} fill={c.text} stroke="none" fontSize={15} fontWeight={700}>
+            {a.move}
+          </text>
+          <text x={NODE_W / 2 - 10} y={top + 53} textAnchor="end" fill={strengthColor(prob)} stroke="none" fontSize={12} fontWeight={600}>
             {strengthLabel(prob)}
           </text>
         </g>
+        {a.fen &&
+          (isFocused ? (
+            <text x={left} y={top + 53} fill={c.focus} stroke="none" fontSize={12} fontWeight={700}>
+              ● Focused
+            </text>
+          ) : (
+            <g onClick={() => !focusBusy && setFocus(a.fen)} style={{ cursor: "pointer" }}>
+              <title>Practise only this line</title>
+              {/* generous invisible hit area around the small link */}
+              <rect x={left - 4} y={top + 40} width={52} height={20} fill="transparent" stroke="none" />
+              <text x={left} y={top + 53} fill={c.selected} stroke="none" fontSize={12} fontWeight={600} textDecoration="underline">
+                Focus
+              </text>
+            </g>
+          ))}
         {a.canOpen && (
-          <g onClick={() => openLine(node)} style={{ cursor: "pointer" }} transform={`translate(${NODE_W / 2 - 14}, 0)`}>
+          <g onClick={() => openLine(node)} style={{ cursor: "pointer" }} transform={`translate(${NODE_W / 2 - 16}, ${top + 22})`}>
             <title>Open this line</title>
             <circle r={11} fill={c.selected} stroke="none" />
             <path d="M -3 -5 L 3 0 L -3 5" fill="none" stroke="#fff" strokeWidth={2} strokeLinecap="round" />
@@ -285,6 +301,15 @@ const TreeExplorer: React.FC<TreeExplorerProps> = ({ courseId, onExit }) => {
             overflowY: "auto",
           }}
         >
+          {focus && (
+            <Chip
+              color="secondary"
+              label={`Focus: ${focusLabel}`}
+              onDelete={() => clearFocus()}
+              disabled={focusBusy}
+              sx={{ maxWidth: "100%" }}
+            />
+          )}
           {selected?.fen ? (
             <>
               <Box sx={{ width: boardSize }}>
@@ -302,7 +327,8 @@ const TreeExplorer: React.FC<TreeExplorerProps> = ({ courseId, onExit }) => {
             <Typography color="text.secondary">Click a move to see the position.</Typography>
           )}
           <Typography variant="caption" color="text.secondary" sx={{ textAlign: "center" }}>
-            Bar colour shows how well you know the move (red weak, green strong, grey new). Use › to open a line.
+            Bar colour shows how well you know the move (red weak, green strong, grey new). Use › to open a line,
+            and Focus to practise only that line.
           </Typography>
         </Box>
       </Box>

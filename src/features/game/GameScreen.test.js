@@ -51,6 +51,9 @@ vi.mock('./Info', () => ({
   ),
 }));
 
+// FocusChip has its own tests (FocusChip.test.tsx)
+vi.mock('./FocusChip', () => ({ FocusChip: () => null }));
+
 // Mock ApiExploration component
 vi.mock('../exploration/ExplorationModern', () => ({
   ApiExploration: ({ fen, onExit }) => (

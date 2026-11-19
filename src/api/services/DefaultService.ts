@@ -13,6 +13,8 @@ import type { CourseInfo } from '../models/CourseInfo';
 import type { CourseModel } from '../models/CourseModel';
 import type { CourseTreeResponse } from '../models/CourseTreeResponse';
 import type { ExplanationResponse } from '../models/ExplanationResponse';
+import type { FocusRequest } from '../models/FocusRequest';
+import type { FocusResponse } from '../models/FocusResponse';
 import type { Move } from '../models/Move';
 import type { MoveResponse } from '../models/MoveResponse';
 import type { Player } from '../models/Player';
@@ -171,6 +173,51 @@ export class DefaultService {
             errors: {
                 422: `Validation Error`,
             },
+        });
+    }
+
+    /**
+     * Get Focus
+     * @returns FocusResponse Successful Response
+     * @throws ApiError
+     */
+    public static getFocusApiFocusGet(): CancelablePromise<FocusResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/focus',
+        });
+    }
+
+    /**
+     * Set Focus
+     * Practise only the line from this position (must be in one of your enabled chapters).
+     * @param requestBody
+     * @returns FocusResponse Successful Response
+     * @throws ApiError
+     */
+    public static setFocusApiFocusPut(
+        requestBody: FocusRequest,
+    ): CancelablePromise<FocusResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/focus',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: `Validation Error`,
+            },
+        });
+    }
+
+    /**
+     * Clear Focus
+     * @returns FocusResponse Successful Response
+     * @throws ApiError
+     */
+    public static clearFocusApiFocusDelete(): CancelablePromise<FocusResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/focus',
         });
     }
 

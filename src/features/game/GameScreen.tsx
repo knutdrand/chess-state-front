@@ -4,6 +4,7 @@ import { Chessboard } from "react-chessboard";
 import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import SchoolIcon from "@mui/icons-material/School";
 import { Info } from "./Info";
+import { FocusChip } from "./FocusChip";
 import { ApiExploration } from "../exploration/ExplorationModern";
 import { useUiStore } from "../../stores/uiStore";
 import { useGameLogic } from "../../hooks/useGameLogic";
@@ -131,6 +132,7 @@ export function GameScreen() {
           boxSizing: "border-box",
         }}
       >
+        <FocusChip />
         <Info
           link={explanation}
           mode={gameState?.mode || "play"}

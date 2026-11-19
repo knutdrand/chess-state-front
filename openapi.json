@@ -287,6 +287,92 @@
         ]
       }
     },
+    "/api/focus": {
+      "get": {
+        "summary": "Get Focus",
+        "operationId": "get_focus_api_focus_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FocusResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "Set Focus",
+        "description": "Practise only the line from this position (must be in one of your enabled chapters).",
+        "operationId": "set_focus_api_focus_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FocusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FocusResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Clear Focus",
+        "operationId": "clear_focus_api_focus_delete",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FocusResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/api/list-courses": {
       "get": {
         "summary": "List Courses",
@@ -1298,6 +1384,48 @@
         ],
         "title": "ExplanationResponse"
       },
+      "FocusRequest": {
+        "properties": {
+          "fen": {
+            "type": "string",
+            "title": "Fen"
+          }
+        },
+        "type": "object",
+        "required": [
+          "fen"
+        ],
+        "title": "FocusRequest"
+      },
+      "FocusResponse": {
+        "properties": {
+          "fen": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fen"
+          },
+          "move": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Move"
+          }
+        },
+        "type": "object",
+        "title": "FocusResponse",
+        "description": "The line being practised exclusively, or nulls when there is no focus."
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -1431,6 +1559,17 @@
             "type": "integer",
             "title": "Allowed Mistakes",
             "default": 3
+          },
+          "focus_fen": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Focus Fen"
           }
         },
         "type": "object",
